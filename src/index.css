@@ -1,1 +1,37 @@
 @import "tailwindcss";
+
+@layer base {
+  :root {
+    --color-background: #ffffff;
+    --color-foreground: #0f0f0f;
+    --color-muted-foreground: #6b7280;
+    --color-border: #e5e7eb;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-background: #0f0f0f;
+      --color-foreground: #f9fafb;
+      --color-muted-foreground: #9ca3af;
+      --color-border: #1f2937;
+    }
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family:
+      system-ui,
+      -apple-system,
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+  #root {
+    min-height: 100vh;
+  }
+}
