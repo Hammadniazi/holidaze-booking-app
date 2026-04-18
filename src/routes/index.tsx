@@ -1,5 +1,6 @@
 import { RootLayout } from "@/layouts/RootLayout";
 import VenueListPage from "@/pages/VenueListPage";
+import { LoginPage } from "@/pages/LoginPage";
 import {
   createRouter,
   createRootRoute,
@@ -22,6 +23,42 @@ const indexRoute = createRoute({
   component: VenueListPage,
 });
 
-const routeTree = rootRoute.addChildren([indexRoute]);
+const loginRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/login",
+  component: LoginPage,
+});
+
+const registerRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/register",
+  component: () => (
+    <div className="p-10 text-center">Register page coming soon</div>
+  ),
+});
+
+const profileRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/profile",
+  component: () => (
+    <div className="p-10 text-center">Profile page coming soon</div>
+  ),
+});
+
+const dashboardRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/dashboard",
+  component: () => (
+    <div className="p-10 text-center">Dashboard page coming soon</div>
+  ),
+});
+
+const routeTree = rootRoute.addChildren([
+  indexRoute,
+  loginRoute,
+  registerRoute,
+  profileRoute,
+  dashboardRoute,
+]);
 
 export const router = createRouter({ routeTree });
