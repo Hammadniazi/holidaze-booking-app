@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 
 const Navbar = () => {
   return (
@@ -23,11 +23,11 @@ const Navbar = () => {
 
           {/* Auth buttons */}
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" render={<Link to="/login" />}>
-              Log in
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/login">Log in</Link>
             </Button>
-            <Button size="sm" render={<Link to="/register" />}>
-              Register
+            <Button size="sm" asChild>
+              <Link to="/register">Register</Link>
             </Button>
           </div>
         </div>
