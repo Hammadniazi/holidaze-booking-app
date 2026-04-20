@@ -1,20 +1,40 @@
-import * as React from "react"
-import { Input as InputPrimitive } from "@base-ui/react/input"
+import { forwardRef, type InputHTMLAttributes } from "react";
+import { cn } from "@/lib/utils";
 
-import { cn } from "@/lib/utils"
-
-function Input({ className, type, ...props }: React.ComponentProps<"input">) {
-  return (
-    <InputPrimitive
-      type={type}
-      data-slot="input"
-      className={cn(
-        "h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base transition-colors outline-none file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40",
-        className
-      )}
-      {...props}
-    />
-  )
+export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+  error?: string;
+  label?: string;
 }
 
-export { Input }
+export const Input = forwardRef<HTMLInputElement, InputProps>(
+  ({ className, error, label, id, ...props }, ref) => (
+    <div className="flex flex-col gap-1.5">
+      {label && (
+        <label
+          htmlFor={id}
+          className="text-sm font-medium text-[var(--color-foreground)]"
+        >
+          {label}
+        </label>
+      )}
+      <input
+        id={id}
+        ref={ref}
+        className={cn(
+          "flex h-10 w-full rounded-[var(--radius)] border border-[var(--color-input)]",
+          "bg-[var(--color-background)] px-3 py-2 text-sm",
+          "ring-offset-[var(--color-background)] placeholder:text-[var(--color-muted-foreground)]",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)]",
+          "disabled:cursor-not-allowed disabled:opacity-50",
+          error && "border-[var(--color-destructive)]",
+          className,
+        )}
+        {...props}
+      />
+      {error && (
+        <p className="text-xs text-[var(--color-destructive)]">{error}</p>
+      )}
+    </div>
+  ),
+);
+Input.displayName = "Input";
