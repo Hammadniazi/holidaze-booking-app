@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { loginSchema, type LonginInput } from "@/schemas/index";
+import { loginSchema, type LoginInput } from "@/schemas/index";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/Button";
 import {
@@ -10,37 +10,49 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { MapPin } from "lucide-react";
 import { useState } from "react";
-import { Input } from "@/components/ui/Input";
+import { Input } from "@/components/ui/input";
+import { useAuth } from "@/hooks/useAuth";
+import { ApiError } from "@/api/client";
 
 export const LoginPage = () => {
+  const { login } = useAuth();
+  const navigate = useNavigate();
   const [serverError, setServerError] = useState<string | null>(null);
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<LonginInput>({
+  } = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = async (data: LonginInput) => {
+  const onSubmit = async (data: LoginInput) => {
     setServerError(null);
-    console.log(data);
-    // TODO: call login API
+    try {
+      await login(data.email, data.password);
+      void navigate({ to: "/" });
+    } catch (error) {
+      const message =
+        error instanceof ApiError
+          ? error.message
+          : "Login failed. Please try again.";
+      setServerError(message);
+    }
   };
 
   return (
     <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         <div className="flex flex-col items-center mb-8">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 mb-4">
-            <MapPin className="h-6 w-6 text-primary" />
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-primary)]/10 mb-4">
+            <MapPin className="h-6 w-6 text-[var(--color-primary)]" />
           </div>
           <h1 className="text-2xl font-bold">Welcome back</h1>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-[var(--color-muted-foreground)] mt-1">
             Sign in to your Holidaze account
           </p>
         </div>
@@ -82,20 +94,16 @@ export const LoginPage = () => {
                 error={errors.password?.message}
                 {...register("password")}
               />
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full h-10"
-              >
+              <Button type="submit" className="w-full" isLoading={isSubmitting}>
                 {isSubmitting ? "Signing in..." : "Sign in"}
               </Button>
             </form>
 
-            <p className="mt-4 text-center text-sm text-muted-foreground">
+            <p className="mt-4 text-center text-sm text-[var(--color-muted-foreground)]">
               Don't have an account?{" "}
               <Link
                 to="/register"
-                className="text-primary hover:underline font-medium"
+                className="text-[var(--color-primary)] hover:underline font-medium"
               >
                 Register
               </Link>
