@@ -18,9 +18,25 @@ export function useAuth() {
     },
     [setAuth],
   );
+
+  const register = useCallback(
+    async (data: {
+      name: string;
+      email: string;
+      password: string;
+      bio?: string;
+      venueManager?: boolean;
+      avatar?: { url?: string; alt?: string };
+    }) => {
+      await authApi.register(data);
+      toast.success("Account created successfully! Please log in.");
+    },
+    [],
+  );
   return {
     user,
     login,
     token,
+    register,
   };
 }

@@ -7,6 +7,7 @@ import {
   Outlet,
   createRoute,
 } from "@tanstack/react-router";
+import RegisterPage from "@/pages/RegisterPage";
 
 // Root route with layout
 const rootRoute = createRootRoute({
@@ -32,9 +33,7 @@ const loginRoute = createRoute({
 const registerRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/register",
-  component: () => (
-    <div className="p-10 text-center">Register page coming soon</div>
-  ),
+  component: RegisterPage,
 });
 
 const profileRoute = createRoute({
