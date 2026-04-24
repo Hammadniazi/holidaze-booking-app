@@ -5,7 +5,7 @@ import { useCallback } from "react";
 import { toast } from "sonner";
 
 export function useAuth() {
-  const { user, setAuth, token } = useAuthStore();
+  const { user, setAuth, token, clearAuth } = useAuthStore();
   const login = useCallback(
     async (email: string, password: string) => {
       const res = (await authApi.login({
@@ -33,10 +33,17 @@ export function useAuth() {
     },
     [],
   );
+
+  const logout = useCallback(() => {
+    clearAuth();
+    toast.success("Logged out successfully.");
+  }, [clearAuth]);
+
   return {
     user,
     login,
     token,
     register,
+    logout,
   };
 }
