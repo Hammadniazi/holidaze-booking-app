@@ -1,3 +1,5 @@
+import type { ApiResponse, Venue } from "@/types";
+
 const BASE_URL = "https://v2.api.noroff.dev";
 const API_KEY = import.meta.env.VITE_API_KEY ?? "";
 
@@ -106,4 +108,19 @@ export const authApi = {
       method: "POST",
       body: { name: "Holidaze App Key" },
     }),
+};
+//  Venues
+
+export const venuesApi = {
+  getAll: (params?: { page?: number; limit?: number }) => {
+    const query = new URLSearchParams();
+    if (params?.page) query.set("page", String(params.page));
+    if (params?.limit) query.set("limit", String(params.limit));
+    return request<ApiResponse<Venue[]>>(
+      `/holidaze/venues?_owner=true&_bookings=true&${query.toString()}`,
+      {
+        requiresAuth: false,
+      },
+    );
+  },
 };
