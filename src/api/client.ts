@@ -107,3 +107,18 @@ export const authApi = {
       body: { name: "Holidaze App Key" },
     }),
 };
+//  Venues
+
+export const venuesApi = {
+  getAll: (params?: { page?: number; limit?: number }) => {
+    const query = new URLSearchParams();
+    if (params?.page) query.set("page", String(params.page));
+    if (params?.limit) query.set("limit", String(params.limit));
+    return request(
+      `/holidaze/venues?_owner=true&_bookings=true&${query.toString()}`,
+      {
+        requiresAuth: false,
+      },
+    );
+  },
+};
