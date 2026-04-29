@@ -57,8 +57,19 @@ export interface Venue {
     bookings: number;
   };
 }
+export interface PaginationMeta {
+  isFirstPage: boolean;
+  isLastPage: boolean;
+  currentPage: number;
+  previousPage: number | null;
+  nextPage: number | null;
+  pageCount: number;
+  totalCount: number;
+}
+
 export interface ApiResponse<T> {
   data: T;
+  meta: PaginationMeta | Record<string, never>;
 }
 export interface AuthUser extends Profile {
   accessToken: string;

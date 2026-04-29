@@ -1,50 +1,70 @@
-import { useEffect, useState } from "react";
-import { venuesApi } from "@/api/client";
+import { useVenueStore } from "@/store/venueStore";
+import { useVenues } from "@/hooks/useVenues";
 import { VenueCard } from "@/components/venues/VenueCard";
-import { Input } from "@/components/ui/input";
+import { VenueCardSkeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/ui/alert";
-import { Skeleton } from "@/components/ui/skeleton";
-import type { Venue } from "@/types";
-import { Search } from "lucide-react";
+import { MapPin, ChevronLeft, ChevronRight } from "lucide-react";
 
-export default function VenueListPage() {
-  const [venues, setVenues] = useState<Venue[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [search, setSearch] = useState("");
+const ITEMS_PER_PAGE = 12;
 
-  useEffect(() => {
-    venuesApi
-      .getAll()
-      .then((res) => setVenues(res.data))
-      .catch((err) => setError(err.message ?? "Failed to load venues"))
-      .finally(() => setLoading(false));
-  }, []);
+export const VenueListPage = () => {
+  const {
+    venues,
+    totalCount,
+    currentPage,
+    setCurrentPage,
+    isLoading,
+    error,
+    searchQuery,
+  } = useVenueStore();
+  const { isLoading: fetching } = useVenues(currentPage, ITEMS_PER_PAGE);
 
-  const filtered = venues.filter((v) =>
-    v.name.toLowerCase().includes(search.toLowerCase()),
-  );
+  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
+  const loading = isLoading || fetching;
 
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">Find your next stay</h1>
-        <p className="text-muted-foreground mt-1">
-          Browse {venues.length} venues around the world
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+      {/* Hero */}
+      <div className="text-center mb-10">
+        <div className="flex justify-center mb-4">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--color-primary)]/10">
+            <MapPin className="h-7 w-7 text-[var(--color-primary)]" />
+          </div>
+        </div>
+        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3">
+          Find your perfect stay
+        </h1>
+        <p className="text-lg text-[var(--color-muted-foreground)] max-w-xl mx-auto">
+          Discover thousands of unique venues worldwide, from cozy cottages to
+          luxury villas.
         </p>
       </div>
 
       {/* Search */}
-      <div className="relative mb-8 max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Search venues..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="pl-9"
-        />
+      <div className="mb-8 max-w-2xl mx-auto">{/* <VenueSearch /> */}</div>
+
+      {/* Results header */}
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-sm text-[var(--color-muted-foreground)]">
+          {searchQuery
+            ? `${venues.length} results for "${searchQuery}"`
+            : loading
+              ? "Loading venues..."
+              : `${totalCount} venues available`}
+        </p>
       </div>
+
+      {/* Error state */}
+      {error && (
+        <Alert
+          variant="destructive"
+          title="Error loading venues"
+          className="mb-6"
+        >
+          {error}
+        </Alert>
+      )}
 
       {/* Error */}
       {error && (
@@ -53,31 +73,57 @@ export default function VenueListPage() {
         </Alert>
       )}
 
-      {/* Grid */}
+      {/* Venues grid */}
       {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="rounded-xl overflow-hidden border">
-              <Skeleton className="h-48 w-full" />
-              <div className="p-4 space-y-2">
-                <Skeleton className="h-4 w-3/4" />
-                <Skeleton className="h-3 w-1/2" />
-                <Skeleton className="h-4 w-1/4 mt-2" />
-              </div>
-            </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+          {Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
+            <VenueCardSkeleton key={i} />
           ))}
         </div>
-      ) : filtered.length === 0 ? (
-        <div className="text-center py-20 text-muted-foreground">
-          <p className="text-lg">No venues found for "{search}"</p>
+      ) : venues.length === 0 ? (
+        <div className="text-center py-16">
+          <MapPin className="mx-auto h-12 w-12 text-[var(--color-muted-foreground)] mb-4" />
+          <h2 className="text-xl font-semibold mb-2">No venues found</h2>
+          <p className="text-[var(--color-muted-foreground)]">
+            {searchQuery
+              ? `No venues match "${searchQuery}". Try a different search term.`
+              : "No venues available yet. Check back later!"}
+          </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filtered.map((venue) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+          {venues.map((venue) => (
             <VenueCard key={venue.id} venue={venue} />
           ))}
         </div>
       )}
+
+      {/* Pagination - only in non-search mode */}
+      {!searchQuery && totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 mt-8">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setCurrentPage(currentPage - 1)}
+            disabled={currentPage <= 1 || loading}
+            aria-label="Previous page"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <span className="text-sm text-[var(--color-muted-foreground)]">
+            Page {currentPage} of {totalPages}
+          </span>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setCurrentPage(currentPage + 1)}
+            disabled={currentPage >= totalPages || loading}
+            aria-label="Next page"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
     </div>
   );
-}
+};
