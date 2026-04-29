@@ -18,7 +18,7 @@ export function useVenues(page = 1, limit = 12) {
         : ((await venuesApi.getAll({ page, limit })) as ApiResponse<Venue[]>);
 
       const meta =
-        "meta" in res && res.meta && "totalCount" in res.meta
+        res.meta && "totalCount" in res.meta
           ? (res.meta as { totalCount: number })
           : { totalCount: 0 };
 

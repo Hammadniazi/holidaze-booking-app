@@ -118,9 +118,19 @@ export const venuesApi = {
     if (params?.limit) query.set("limit", String(params.limit));
     return request<ApiResponse<Venue[]>>(
       `/holidaze/venues?_owner=true&_bookings=true&${query.toString()}`,
-      {
-        requiresAuth: false,
-      },
+      { requiresAuth: false },
     );
   },
+
+  getOne: (id: string) =>
+    request<ApiResponse<Venue>>(
+      `/holidaze/venues/${id}?_owner=true&_bookings=true`,
+      { requiresAuth: false },
+    ),
+
+  search: (query: string) =>
+    request<ApiResponse<Venue[]>>(
+      `/holidaze/venues/search?q=${encodeURIComponent(query)}&_owner=true`,
+      { requiresAuth: false },
+    ),
 };
