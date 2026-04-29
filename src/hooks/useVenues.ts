@@ -17,12 +17,9 @@ export function useVenues(page = 1, limit = 12) {
         ? ((await venuesApi.search(searchQuery)) as ApiResponse<Venue[]>)
         : ((await venuesApi.getAll({ page, limit })) as ApiResponse<Venue[]>);
 
-      const meta =
-        res.meta && "totalCount" in res.meta
-          ? (res.meta as { totalCount: number })
-          : { totalCount: 0 };
+      const totalCount = (res.meta as { totalCount?: number })?.totalCount ?? 0;
 
-      setVenues(res.data, meta.totalCount);
+      setVenues(res.data, totalCount);
     } catch (err) {
       const msg =
         err instanceof ApiError ? err.message : "Failed to load venues";

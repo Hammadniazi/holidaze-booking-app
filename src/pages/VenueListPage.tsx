@@ -8,6 +8,20 @@ import { MapPin, ChevronLeft, ChevronRight } from "lucide-react";
 
 const ITEMS_PER_PAGE = 12;
 
+function getPageNumbers(currentPage: number, totalPages: number): (number | "...")[] {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+  const pages: (number | "...")[] = [1];
+  if (currentPage > 3) pages.push("...");
+  for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
+    pages.push(i);
+  }
+  if (currentPage < totalPages - 2) pages.push("...");
+  pages.push(totalPages);
+  return pages;
+}
+
 export const VenueListPage = () => {
   const {
     venues,
@@ -22,20 +36,21 @@ export const VenueListPage = () => {
 
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
   const loading = isLoading || fetching;
+  const pageNumbers = getPageNumbers(currentPage, totalPages);
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
       {/* Hero */}
       <div className="text-center mb-10">
         <div className="flex justify-center mb-4">
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--color-primary)]/10">
-            <MapPin className="h-7 w-7 text-[var(--color-primary)]" />
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-(--color-primary)/10">
+            <MapPin className="h-7 w-7 text-(--color-primary)" />
           </div>
         </div>
         <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3">
           Find your perfect stay
         </h1>
-        <p className="text-lg text-[var(--color-muted-foreground)] max-w-xl mx-auto">
+        <p className="text-lg text-(--color-muted-foreground) max-w-xl mx-auto">
           Discover thousands of unique venues worldwide, from cozy cottages to
           luxury villas.
         </p>
@@ -46,7 +61,7 @@ export const VenueListPage = () => {
 
       {/* Results header */}
       <div className="flex items-center justify-between mb-4">
-        <p className="text-sm text-[var(--color-muted-foreground)]">
+        <p className="text-sm text-(--color-muted-foreground)">
           {searchQuery
             ? `${venues.length} results for "${searchQuery}"`
             : loading
@@ -66,13 +81,6 @@ export const VenueListPage = () => {
         </Alert>
       )}
 
-      {/* Error */}
-      {error && (
-        <Alert variant="destructive" className="mb-6">
-          {error}
-        </Alert>
-      )}
-
       {/* Venues grid */}
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
@@ -82,9 +90,9 @@ export const VenueListPage = () => {
         </div>
       ) : venues.length === 0 ? (
         <div className="text-center py-16">
-          <MapPin className="mx-auto h-12 w-12 text-[var(--color-muted-foreground)] mb-4" />
+          <MapPin className="mx-auto h-12 w-12 text-(--color-muted-foreground) mb-4" />
           <h2 className="text-xl font-semibold mb-2">No venues found</h2>
-          <p className="text-[var(--color-muted-foreground)]">
+          <p className="text-(--color-muted-foreground)">
             {searchQuery
               ? `No venues match "${searchQuery}". Try a different search term.`
               : "No venues available yet. Check back later!"}
@@ -98,9 +106,10 @@ export const VenueListPage = () => {
         </div>
       )}
 
-      {/* Pagination - only in non-search mode */}
+      {/* Pagination */}
       {!searchQuery && totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2 mt-8">
+        <div className="flex items-center justify-center gap-1 mt-10 pb-8 flex-wrap">
+          {/* Prev */}
           <Button
             variant="outline"
             size="icon"
@@ -110,9 +119,32 @@ export const VenueListPage = () => {
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <span className="text-sm text-[var(--color-muted-foreground)]">
-            Page {currentPage} of {totalPages}
-          </span>
+
+          {/* Page numbers */}
+          {pageNumbers.map((page, i) =>
+            page === "..." ? (
+              <span
+                key={`ellipsis-${i}`}
+                className="px-2 text-(--color-muted-foreground) select-none"
+              >
+                …
+              </span>
+            ) : (
+              <Button
+                key={page}
+                variant={page === currentPage ? "default" : "outline"}
+                size="icon"
+                onClick={() => setCurrentPage(page)}
+                disabled={loading}
+                aria-label={`Page ${page}`}
+                aria-current={page === currentPage ? "page" : undefined}
+              >
+                {page}
+              </Button>
+            ),
+          )}
+
+          {/* Next */}
           <Button
             variant="outline"
             size="icon"
