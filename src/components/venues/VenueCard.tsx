@@ -1,61 +1,121 @@
 import { Link } from "@tanstack/react-router";
-import { Star, MapPin, Wifi, Car, Coffee, PawPrint } from "lucide-react";
 import type { Venue } from "@/types";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  formatPrice,
+  buildImageUrl,
+  VENUE_PLACEHOLDER,
+  truncate,
+} from "@/utils";
+import { Star, MapPin, Users, Wifi, Car, Coffee, PawPrint } from "lucide-react";
 
-interface Props {
+interface VenueCardProps {
   venue: Venue;
 }
 
-export function VenueCard({ venue }: Props) {
-  const image = venue.media[0]?.url ?? "/placeholder.jpg";
+export function VenueCard({ venue }: VenueCardProps) {
+  const imageUrl = buildImageUrl(venue.media[0]?.url, VENUE_PLACEHOLDER);
   const location = [venue.location.city, venue.location.country]
     .filter(Boolean)
     .join(", ");
 
   return (
-    <Link to="/venue/$venueId" params={{ venueId: venue.id }}>
-      <div className="group rounded-xl overflow-hidden border bg-card hover:shadow-md transition-shadow">
+    <Link
+      to="/venue/$id"
+      params={{ id: venue.id }}
+      className="group block focus-visible:outline-none"
+    >
+      <Card className="overflow-hidden transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 group-focus-visible:ring-2 group-focus-visible:ring-[var(--color-ring)]">
         {/* Image */}
-        <div className="relative h-48 overflow-hidden">
+        <div className="relative h-48 overflow-hidden bg-[var(--color-muted)]">
           <img
-            src={image}
-            alt={venue.media[0]?.alt ?? venue.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            src={imageUrl}
+            alt={venue.media[0]?.alt || venue.name}
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            loading="lazy"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = VENUE_PLACEHOLDER;
+            }}
           />
-          {/* Rating badge */}
-          <div className="absolute top-2 right-2 flex items-center gap-1 bg-black/60 text-white text-xs px-2 py-1 rounded-full">
-            <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-            {venue.rating.toFixed(1)}
+          <div className="absolute top-2 right-2 flex gap-1">
+            {venue.meta.wifi && (
+              <span
+                className="rounded-full bg-black/60 p-1"
+                title="WiFi included"
+              >
+                <Wifi className="h-3 w-3 text-white" />
+              </span>
+            )}
+            {venue.meta.parking && (
+              <span
+                className="rounded-full bg-black/60 p-1"
+                title="Parking available"
+              >
+                <Car className="h-3 w-3 text-white" />
+              </span>
+            )}
+            {venue.meta.breakfast && (
+              <span
+                className="rounded-full bg-black/60 p-1"
+                title="Breakfast included"
+              >
+                <Coffee className="h-3 w-3 text-white" />
+              </span>
+            )}
+            {venue.meta.pets && (
+              <span
+                className="rounded-full bg-black/60 p-1"
+                title="Pets allowed"
+              >
+                <PawPrint className="h-3 w-3 text-white" />
+              </span>
+            )}
           </div>
         </div>
 
-        {/* Content */}
-        <div className="p-4">
-          <h3 className="font-semibold truncate">{venue.name}</h3>
+        <CardContent className="p-4">
+          <div className="flex items-start justify-between gap-2 mb-1">
+            <h3 className="font-semibold text-base leading-snug line-clamp-1">
+              {venue.name}
+            </h3>
+            <div className="flex items-center gap-1 shrink-0 text-sm text-[var(--color-muted-foreground)]">
+              <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+              <span>{venue.rating.toFixed(1)}</span>
+            </div>
+          </div>
+
           {location && (
-            <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
+            <div className="flex items-center gap-1 text-xs text-[var(--color-muted-foreground)] mb-2">
               <MapPin className="h-3 w-3" />
-              {location}
-            </p>
+              <span>{location}</span>
+            </div>
           )}
 
-          {/* Amenities */}
-          <div className="flex items-center gap-2 mt-2 text-muted-foreground">
-            {venue.meta.wifi && <Wifi className="h-4 w-4" />}
-            {venue.meta.parking && <Car className="h-4 w-4" />}
-            {venue.meta.breakfast && <Coffee className="h-4 w-4" />}
-            {venue.meta.pets && <PawPrint className="h-4 w-4" />}
-          </div>
-
-          {/* Price */}
-          <p className="mt-3 font-bold">
-            ${venue.price}{" "}
-            <span className="text-sm font-normal text-muted-foreground">
-              / night
-            </span>
+          <p className="text-xs text-[var(--color-muted-foreground)] mb-3 line-clamp-2">
+            {truncate(venue.description, 100)}
           </p>
-        </div>
-      </div>
+
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="font-bold text-[var(--color-foreground)]">
+                {formatPrice(venue.price)}
+              </span>
+              <span className="text-xs text-[var(--color-muted-foreground)]">
+                {" "}
+                / night
+              </span>
+            </div>
+            <Badge
+              variant="secondary"
+              className="flex items-center gap-1 text-xs"
+            >
+              <Users className="h-3 w-3" />
+              Up to {venue.maxGuests}
+            </Badge>
+          </div>
+        </CardContent>
+      </Card>
     </Link>
   );
 }

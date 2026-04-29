@@ -1,5 +1,5 @@
 import { RootLayout } from "@/layouts/RootLayout";
-import VenueListPage from "@/pages/VenueListPage";
+import { VenueListPage } from "@/pages/VenueListPage";
 import { LoginPage } from "@/pages/LoginPage";
 import {
   createRouter,
