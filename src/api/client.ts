@@ -112,12 +112,19 @@ export const authApi = {
 //  Venues
 
 export const venuesApi = {
-  getAll: (params?: { page?: number; limit?: number }) => {
+  getAll: (params?: {
+    page?: number;
+    limit?: number;
+    sort?: string;
+    sortOrder?: string;
+  }) => {
     const query = new URLSearchParams();
     if (params?.page) query.set("page", String(params.page));
     if (params?.limit) query.set("limit", String(params.limit));
+    if (params?.sort) query.set("sort", params.sort);
+    if (params?.sortOrder) query.set("sortOrder", params.sortOrder);
     return request<ApiResponse<Venue[]>>(
-      `/holidaze/venues?_owner=true&_bookings=true&${query.toString()}`,
+      `/holidaze/venues?_owner=true&${query.toString()}`,
       { requiresAuth: false },
     );
   },
