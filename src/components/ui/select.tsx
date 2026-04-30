@@ -2,7 +2,7 @@ import { forwardRef, type SelectHTMLAttributes } from "react";
 import { cn } from "@/utils";
 import { ChevronDown } from "lucide-react";
 
-export interface SelectPro2ps extends SelectHTMLAttributes<HTMLSelectElement> {
+export interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   error?: string;
   label?: string;
 }
