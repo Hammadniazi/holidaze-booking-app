@@ -5,7 +5,10 @@ import type { ApiResponse, Venue } from "@/types";
 import { ApiError } from "@/api/client";
 
 export function useVenues(page = 1, limit = 12) {
-  const { setVenues, setLoading, setError, searchQuery } = useVenueStore();
+  // Read search/sort state from the global store so any component that writes
+  // to the store (e.g. VenueSearch) triggers a re-fetch here automatically.
+  const { setVenues, setLoading, setError, searchQuery, sortBy, sortOrder } =
+    useVenueStore();
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchVenues = useCallback(async () => {
@@ -15,7 +18,12 @@ export function useVenues(page = 1, limit = 12) {
     try {
       const res = searchQuery
         ? ((await venuesApi.search(searchQuery)) as ApiResponse<Venue[]>)
-        : ((await venuesApi.getAll({ page, limit })) as ApiResponse<Venue[]>);
+        : ((await venuesApi.getAll({
+            page,
+            limit,
+            sort: sortBy,
+            sortOrder,
+          })) as ApiResponse<Venue[]>);
 
       const totalCount = (res.meta as { totalCount?: number })?.totalCount ?? 0;
 
@@ -28,7 +36,16 @@ export function useVenues(page = 1, limit = 12) {
       setIsLoading(false);
       setLoading(false);
     }
-  }, [page, limit, searchQuery, setVenues, setLoading, setError]);
+  }, [
+    page,
+    limit,
+    searchQuery,
+    sortBy,
+    sortOrder,
+    setVenues,
+    setLoading,
+    setError,
+  ]);
 
   useEffect(() => {
     void fetchVenues();

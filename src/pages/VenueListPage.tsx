@@ -5,16 +5,24 @@ import { VenueCardSkeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/ui/alert";
 import { MapPin, ChevronLeft, ChevronRight } from "lucide-react";
+import { VenueSearch } from "@/components/venues/VenueSearch";
 
 const ITEMS_PER_PAGE = 12;
 
-function getPageNumbers(currentPage: number, totalPages: number): (number | "...")[] {
+function getPageNumbers(
+  currentPage: number,
+  totalPages: number,
+): (number | "...")[] {
   if (totalPages <= 7) {
     return Array.from({ length: totalPages }, (_, i) => i + 1);
   }
   const pages: (number | "...")[] = [1];
   if (currentPage > 3) pages.push("...");
-  for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
+  for (
+    let i = Math.max(2, currentPage - 1);
+    i <= Math.min(totalPages - 1, currentPage + 1);
+    i++
+  ) {
     pages.push(i);
   }
   if (currentPage < totalPages - 2) pages.push("...");
@@ -57,7 +65,9 @@ export const VenueListPage = () => {
       </div>
 
       {/* Search */}
-      <div className="mb-8 max-w-2xl mx-auto">{/* <VenueSearch /> */}</div>
+      <div className="mb-8 max-w-2xl mx-auto">
+        <VenueSearch />
+      </div>
 
       {/* Results header */}
       <div className="flex items-center justify-between mb-4">
