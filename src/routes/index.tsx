@@ -8,6 +8,7 @@ import {
   createRoute,
 } from "@tanstack/react-router";
 import RegisterPage from "@/pages/RegisterPage";
+import { VenueDetailPage } from "@/pages/VenueDetailPage";
 
 // Root route with layout
 const rootRoute = createRootRoute({
@@ -23,6 +24,16 @@ const indexRoute = createRoute({
   path: "/",
   component: VenueListPage,
 });
+
+//  Venue Detail
+const venueRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "venue/$id",
+  component: function VenueDetailRoute(){
+    const { id } = venueRoute.useParams();
+    return <VenueDetailPage id={id}/>;
+  }
+})
 
 const loginRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -54,6 +65,7 @@ const dashboardRoute = createRoute({
 
 const routeTree = rootRoute.addChildren([
   indexRoute,
+  venueRoute,
   loginRoute,
   registerRoute,
   profileRoute,
