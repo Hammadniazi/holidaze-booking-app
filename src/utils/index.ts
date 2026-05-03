@@ -30,3 +30,5 @@ export function buildImageUrl(
 
 export const VENUE_PLACEHOLDER =
   "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&auto=format&fit=crop";
+export const AVATAR_PLACEHOLDER =
+  "https://ui-avatars.com/api/?background=3b82f6&color=fff&name=User";
