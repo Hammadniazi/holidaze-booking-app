@@ -25,11 +25,9 @@ export const registerSchema = z
     password: z
       .string()
       .min(8, { message: "Password must be at least 8 characters long" }),
-    confirmPassword: z
-      .string()
-      .min(8, {
-        message: "Confirm Password must be at least 8 characters long",
-      }),
+    confirmPassword: z.string().min(8, {
+      message: "Confirm Password must be at least 8 characters long",
+    }),
     bio: z
       .string()
       .max(160, { message: "Bio must be under 160 characters" })
@@ -48,5 +46,16 @@ export const registerSchema = z
     path: ["confirmPassword"],
   });
 
+export const bookingSchema = z.object({
+  dateFrom: z.string(),
+  dateTo: z.string(),
+  guests: z.coerce
+    .number()
+    .int()
+    .min(1, { message: " At least 1 guest is required" }),
+  venueId: z.string(),
+});
+
+export type BookingInput = z.infer<typeof bookingSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;

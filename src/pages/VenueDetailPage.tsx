@@ -1,4 +1,4 @@
-import BookingForm from "@/components/bookings/BookingForm";
+import { BookingForm } from "@/components/bookings/BookingForm";
 import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -237,7 +237,7 @@ export const VenueDetailPage = ({ id }: VenueDetailPageProps) => {
                 / night
               </span>
             </div>
-            <BookingForm />
+            <BookingForm venue={venue} onSuccess={() => {}} />
           </div>
         </div>
       </div>

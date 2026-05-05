@@ -4,7 +4,7 @@ export interface MediaItem {
 }
 export interface Booking {
   id: string;
-  dataFrom: string;
+  dateFrom: string;
   dateTo: string;
   guests: number;
   created: string;
