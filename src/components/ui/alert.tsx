@@ -1,76 +1,65 @@
-import * as React from "react"
-import { cva, type VariantProps } from "class-variance-authority"
+import { type ReactNode } from "react";
+import { cn } from "@/utils";
+import { AlertCircle, CheckCircle2, Info, XCircle } from "lucide-react";
 
-import { cn } from "@/lib/utils"
+interface AlertProps {
+  variant?: "default" | "success" | "warning" | "destructive";
+  title?: string;
+  children: ReactNode;
+  className?: string;
+}
 
-const alertVariants = cva(
-  "group/alert relative grid w-full gap-0.5 rounded-lg border px-2.5 py-2 text-left text-sm has-data-[slot=alert-action]:relative has-data-[slot=alert-action]:pr-18 has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-2 *:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg]:text-current *:[svg:not([class*='size-'])]:size-4",
-  {
-    variants: {
-      variant: {
-        default: "bg-card text-card-foreground",
-        destructive:
-          "bg-card text-destructive *:data-[slot=alert-description]:text-destructive/90 *:[svg]:text-current",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-    },
-  }
-)
+const configs = {
+  default: {
+    wrapper: "border-[var(--color-border)] bg-[var(--color-background)]",
+    icon: Info,
+    iconClass: "text-[var(--color-muted-foreground)]",
+  },
+  success: {
+    wrapper:
+      "border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950",
+    icon: CheckCircle2,
+    iconClass: "text-green-600 dark:text-green-400",
+  },
+  warning: {
+    wrapper:
+      "border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-950",
+    icon: AlertCircle,
+    iconClass: "text-yellow-600 dark:text-yellow-400",
+  },
+  destructive: {
+    wrapper:
+      "border-[var(--color-destructive)]/30 bg-[var(--color-destructive)]/10",
+    icon: XCircle,
+    iconClass: "text-[var(--color-destructive)]",
+  },
+};
 
-function Alert({
+export function Alert({
+  variant = "default",
+  title,
+  children,
   className,
-  variant,
-  ...props
-}: React.ComponentProps<"div"> & VariantProps<typeof alertVariants>) {
+}: AlertProps) {
+  const config = configs[variant];
+  const Icon = config.icon;
+
   return (
     <div
-      data-slot="alert"
       role="alert"
-      className={cn(alertVariants({ variant }), className)}
-      {...props}
-    />
-  )
-}
-
-function AlertTitle({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="alert-title"
       className={cn(
-        "font-medium group-has-[>svg]/alert:col-start-2 [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground",
-        className
+        "flex gap-3 rounded-[var(--radius)] border p-4",
+        config.wrapper,
+        className,
       )}
-      {...props}
-    />
-  )
+    >
+      <Icon className={cn("mt-0.5 h-5 w-5 shrink-0", config.iconClass)} />
+      <div className="flex-1">
+        {title && <p className="font-medium text-sm mb-1">{title}</p>}
+        <div className="text-sm text-[var(--color-muted-foreground)]">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
 }
-
-function AlertDescription({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="alert-description"
-      className={cn(
-        "text-sm text-balance text-muted-foreground md:text-pretty [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground [&_p:not(:last-child)]:mb-4",
-        className
-      )}
-      {...props}
-    />
-  )
-}
-
-function AlertAction({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="alert-action"
-      className={cn("absolute top-2 right-2", className)}
-      {...props}
-    />
-  )
-}
-
-export { Alert, AlertTitle, AlertDescription, AlertAction }

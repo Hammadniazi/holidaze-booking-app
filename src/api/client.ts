@@ -141,3 +141,14 @@ export const venuesApi = {
       { requiresAuth: false },
     ),
 };
+
+// Bookings Api
+
+export const bookingsApi = {
+  create: (data: {
+    dateFrom: string;
+    dateTo: string;
+    guests: number;
+    venueId: string;
+  }) => request("/holidaze/bookings", { method: "POST", body: data }),
+};
