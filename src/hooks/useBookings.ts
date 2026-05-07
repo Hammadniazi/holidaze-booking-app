@@ -6,7 +6,8 @@ import type { ApiResponse, Booking } from "@/types";
 import { ApiError } from "@/api/client";
 
 export function useBookings() {
-  const { addBooking, setError } = useBookingStore();
+  const { addBooking, removeBooking, updateBooking, setLoading, setError } =
+    useBookingStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const createBooking = useCallback(
@@ -33,5 +34,57 @@ export function useBookings() {
     },
     [addBooking, setError],
   );
-  return { createBooking, isSubmitting };
+
+  const deleteBooking = useCallback(
+    async (id: string) => {
+      setLoading(true);
+      try {
+        await bookingsApi.delete(id);
+        removeBooking(id);
+        toast.success("Booking cancelled.");
+      } catch (error) {
+        const msg =
+          error instanceof ApiError
+            ? error.message
+            : "Failed to cancel booking";
+        toast.error(msg);
+        setError(msg);
+        throw error;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [removeBooking, setLoading, setError],
+  );
+
+  const editBooking = useCallback(
+    async (
+      id: string,
+      data: { dateFrom?: string; dateTo?: string; guests?: number },
+    ) => {
+      setLoading(true);
+      try {
+        const res = (await bookingsApi.update(
+          id,
+          data,
+        )) as ApiResponse<Booking>;
+        updateBooking(id, res.data);
+        toast.success("Booking updated!");
+        return res.data;
+      } catch (error) {
+        const msg =
+          error instanceof ApiError
+            ? error.message
+            : "Failed to update booking";
+        toast.error(msg);
+        setError(msg);
+        throw error;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [updateBooking, setLoading, setError],
+  );
+
+  return { createBooking, deleteBooking, editBooking, isSubmitting };
 }
