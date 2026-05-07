@@ -36,7 +36,11 @@ export const registerSchema = z
     venueManager: z.boolean().default(false),
     avatar: z
       .object({
-        url: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+        url: z
+          .string()
+          .url({ message: "Must be a valid URL" })
+          .optional()
+          .or(z.literal("")),
         alt: z.string().max(120).optional().or(z.literal("")),
       })
       .optional(),
@@ -45,7 +49,7 @@ export const registerSchema = z
     message: "Passwords do not match",
     path: ["confirmPassword"],
   });
-
+// Booking Schema
 export const bookingSchema = z.object({
   dateFrom: z.string(),
   dateTo: z.string(),
@@ -55,7 +59,45 @@ export const bookingSchema = z.object({
     .min(1, { message: " At least 1 guest is required" }),
   venueId: z.string(),
 });
+// Update Profile Schema
+export const updateProfileSchema = z.object({
+  bio: z
+    .string()
+    .max(160, { message: "Bio must be under 160 characters" })
+    .optional()
+    .or(z.literal("")),
+  venueManager: z.boolean().optional(),
+  avatar: z
+    .object({
+      url: z
+        .string()
+        .url({ message: "Must be a valid URL" })
+        .optional()
+        .or(z.literal("")),
+      alt: z
+        .string()
+        .max(120, { message: "Alt text must be under 120 characters" })
+        .optional()
+        .or(z.literal("")),
+    })
+    .optional(),
+  banner: z
+    .object({
+      url: z
+        .string()
+        .url({ message: "Must be a valid URL" })
+        .optional()
+        .or(z.literal("")),
+      alt: z
+        .string()
+        .max(120, { message: "Alt text must be under 120 characters" })
+        .optional()
+        .or(z.literal("")),
+    })
+    .optional(),
+});
 
 export type BookingInput = z.infer<typeof bookingSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;
+export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
