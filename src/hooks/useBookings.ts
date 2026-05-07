@@ -6,7 +6,7 @@ import type { ApiResponse, Booking } from "@/types";
 import { ApiError } from "@/api/client";
 
 export function useBookings() {
-  const { addBooking, setError } = useBookingStore();
+  const { addBooking, removeBooking, setLoading, setError } = useBookingStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const createBooking = useCallback(
@@ -33,5 +33,27 @@ export function useBookings() {
     },
     [addBooking, setError],
   );
-  return { createBooking, isSubmitting };
+
+  const deleteBooking = useCallback(
+    async (id: string) => {
+      setLoading(true);
+      try {
+        await bookingsApi.delete(id);
+        removeBooking(id);
+        toast.success("Booking cancelled.");
+      } catch (error) {
+        const msg =
+          error instanceof ApiError
+            ? error.message
+            : "Failed to cancel booking";
+        toast.error(msg);
+        setError(msg);
+        throw error;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [removeBooking, setLoading, setError],
+  );
+  return { createBooking, deleteBooking, isSubmitting };
 }

@@ -1,4 +1,4 @@
-import { ApiError, bookingsApi, profileApi } from "@/api/client";
+import { ApiError, profileApi } from "@/api/client";
 import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Dialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
+import { useBookings } from "@/hooks/useBookings";
 import { updateProfileSchema, type UpdateProfileInput } from "@/schemas";
 import { useAuthStore } from "@/store/authStore";
 import { useBookingStore } from "@/store/bookingStore";
@@ -26,7 +27,8 @@ import { toast } from "sonner";
 export const ProfilePage = () => {
   const { user, isAuthenticated } = useAuth();
   const { setAuth } = useAuthStore();
-  const { bookings, setBookings, removeBooking } = useBookingStore();
+  const { bookings, setBookings } = useBookingStore();
+  const { deleteBooking } = useBookings();
   const navigate = useNavigate();
   const [editOpen, setEditOpen] = useState(false);
   const [profileData, setProfileData] = useState<Profile | null>(null);
@@ -43,10 +45,10 @@ export const ProfilePage = () => {
     if (!user) return;
     try {
       const response = (await profileApi.getOne(user.name)) as ApiResponse<
-        Profile & { booking?: Booking[] }
+        Profile & { bookings?: Booking[] }
       >;
       setProfileData(response.data);
-      if (response.data.booking) setBookings(response.data.booking);
+      if (response.data.bookings) setBookings(response.data.bookings);
     } catch {
       toast.error("Failed to load profile data. Please try again.");
     } finally {
@@ -77,6 +79,7 @@ export const ProfilePage = () => {
       if (data.bio) payload.bio = data.bio;
       if (data.avatar?.url)
         payload.avatar = { url: data.avatar.url, alt: data.avatar.alt ?? "" };
+      if (data.banner?.url) payload.banner = { url: data.banner.url, alt: "" };
 
       const res = (await profileApi.update(
         user.name,
@@ -89,16 +92,6 @@ export const ProfilePage = () => {
     } catch (err) {
       const msg = err instanceof ApiError ? err.message : "Update failed";
       setServerError(msg);
-    }
-  };
-
-  const deleteBooking = async (id: string) => {
-    try {
-      await bookingsApi.delete(id);
-      removeBooking(id);
-      toast.success("Booking cancelled");
-    } catch {
-      toast.error("Failed to cancel booking");
     }
   };
 
@@ -132,7 +125,7 @@ export const ProfilePage = () => {
           </div>
         )}
         <div
-          className={`flex items-end gap-4 ${bannerUrl ? "-mt-10 px-4" : ""}`}
+          className={`flex items-end flex-wrap gap-4 ${bannerUrl ? "-mt-10 px-4" : ""}`}
         >
           <img
             src={avatarUrl}
@@ -156,7 +149,12 @@ export const ProfilePage = () => {
               <p className="text-sm mt-1">{profileData.bio}</p>
             )}
           </div>
-          <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
+          <Button
+            variant="outline"
+            size="sm"
+            className="shrink-0"
+            onClick={() => setEditOpen(true)}
+          >
             <Edit className="h-4 w-4 mr-1" /> Edit profile
           </Button>
         </div>
@@ -208,7 +206,7 @@ export const ProfilePage = () => {
             {bookings.map((booking) => (
               <Card key={booking.id} className="overflow-hidden">
                 <CardContent className="p-0">
-                  <div className="flex gap-0">
+                  <div className="flex">
                     {booking.venue?.media?.[0]?.url && (
                       <div className="w-28 shrink-0 overflow-hidden bg-(--color-muted)">
                         <img
@@ -249,7 +247,7 @@ export const ProfilePage = () => {
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
-                      <div className="flex gap-4 mt-2 text-sm">
+                      <div className="flex flex-wrap gap-4 mt-2 text-sm">
                         <div>
                           <span className="text-(--color-muted-foreground)">
                             Check-in:{" "}
