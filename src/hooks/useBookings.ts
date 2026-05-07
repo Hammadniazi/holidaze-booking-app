@@ -6,7 +6,8 @@ import type { ApiResponse, Booking } from "@/types";
 import { ApiError } from "@/api/client";
 
 export function useBookings() {
-  const { addBooking, removeBooking, setLoading, setError } = useBookingStore();
+  const { addBooking, removeBooking, updateBooking, setLoading, setError } =
+    useBookingStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const createBooking = useCallback(
@@ -55,5 +56,35 @@ export function useBookings() {
     },
     [removeBooking, setLoading, setError],
   );
-  return { createBooking, deleteBooking, isSubmitting };
+
+  const editBooking = useCallback(
+    async (
+      id: string,
+      data: { dateFrom?: string; dateTo?: string; guests?: number },
+    ) => {
+      setLoading(true);
+      try {
+        const res = (await bookingsApi.update(
+          id,
+          data,
+        )) as ApiResponse<Booking>;
+        updateBooking(id, res.data);
+        toast.success("Booking updated!");
+        return res.data;
+      } catch (error) {
+        const msg =
+          error instanceof ApiError
+            ? error.message
+            : "Failed to update booking";
+        toast.error(msg);
+        setError(msg);
+        throw error;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [updateBooking, setLoading, setError],
+  );
+
+  return { createBooking, deleteBooking, editBooking, isSubmitting };
 }

@@ -49,7 +49,38 @@ export const registerSchema = z
     message: "Passwords do not match",
     path: ["confirmPassword"],
   });
-// Booking Schema
+// Venue Schema
+export const createVenueSchema = z.object({
+  name: z.string().min(1, "Venue name is required"),
+  description: z.string().min(1, "Description is required"),
+  price: z.coerce.number().min(0, "Price must be positive"),
+  maxGuests: z.coerce.number().int().min(1, "Must allow at least 1 guest"),
+  rating: z.coerce.number().min(0).max(5).optional(),
+  media: z
+    .array(
+      z.object({
+        url: z.string().url("Must be a valid URL"),
+        alt: z.string().optional().default(""),
+      }),
+    )
+    .optional()
+    .default([]),
+  meta: z.object({
+    wifi: z.boolean().default(false),
+    parking: z.boolean().default(false),
+    breakfast: z.boolean().default(false),
+    pets: z.boolean().default(false),
+  }),
+  location: z.object({
+    address: z.string().optional().or(z.literal("")),
+    city: z.string().optional().or(z.literal("")),
+    zip: z.string().optional().or(z.literal("")),
+    country: z.string().optional().or(z.literal("")),
+    continent: z.string().optional().or(z.literal("")),
+    lat: z.coerce.number().optional(),
+    lng: z.coerce.number().optional(),
+  }),
+});
 export const bookingSchema = z.object({
   dateFrom: z.string(),
   dateTo: z.string(),
@@ -58,6 +89,15 @@ export const bookingSchema = z.object({
     .int()
     .min(1, { message: " At least 1 guest is required" }),
   venueId: z.string(),
+});
+
+export const editBookingSchema = z.object({
+  dateFrom: z.string().min(1, { message: "Check-in date is required" }),
+  dateTo: z.string().min(1, { message: "Check-out date is required" }),
+  guests: z.coerce
+    .number()
+    .int()
+    .min(1, { message: "At least 1 guest is required" }),
 });
 // Update Profile Schema
 export const updateProfileSchema = z.object({
@@ -98,6 +138,7 @@ export const updateProfileSchema = z.object({
 });
 
 export type BookingInput = z.infer<typeof bookingSchema>;
+export type EditBookingInput = z.infer<typeof editBookingSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;

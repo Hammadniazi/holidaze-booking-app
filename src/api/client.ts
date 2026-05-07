@@ -151,8 +151,14 @@ export const bookingsApi = {
     guests: number;
     venueId: string;
   }) => request("/holidaze/bookings", { method: "POST", body: data }),
+
   delete: (id: string) =>
     request(`/holidaze/bookings/${id}`, { method: "DELETE" }),
+
+  update: (
+    id: string,
+    data: { dateFrom?: string; dateTo?: string; guests?: number },
+  ) => request(`/holidaze/bookings/${id}`, { method: "PUT", body: data }),
 };
 
 //  Profile Api
