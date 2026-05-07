@@ -151,4 +151,22 @@ export const bookingsApi = {
     guests: number;
     venueId: string;
   }) => request("/holidaze/bookings", { method: "POST", body: data }),
+  delete: (id: string) =>
+    request(`/holidaze/bookings/${id}`, { method: "DELETE" }),
+};
+
+//  Profile Api
+
+export const profileApi = {
+  getOne: (name: string) =>
+    request(`/holidaze/profiles/${name}?_bookings=true&_venues=true`),
+  update: (
+    name: string,
+    data: {
+      bio?: string;
+      venueManager?: boolean;
+      avatar?: { url?: string; alt?: string };
+      banner?: { url?: string; alt?: string };
+    },
+  ) => request(`/holidaze/profiles/${name}`, { method: "PUT", body: data }),
 };
