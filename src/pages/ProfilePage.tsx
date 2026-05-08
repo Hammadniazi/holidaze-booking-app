@@ -1,4 +1,4 @@
-import { ApiError, profileApi } from "@/api/client";
+import { ApiError, profilesApi } from "@/api/client";
 import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -52,7 +52,7 @@ export const ProfilePage = () => {
   const fetchProfile = useCallback(async () => {
     if (!user) return;
     try {
-      const response = (await profileApi.getOne(user.name)) as ApiResponse<
+      const response = (await profilesApi.getOne(user.name)) as ApiResponse<
         Profile & { bookings?: Booking[] }
       >;
       setProfileData(response.data);
@@ -129,7 +129,7 @@ export const ProfilePage = () => {
       if (data.banner?.url)
         payload.banner = { url: data.banner.url, alt: data.banner.alt ?? "" };
 
-      const response = (await profileApi.update(
+      const response = (await profilesApi.update(
         user.name,
         payload,
       )) as ApiResponse<Profile>;

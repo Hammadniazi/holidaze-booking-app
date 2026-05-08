@@ -1,5 +1,266 @@
-const DashboardPage = () => {
-  return <div>this is the dashboard page</div>;
+import { useCallback, useEffect, useState } from "react";
+import { profilesApi } from "@/api/client";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { useAuth } from "@/hooks/useAuth";
+import type { ApiResponse, Booking, Venue } from "@/types";
+import { buildImageUrl, formatPrice, VENUE_PLACEHOLDER } from "@/utils";
+import { useNavigate } from "@tanstack/react-router";
+import { Badge } from "@/components/ui/badge";
+import { Building2, Calendar, Edit, Plus, Trash2, Users } from "lucide-react";
+import { toast } from "sonner";
+import { Dialog } from "@/components/ui/dialog";
+import VenueForm from "@/components/dashboard/VenueForm";
+
+export const DashboardPage = () => {
+  const { isAuthenticated, isVenueManager, user } = useAuth();
+  const navigate = useNavigate();
+  const [venues, setVenues] = useState<Venue[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [, setEditVenue] = useState<Venue | null>(null);
+  const [, setDeleteConfirm] = useState<string | null>(null);
+  const [bookingsExpanded, setBookingsExpanded] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      void navigate({ to: "/login" });
+    } else if (!isVenueManager) {
+      void navigate({ to: "/profile" });
+    }
+  }, [isAuthenticated, isVenueManager, navigate]);
+
+  const fetchVenues = useCallback(async () => {
+    if (!user) return;
+    try {
+      const res = (await profilesApi.getVenues(user.name)) as ApiResponse<
+        Venue[]
+      >;
+      setVenues(res.data);
+    } catch {
+      toast.error("Failed to load venues");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    void fetchVenues();
+  }, [fetchVenues]);
+
+  if (!isAuthenticated || !isVenueManager) return null;
+
+  const totalBookings = venues.reduce(
+    (acc, v) => acc + (v._count?.bookings ?? v.bookings?.length ?? 0),
+    0,
+  );
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="animate-spin h-8 w-8 rounded-full border-2 border-(--color-primary) border-t-transparent" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-8">
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-2xl font-bold flex items-center gap-2">
+            <Building2 className="h-6 w-6 text-(--color-primary)" /> My Venues
+          </h1>
+          <p className="text-(--color-muted-foreground) text-sm mt-1">
+            Manage your listed venues and view bookings
+          </p>
+        </div>
+        <Button onClick={() => setCreateOpen(true)}>
+          <Plus className="h-4 w-4 mr-1" /> Add venue
+        </Button>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
+        <Card>
+          <CardContent className="p-4 text-center">
+            <p className="text-2xl font-bold">{venues.length}</p>
+            <p className="text-xs text-(--color-muted-foreground)">
+              Venues listed
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 text-center">
+            <p className="text-2xl font-bold">{totalBookings}</p>
+            <p className="text-xs text-(--color-muted-foreground)">
+              Total bookings
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="hidden sm:block">
+          <CardContent className="p-4 text-center">
+            <p className="text-2xl font-bold">
+              {formatPrice(
+                venues.reduce((acc, v) => acc + v.price, 0) /
+                  (venues.length || 1),
+              )}
+            </p>
+            <p className="text-xs text-(--color-muted-foreground)">
+              Avg. price / night
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Venues list */}
+      {venues.length === 0 ? (
+        <div className="text-center py-16 rounded-(--radius) border border-dashed border-(--color-border)">
+          <Building2 className="mx-auto h-12 w-12 text-(--color-muted-foreground) mb-4" />
+          <h2 className="text-xl font-semibold mb-2">No venues yet</h2>
+          <p className="text-(--color-muted-foreground) mb-4">
+            Create your first venue to start accepting bookings.
+          </p>
+          <Button onClick={() => setCreateOpen(true)}>
+            <Plus className="h-4 w-4 mr-1" /> Create venue
+          </Button>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {venues.map((venue) => (
+            <Card key={venue.id} className="overflow-hidden">
+              <CardContent className="p-0">
+                <div className="flex gap-0">
+                  <div className="w-32 shrink-0 overflow-hidden bg-(--color-muted)">
+                    <img
+                      src={buildImageUrl(
+                        venue.media[0]?.url,
+                        VENUE_PLACEHOLDER,
+                      )}
+                      alt={venue.name}
+                      className="h-full w-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = VENUE_PLACEHOLDER;
+                      }}
+                    />
+                  </div>
+                  <div className="flex-1 p-4">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold truncate">{venue.name}</h3>
+                        <p className="text-sm text-(--color-muted-foreground)">
+                          {formatPrice(venue.price)} / night · Up to{" "}
+                          {venue.maxGuests} guests
+                        </p>
+                      </div>
+                      <div className="flex gap-1 shrink-0">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setEditVenue(venue)}
+                          aria-label="Edit venue"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-(--color-destructive) hover:text-(--color-destructive) hover:bg-destructive/10"
+                          onClick={() => setDeleteConfirm(venue.id)}
+                          aria-label="Delete venue"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 mt-2">
+                      <Badge
+                        variant="secondary"
+                        className="flex items-center gap-1 text-xs"
+                      >
+                        <Calendar className="h-3 w-3" />
+                        {venue._count?.bookings ??
+                          venue.bookings?.length ??
+                          0}{" "}
+                        booking(s)
+                      </Badge>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-xs h-6 px-2"
+                        onClick={() =>
+                          setBookingsExpanded(
+                            bookingsExpanded === venue.id ? null : venue.id,
+                          )
+                        }
+                      >
+                        {bookingsExpanded === venue.id ? "Hide" : "View"}{" "}
+                        bookings
+                      </Button>
+                    </div>
+
+                    {/* Expanded bookings */}
+                    {bookingsExpanded === venue.id &&
+                      venue.bookings &&
+                      venue.bookings.length > 0 && (
+                        <div className="mt-3 border-t border-(--color-border) pt-3">
+                          <p className="text-xs font-medium text-(--color-muted-foreground) mb-2">
+                            Bookings
+                          </p>
+                          <div className="space-y-2">
+                            {venue.bookings.map((booking: Booking) => (
+                              <div
+                                key={booking.id}
+                                className="flex items-center justify-between text-xs bg-(--color-muted) rounded-(--radius) px-3 py-2"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <Users className="h-3 w-3" />
+                                  <span>
+                                    {booking.customer?.name ?? "Guest"}
+                                  </span>
+                                </div>
+                                <span>
+                                  {new Date(
+                                    booking.dateFrom,
+                                  ).toLocaleDateString()}{" "}
+                                  →{" "}
+                                  {new Date(
+                                    booking.dateTo,
+                                  ).toLocaleDateString()}
+                                </span>
+                                <span>{booking.guests} guest(s)</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    {bookingsExpanded === venue.id &&
+                      (!venue.bookings || venue.bookings.length === 0) && (
+                        <div className="mt-3 border-t border-(--color-border) pt-3">
+                          <p className="text-xs text-(--color-muted-foreground)">
+                            No bookings for this venue yet.
+                          </p>
+                        </div>
+                      )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {/* Create venue dialog */}
+      <Dialog
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        title="Create new venue"
+        className="max-w-2xl max-h-[90vh] overflow-y-auto"
+      >
+        <VenueForm />
+      </Dialog>
+    </div>
+  );
 };
 
 export default DashboardPage;
