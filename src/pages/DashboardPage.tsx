@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Building2, Calendar, Edit, Plus, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 import { Dialog } from "@/components/ui/dialog";
+import VenueForm from "@/components/dashboard/VenueForm";
 
 export const DashboardPage = () => {
   const { isAuthenticated, isVenueManager, user } = useAuth();
@@ -256,10 +257,7 @@ export const DashboardPage = () => {
         title="Create new venue"
         className="max-w-2xl max-h-[90vh] overflow-y-auto"
       >
-        <VenueForm
-          onSuccess={handleVenueSuccess}
-          onCancel={() => setCreateOpen(false)}
-        />
+        <VenueForm />
       </Dialog>
     </div>
   );
