@@ -10,6 +10,7 @@ import {
 import RegisterPage from "@/pages/RegisterPage";
 import { VenueDetailPage } from "@/pages/VenueDetailPage";
 import ProfilePage from "@/pages/ProfilePage";
+import DashboardPage from "@/pages/DashboardPage";
 
 // Root route with layout
 const rootRoute = createRootRoute({
@@ -57,9 +58,7 @@ const profileRoute = createRoute({
 const dashboardRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/dashboard",
-  component: () => (
-    <div className="p-10 text-center">Dashboard page coming soon</div>
-  ),
+  component: DashboardPage,
 });
 
 const routeTree = rootRoute.addChildren([

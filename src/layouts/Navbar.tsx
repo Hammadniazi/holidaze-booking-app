@@ -92,6 +92,7 @@ export const Navbar = () => {
                   )}
                   <span className="text-sm font-medium">{user?.name}</span>
                 </Button>
+
                 {dropdownOpen && (
                   <>
                     <div
@@ -180,15 +181,6 @@ export const Navbar = () => {
               onClick={() => setMobileOpen(false)}
             >
               Profile
-            </Link>
-          )}
-          {isVenueManager && (
-            <Link
-              to="/dashboard"
-              className="rounded-(--radius) px-3 py-2 text-sm font-medium hover:bg-(--color-accent) transition-colors"
-              onClick={() => setMobileOpen(false)}
-            >
-              Dashboard
             </Link>
           )}
 
