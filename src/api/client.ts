@@ -140,6 +140,14 @@ export const venuesApi = {
       `/holidaze/venues/search?q=${encodeURIComponent(query)}&_owner=true`,
       { requiresAuth: false },
     ),
+  create: (data: unknown) =>
+    request("/holidaze/venues", { method: "POST", body: data }),
+
+  update: (id: string, data: unknown) =>
+    request(`/holidaze/venues/${id}`, { method: "PUT", body: data }),
+
+  delete: (id: string) =>
+    request(`/holidaze/venues/${id}`, { method: "DELETE" }),
 };
 
 // Bookings Api
@@ -163,7 +171,7 @@ export const bookingsApi = {
 
 //  Profile Api
 
-export const profileApi = {
+export const profilesApi = {
   getOne: (name: string) =>
     request(`/holidaze/profiles/${name}?_bookings=true&_venues=true`),
   update: (
@@ -175,4 +183,10 @@ export const profileApi = {
       banner?: { url?: string; alt?: string };
     },
   ) => request(`/holidaze/profiles/${name}`, { method: "PUT", body: data }),
+  // Get venues of a profile if venue manager
+  getVenues: (name: string) =>
+    request(`/holidaze/profiles/${name}/venues?_bookings=true`),
+  // Get bookings of a profile
+  getBookings: (name: string) =>
+    request(`/holidaze/profiles/${name}/bookings?_venue=true`),
 };
