@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { ApiError, profilesApi, venuesApi } from "@/api/client";
+import { profilesApi } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
@@ -7,11 +7,10 @@ import type { ApiResponse, Booking, Venue } from "@/types";
 import { buildImageUrl, formatPrice, VENUE_PLACEHOLDER } from "@/utils";
 import { useNavigate } from "@tanstack/react-router";
 import { Badge } from "@/components/ui/badge";
-import { Building2, Calendar, Edit, Plus, Trash2, Users } from "lucide-react";
+import { Building2, Calendar, Edit, Plus, Users } from "lucide-react";
 import { toast } from "sonner";
 import { Dialog } from "@/components/ui/dialog";
 import { VenueForm } from "@/components/dashboard/VenueForm";
-import { Alert } from "@/components/ui/alert";
 
 export const DashboardPage = () => {
   const { isAuthenticated, isVenueManager, user } = useAuth();
@@ -20,7 +19,7 @@ export const DashboardPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [createOpen, setCreateOpen] = useState(false);
   const [, setEditVenue] = useState<Venue | null>(null);
-  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  // const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [bookingsExpanded, setBookingsExpanded] = useState<string | null>(null);
 
   useEffect(() => {
@@ -176,7 +175,7 @@ export const DashboardPage = () => {
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button
+                        {/* <Button
                           variant="ghost"
                           size="icon"
                           className="text-(--color-destructive) hover:text-(--color-destructive) hover:bg-destructive/10"
@@ -184,7 +183,7 @@ export const DashboardPage = () => {
                           aria-label="Delete venue"
                         >
                           <Trash2 className="h-4 w-4" />
-                        </Button>
+                        </Button> */}
                       </div>
                     </div>
 
