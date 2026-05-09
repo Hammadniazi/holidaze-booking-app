@@ -140,6 +140,14 @@ export const venuesApi = {
       `/holidaze/venues/search?q=${encodeURIComponent(query)}&_owner=true`,
       { requiresAuth: false },
     ),
+  create: (data: unknown) =>
+    request("/holidaze/venues", { method: "POST", body: data }),
+
+  update: (id: string, data: unknown) =>
+    request(`/holidaze/venues/${id}`, { method: "PUT", body: data }),
+
+  delete: (id: string) =>
+    request(`/holidaze/venues/${id}`, { method: "DELETE" }),
 };
 
 // Bookings Api

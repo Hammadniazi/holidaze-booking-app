@@ -142,3 +142,4 @@ export type EditBookingInput = z.infer<typeof editBookingSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
+export type CreateVenueInput = z.infer<typeof createVenueSchema>;

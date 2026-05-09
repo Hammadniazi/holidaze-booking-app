@@ -7,10 +7,10 @@ import type { ApiResponse, Booking, Venue } from "@/types";
 import { buildImageUrl, formatPrice, VENUE_PLACEHOLDER } from "@/utils";
 import { useNavigate } from "@tanstack/react-router";
 import { Badge } from "@/components/ui/badge";
-import { Building2, Calendar, Edit, Plus, Trash2, Users } from "lucide-react";
+import { Building2, Calendar, Edit, Plus, Users } from "lucide-react";
 import { toast } from "sonner";
 import { Dialog } from "@/components/ui/dialog";
-import VenueForm from "@/components/dashboard/VenueForm";
+import { VenueForm } from "@/components/dashboard/VenueForm";
 
 export const DashboardPage = () => {
   const { isAuthenticated, isVenueManager, user } = useAuth();
@@ -19,7 +19,7 @@ export const DashboardPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [createOpen, setCreateOpen] = useState(false);
   const [, setEditVenue] = useState<Venue | null>(null);
-  const [, setDeleteConfirm] = useState<string | null>(null);
+  // const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [bookingsExpanded, setBookingsExpanded] = useState<string | null>(null);
 
   useEffect(() => {
@@ -54,6 +54,20 @@ export const DashboardPage = () => {
     (acc, v) => acc + (v._count?.bookings ?? v.bookings?.length ?? 0),
     0,
   );
+
+  const handleVenueSuccess = (venue: Venue) => {
+    setVenues((prev) => {
+      const exists = prev.findIndex((v) => v.id === venue.id);
+      if (exists >= 0) {
+        const updated = [...prev];
+        updated[exists] = venue;
+        return updated;
+      }
+      return [venue, ...prev];
+    });
+    setCreateOpen(false);
+    setEditVenue(null);
+  };
 
   if (isLoading) {
     return (
@@ -161,7 +175,7 @@ export const DashboardPage = () => {
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button
+                        {/* <Button
                           variant="ghost"
                           size="icon"
                           className="text-(--color-destructive) hover:text-(--color-destructive) hover:bg-destructive/10"
@@ -169,7 +183,7 @@ export const DashboardPage = () => {
                           aria-label="Delete venue"
                         >
                           <Trash2 className="h-4 w-4" />
-                        </Button>
+                        </Button> */}
                       </div>
                     </div>
 
@@ -257,7 +271,10 @@ export const DashboardPage = () => {
         title="Create new venue"
         className="max-w-2xl max-h-[90vh] overflow-y-auto"
       >
-        <VenueForm />
+        <VenueForm
+          onSuccess={handleVenueSuccess}
+          onCancel={() => setCreateOpen(false)}
+        />
       </Dialog>
     </div>
   );
