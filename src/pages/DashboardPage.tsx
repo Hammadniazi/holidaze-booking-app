@@ -7,7 +7,7 @@ import type { ApiResponse, Booking, Venue } from "@/types";
 import { buildImageUrl, formatPrice, VENUE_PLACEHOLDER } from "@/utils";
 import { useNavigate } from "@tanstack/react-router";
 import { Badge } from "@/components/ui/badge";
-import { Building2, Calendar, Edit, Plus, Users } from "lucide-react";
+import { Building2, Calendar, Edit, Plus, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 import { Dialog } from "@/components/ui/dialog";
 import { VenueForm } from "@/components/dashboard/VenueForm";
@@ -18,8 +18,8 @@ export const DashboardPage = () => {
   const [venues, setVenues] = useState<Venue[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [createOpen, setCreateOpen] = useState(false);
-  const [, setEditVenue] = useState<Venue | null>(null);
-  // const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [editVenue, setEditVenue] = useState<Venue | null>(null);
+  const [, setDeleteConfirm] = useState<string | null>(null);
   const [bookingsExpanded, setBookingsExpanded] = useState<string | null>(null);
 
   useEffect(() => {
@@ -175,7 +175,7 @@ export const DashboardPage = () => {
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
-                        {/* <Button
+                        <Button
                           variant="ghost"
                           size="icon"
                           className="text-(--color-destructive) hover:text-(--color-destructive) hover:bg-destructive/10"
@@ -183,7 +183,7 @@ export const DashboardPage = () => {
                           aria-label="Delete venue"
                         >
                           <Trash2 className="h-4 w-4" />
-                        </Button> */}
+                        </Button>
                       </div>
                     </div>
 
@@ -275,6 +275,35 @@ export const DashboardPage = () => {
           onSuccess={handleVenueSuccess}
           onCancel={() => setCreateOpen(false)}
         />
+      </Dialog>
+
+      {/* Create venue dialog */}
+      <Dialog
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        title="Create new venue"
+        className="max-w-2xl max-h-[90vh] overflow-y-auto"
+      >
+        <VenueForm
+          onSuccess={handleVenueSuccess}
+          onCancel={() => setCreateOpen(false)}
+        />
+      </Dialog>
+
+      {/* Edit venue dialog */}
+      <Dialog
+        open={!!editVenue}
+        onClose={() => setEditVenue(null)}
+        title="Edit venue"
+        className="max-w-2xl max-h-[90vh] overflow-y-auto"
+      >
+        {editVenue && (
+          <VenueForm
+            venue={editVenue}
+            onSuccess={handleVenueSuccess}
+            onCancel={() => setEditVenue(null)}
+          />
+        )}
       </Dialog>
     </div>
   );
