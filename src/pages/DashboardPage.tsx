@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { profilesApi } from "@/api/client";
+import { ApiError, profilesApi, venuesApi } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
@@ -11,6 +11,7 @@ import { Building2, Calendar, Edit, Plus, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 import { Dialog } from "@/components/ui/dialog";
 import { VenueForm } from "@/components/dashboard/VenueForm";
+import { Alert } from "@/components/ui/alert";
 
 export const DashboardPage = () => {
   const { isAuthenticated, isVenueManager, user } = useAuth();
@@ -19,7 +20,7 @@ export const DashboardPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [createOpen, setCreateOpen] = useState(false);
   const [editVenue, setEditVenue] = useState<Venue | null>(null);
-  const [, setDeleteConfirm] = useState<string | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [bookingsExpanded, setBookingsExpanded] = useState<string | null>(null);
 
   useEffect(() => {
@@ -54,6 +55,19 @@ export const DashboardPage = () => {
     (acc, v) => acc + (v._count?.bookings ?? v.bookings?.length ?? 0),
     0,
   );
+
+  const handleDelete = async (id: string) => {
+    try {
+      await venuesApi.delete(id);
+      setVenues((prev) => prev.filter((v) => v.id !== id));
+      toast.success("Venue deleted");
+    } catch (error) {
+      const msg =
+        error instanceof ApiError ? error.message : "Failed to delete venue";
+      toast.error(msg);
+    }
+    setDeleteConfirm(null);
+  };
 
   const handleVenueSuccess = (venue: Venue) => {
     setVenues((prev) => {
@@ -304,6 +318,33 @@ export const DashboardPage = () => {
             onCancel={() => setEditVenue(null)}
           />
         )}
+      </Dialog>
+
+      {/* Delete confirm dialog */}
+      <Dialog
+        open={!!deleteConfirm}
+        onClose={() => setDeleteConfirm(null)}
+        title="Delete venue"
+      >
+        <Alert variant="destructive" title="Are you sure?" className="mb-4">
+          This will permanently delete the venue and cannot be undone.
+        </Alert>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            className="flex-1"
+            onClick={() => setDeleteConfirm(null)}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="destructive"
+            className="flex-1"
+            onClick={() => deleteConfirm && void handleDelete(deleteConfirm)}
+          >
+            <Trash2 className="h-4 w-4 mr-1" /> Delete venue
+          </Button>
+        </div>
       </Dialog>
     </div>
   );
