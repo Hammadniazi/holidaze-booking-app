@@ -183,6 +183,15 @@ export const Navbar = () => {
               Profile
             </Link>
           )}
+          {isVenueManager && (
+            <Link
+              to="/dashboard"
+              className="rounded-(--radius) px-3 py-2 text-sm font-medium hover:bg-(--color-accent) transition-colors"
+              onClick={() => setMobileOpen(false)}
+            >
+              Dashboard
+            </Link>
+          )}
 
           {!isAuthenticated ? (
             <div className="flex gap-2 pt-2">
