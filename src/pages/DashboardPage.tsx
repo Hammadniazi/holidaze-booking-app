@@ -93,7 +93,7 @@ export const DashboardPage = () => {
 
   return (
     <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-8">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-wrap items-center justify-between gap-y-3 mb-8">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
             <Building2 className="h-6 w-6 text-(--color-primary)" /> My Venues
@@ -157,8 +157,8 @@ export const DashboardPage = () => {
           {venues.map((venue) => (
             <Card key={venue.id} className="overflow-hidden">
               <CardContent className="p-0">
-                <div className="flex gap-0">
-                  <div className="w-32 shrink-0 overflow-hidden bg-(--color-muted)">
+                <div className="flex flex-col sm:flex-row">
+                  <div className="h-44 sm:h-auto w-full sm:w-32 shrink-0 overflow-hidden bg-(--color-muted)">
                     <img
                       src={buildImageUrl(
                         venue.media[0]?.url,
@@ -183,20 +183,22 @@ export const DashboardPage = () => {
                       <div className="flex gap-1 shrink-0">
                         <Button
                           variant="ghost"
-                          size="icon"
+                          size="sm"
                           onClick={() => setEditVenue(venue)}
                           aria-label="Edit venue"
                         >
-                          <Edit className="h-4 w-4" />
+                          <Edit className="h-4 w-4 sm:mr-1" />
+                          <span className="hidden sm:inline">Edit</span>
                         </Button>
                         <Button
                           variant="ghost"
-                          size="icon"
+                          size="sm"
                           className="text-(--color-destructive) hover:text-(--color-destructive) hover:bg-destructive/10"
                           onClick={() => setDeleteConfirm(venue.id)}
                           aria-label="Delete venue"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="h-4 w-4 sm:mr-1" />
+                          <span className="hidden sm:inline">Delete</span>
                         </Button>
                       </div>
                     </div>
@@ -239,15 +241,15 @@ export const DashboardPage = () => {
                             {venue.bookings.map((booking: Booking) => (
                               <div
                                 key={booking.id}
-                                className="flex items-center justify-between text-xs bg-(--color-muted) rounded-(--radius) px-3 py-2"
+                                className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-xs bg-(--color-muted) rounded-(--radius) px-3 py-2 gap-1"
                               >
-                                <div className="flex items-center gap-2">
-                                  <Users className="h-3 w-3" />
+                                <div className="flex items-center gap-2 font-medium">
+                                  <Users className="h-3 w-3 shrink-0" />
                                   <span>
                                     {booking.customer?.name ?? "Guest"}
                                   </span>
                                 </div>
-                                <span>
+                                <span className="text-(--color-muted-foreground) pl-5 sm:pl-0">
                                   {new Date(
                                     booking.dateFrom,
                                   ).toLocaleDateString()}{" "}
@@ -256,7 +258,7 @@ export const DashboardPage = () => {
                                     booking.dateTo,
                                   ).toLocaleDateString()}
                                 </span>
-                                <span>{booking.guests} guest(s)</span>
+                                <span className="pl-5 sm:pl-0">{booking.guests} guest(s)</span>
                               </div>
                             ))}
                           </div>
@@ -277,19 +279,6 @@ export const DashboardPage = () => {
           ))}
         </div>
       )}
-
-      {/* Create venue dialog */}
-      <Dialog
-        open={createOpen}
-        onClose={() => setCreateOpen(false)}
-        title="Create new venue"
-        className="max-w-2xl max-h-[90vh] overflow-y-auto"
-      >
-        <VenueForm
-          onSuccess={handleVenueSuccess}
-          onCancel={() => setCreateOpen(false)}
-        />
-      </Dialog>
 
       {/* Create venue dialog */}
       <Dialog

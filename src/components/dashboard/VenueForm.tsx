@@ -3,13 +3,13 @@ import { createVenueSchema, type CreateVenueInput } from "@/schemas";
 import type { ApiResponse, Venue } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useFieldArray, useForm, Controller } from "react-hook-form";
 import { toast } from "sonner";
 import { Alert } from "../ui/alert";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Star, Trash2 } from "lucide-react";
 
 interface VenueFormProps {
   venue?: Venue;
@@ -123,6 +123,48 @@ export const VenueForm = ({ venue, onSuccess, onCancel }: VenueFormProps) => {
           error={errors.maxGuests?.message}
           {...register("maxGuests")}
         />
+      </div>
+
+      {/* Rating */}
+      <div>
+        <p className="text-sm font-medium mb-2">Venue rating</p>
+        <Controller
+          name="rating"
+          control={control}
+          render={({ field }) => (
+            <div className="flex items-center gap-1">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  type="button"
+                  onClick={() =>
+                    field.onChange(star === field.value ? 0 : star)
+                  }
+                  className="p-0.5 focus:outline-none"
+                  aria-label={`${star} star${star > 1 ? "s" : ""}`}
+                >
+                  <Star
+                    className={`h-6 w-6 transition-colors ${
+                      (field.value ?? 0) >= star
+                        ? "fill-(--color-primary) text-(--color-primary)"
+                        : "text-(--color-muted-foreground)"
+                    }`}
+                  />
+                </button>
+              ))}
+              {field.value ? (
+                <span className="ml-2 text-sm text-(--color-muted-foreground)">
+                  {field.value} / 5
+                </span>
+              ) : null}
+            </div>
+          )}
+        />
+        {errors.rating && (
+          <p className="text-sm text-(--color-destructive) mt-1">
+            {errors.rating.message}
+          </p>
+        )}
       </div>
 
       <Textarea

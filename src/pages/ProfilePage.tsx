@@ -24,7 +24,7 @@ import {
 } from "@/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "@tanstack/react-router";
-import { Calendar, Edit, MapPin, Pencil, Trash2 } from "lucide-react";
+import { Calendar, Edit, MapPin, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useForm, type Resolver } from "react-hook-form";
 import { toast } from "sonner";
@@ -203,7 +203,7 @@ export const ProfilePage = () => {
           </div>
 
           {/* Name, email, bio */}
-          <div className="mt-2 pl-1">
+          <div className="mt-2 pl-24 sm:pl-0">
             <div className="flex items-center gap-3 flex-wrap">
               <h1 className="text-xl font-bold">{user?.name}</h1>
               {user?.venueManager && (
@@ -223,8 +223,8 @@ export const ProfilePage = () => {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
-        <Card>
+      <div className="flex flex-wrap gap-4 mb-8">
+        <Card className="flex-1 min-w-35">
           <CardContent className="p-4 text-center">
             <p className="text-2xl font-bold">
               {profileData?._count?.bookings ?? bookings.length}
@@ -233,7 +233,7 @@ export const ProfilePage = () => {
           </CardContent>
         </Card>
         {user?.venueManager && (
-          <Card>
+          <Card className="flex-1 min-w-35">
             <CardContent className="p-4 text-center">
               <p className="text-2xl font-bold">
                 {profileData?._count?.venues ?? 0}
@@ -268,9 +268,9 @@ export const ProfilePage = () => {
             {bookings.map((booking) => (
               <Card key={booking.id} className="overflow-hidden">
                 <CardContent className="p-0">
-                  <div className="flex">
+                  <div className="flex flex-col sm:flex-row">
                     {booking.venue?.media?.[0]?.url && (
-                      <div className="w-28 shrink-0 overflow-hidden bg-(--color-muted)">
+                      <div className="h-40 sm:h-auto w-full sm:w-28 shrink-0 overflow-hidden bg-(--color-muted)">
                         <img
                           src={booking.venue.media[0].url}
                           alt={booking.venue.name}
@@ -283,8 +283,8 @@ export const ProfilePage = () => {
                     )}
                     <div className="flex-1 p-4">
                       <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <p className="font-semibold">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold truncate">
                             {booking.venue?.name ?? "Venue"}
                           </p>
                           {booking.venue?.location && (
@@ -302,21 +302,23 @@ export const ProfilePage = () => {
                         <div className="flex items-center gap-1 shrink-0">
                           <Button
                             variant="ghost"
-                            size="icon"
+                            size="sm"
                             className="text-(--color-muted-foreground) hover:text-(--color-foreground)"
                             onClick={() => openEditBooking(booking)}
                             aria-label="Edit booking"
                           >
-                            <Pencil className="h-4 w-4" />
+                            <Edit className="h-4 w-4 sm:mr-1" />
+                            <span className="hidden sm:inline">Edit</span>
                           </Button>
                           <Button
                             variant="ghost"
-                            size="icon"
+                            size="sm"
                             className="text-(--color-destructive) hover:text-(--color-destructive) hover:bg-destructive/10"
                             onClick={() => void deleteBooking(booking.id)}
                             aria-label="Cancel booking"
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <Trash2 className="h-4 w-4 sm:mr-1" />
+                            <span className="hidden sm:inline">Cancel</span>
                           </Button>
                         </div>
                       </div>
