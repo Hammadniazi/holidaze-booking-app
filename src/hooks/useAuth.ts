@@ -5,7 +5,7 @@ import { useCallback } from "react";
 import { toast } from "sonner";
 
 export function useAuth() {
-  const { user, setAuth, token, clearAuth, isVenueManager } = useAuthStore();
+  const { user, setAuth, token, clearAuth } = useAuthStore();
   const login = useCallback(
     async (email: string, password: string) => {
       const res = (await authApi.login({
@@ -43,7 +43,7 @@ export function useAuth() {
     user,
     token,
     isAuthenticated: !!token,
-    isVenueManager: isVenueManager(),
+    isVenueManager: !!user?.venueManager,
     login,
     register,
     logout,

@@ -7,20 +7,17 @@ interface AuthState {
   token: string | null;
   setAuth: (user: AuthUser) => void;
   clearAuth: () => void;
-  isVenueManager: () => boolean;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       user: null,
       token: null,
 
       setAuth: (user: AuthUser) => set({ user, token: user.accessToken }),
 
       clearAuth: () => set({ user: null, token: null }),
-
-      isVenueManager: () => get().user?.venueManager ?? false,
     }),
     {
       name: "holidaze_auth",
