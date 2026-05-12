@@ -13,11 +13,11 @@ import {
 } from "@/utils";
 import { useNavigate } from "@tanstack/react-router";
 import {
-  Calendar,
   Car,
   ChevronLeft,
   ChevronRight,
   Coffee,
+  ExternalLink,
   MapPin,
   PawPrint,
   Star,
@@ -78,6 +78,21 @@ export const VenueDetailPage = ({ id }: VenueDetailPageProps) => {
   ]
     .filter(Boolean)
     .join(", ");
+
+  // Noroff API defaults unset coordinates to 0,0 — treat that as "no coords"
+  const hasCoords = venue.location.lat !== 0 || venue.location.lng !== 0;
+
+  // Google Maps embed src — pin on exact coords if available, city search otherwise
+  const mapEmbedSrc = hasCoords
+    ? `https://maps.google.com/maps?q=${venue.location.lat},${venue.location.lng}&t=m&z=15&output=embed&iwloc=B`
+    : location
+      ? `https://maps.google.com/maps?q=${encodeURIComponent(location)}&t=m&z=13&output=embed&iwloc=B`
+      : null;
+
+  // Google Maps link for "Open in Google Maps"
+  const mapsLink = hasCoords
+    ? `https://www.google.com/maps?q=${venue.location.lat},${venue.location.lng}`
+    : `https://www.google.com/maps/search/?q=${encodeURIComponent(location)}`;
 
   return (
     <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-8">
@@ -211,18 +226,7 @@ export const VenueDetailPage = ({ id }: VenueDetailPageProps) => {
             </div>
           )}
 
-          {/* Upcoming bookings preview (for managers viewing own venue) */}
-          {venue.bookings && venue.bookings.length > 0 && (
-            <div>
-              <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                <Calendar className="h-5 w-5" /> Upcoming bookings
-              </h2>
-              <p className="text-sm text-(--color-muted-foreground) mb-2">
-                {venue.bookings.length} booking(s) on record. These dates are
-                unavailable.
-              </p>
-            </div>
-          )}
+          {/* Upcoming bookings — removed: calendar already shows blocked dates visually */}
         </div>
 
         {/* Right: Booking form */}
@@ -241,6 +245,44 @@ export const VenueDetailPage = ({ id }: VenueDetailPageProps) => {
           </div>
         </div>
       </div>
+
+      {/* Map  */}
+
+      {mapEmbedSrc && (
+        <div className="mt-10 pt-8 border-t border-(--color-border)">
+          <h2 className="text-xl font-semibold mb-1">Where you'll be</h2>
+          {location && (
+            <p className="text-sm text-(--color-muted-foreground) mb-5">
+              {location}
+            </p>
+          )}
+
+          <div className="rounded-2xl overflow-hidden h-64 sm:h-80">
+            <iframe
+              title="Venue location"
+              width="100%"
+              height="100%"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              src={mapEmbedSrc}
+              className="block border-0 w-full h-full"
+            />
+          </div>
+
+          {/* Below map: just the link — location already shown as subtitle above */}
+          <div className="mt-3 flex justify-end">
+            <a
+              href={mapsLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-sm font-medium underline text-(--color-foreground) hover:text-(--color-primary) transition-colors"
+            >
+              Show more on map
+              <ExternalLink className="h-3.5 w-3.5" />
+            </a>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

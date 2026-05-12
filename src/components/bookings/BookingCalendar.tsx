@@ -71,9 +71,9 @@ export function BookingCalendar({
           outside: "opacity-40",
           nav: "flex items-center justify-between mb-2",
           button_previous:
-            "h-7 w-7 rounded-(--radius) flex items-center justify-center hover:bg-(--color-accent) transition-colors",
+            "h-7 w-7 rounded-(--radius) flex items-center justify-center text-(--color-muted-foreground) hover:bg-(--color-accent) hover:text-(--color-foreground) transition-colors",
           button_next:
-            "h-7 w-7 rounded-(--radius) flex items-center justify-center hover:bg-(--color-accent) transition-colors",
+            "h-7 w-7 rounded-(--radius) flex items-center justify-center text-(--color-muted-foreground) hover:bg-(--color-accent) hover:text-(--color-foreground) transition-colors",
         }}
       />
       <div className="mt-3 flex gap-4 text-xs text-(--color-muted-foreground)">
