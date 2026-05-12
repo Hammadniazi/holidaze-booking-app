@@ -42,6 +42,7 @@ export const ProfilePage = () => {
   const [editBookingOpen, setEditBookingOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [bookingError, setBookingError] = useState<string | null>(null);
+  const [cancelConfirmId, setCancelConfirmId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -314,7 +315,7 @@ export const ProfilePage = () => {
                             variant="ghost"
                             size="sm"
                             className="text-(--color-destructive) hover:text-(--color-destructive) hover:bg-destructive/10"
-                            onClick={() => void deleteBooking(booking.id)}
+                            onClick={() => setCancelConfirmId(booking.id)}
                             aria-label="Cancel booking"
                           >
                             <Trash2 className="h-4 w-4 sm:mr-1" />
@@ -358,6 +359,37 @@ export const ProfilePage = () => {
           </div>
         )}
       </div>
+
+      {/* Cancel booking confirmation dialog */}
+      <Dialog
+        open={!!cancelConfirmId}
+        onClose={() => setCancelConfirmId(null)}
+        title="Cancel booking"
+      >
+        <p className="text-sm text-(--color-muted-foreground) mb-5">
+          Are you sure you want to cancel this booking? This action cannot be
+          undone.
+        </p>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            className="flex-1"
+            onClick={() => setCancelConfirmId(null)}
+          >
+            Keep booking
+          </Button>
+          <Button
+            variant="destructive"
+            className="flex-1"
+            onClick={() => {
+              if (cancelConfirmId) void deleteBooking(cancelConfirmId);
+              setCancelConfirmId(null);
+            }}
+          >
+            <Trash2 className="h-4 w-4 mr-1" /> Yes, cancel it
+          </Button>
+        </div>
+      </Dialog>
 
       {/* Edit Booking Dialog */}
       <Dialog
