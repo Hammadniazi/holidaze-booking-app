@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
 import { useBookings } from "@/hooks/useBookings";
 import {
@@ -167,7 +168,7 @@ export const ProfilePage = () => {
       <div className="mb-8">
         {/* Banner */}
         <div
-          className={`w-full rounded-(--radius) overflow-hidden ${bannerUrl ? "h-48 sm:h-56" : "h-20 bg-(--color-muted)"}`}
+          className={`w-full rounded-(--radius) overflow-hidden ${bannerUrl ? "h-48 sm:h-56" : "h-32 bg-linear-to-br from-(--color-muted) to-(--color-accent)/40"}`}
         >
           {bannerUrl && (
             <img
@@ -214,9 +215,13 @@ export const ProfilePage = () => {
             <p className="text-sm text-(--color-muted-foreground) mt-0.5">
               {user?.email}
             </p>
-            {profileData?.bio && (
+            {profileData?.bio ? (
               <p className="text-sm mt-1 text-(--color-foreground)">
                 {profileData.bio}
+              </p>
+            ) : (
+              <p className="text-sm mt-1 text-(--color-muted-foreground) italic">
+                No bio yet
               </p>
             )}
           </div>
@@ -467,11 +472,12 @@ export const ProfilePage = () => {
           </Alert>
         )}
         <form onSubmit={handleSubmit(onUpdateProfile)} className="space-y-4">
-          <Input
+          <Textarea
             id="bio"
             label="Bio"
             placeholder="Tell us about yourself..."
             error={errors.bio?.message}
+            rows={3}
             {...register("bio")}
           />
           <Input

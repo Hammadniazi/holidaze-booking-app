@@ -11,7 +11,6 @@ import { Building2, Calendar, Edit, Plus, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 import { Dialog } from "@/components/ui/dialog";
 import { VenueForm } from "@/components/dashboard/VenueForm";
-import { Alert } from "@/components/ui/alert";
 
 export const DashboardPage = () => {
   const { isAuthenticated, isVenueManager, user } = useAuth();
@@ -315,16 +314,17 @@ export const DashboardPage = () => {
         onClose={() => setDeleteConfirm(null)}
         title="Delete venue"
       >
-        <Alert variant="destructive" title="Are you sure?" className="mb-4">
-          This will permanently delete the venue and cannot be undone.
-        </Alert>
+        <p className="text-sm text-(--color-muted-foreground) mb-5">
+          Are you sure you want to permanently delete this venue? This action
+          cannot be undone.
+        </p>
         <div className="flex gap-2">
           <Button
             variant="outline"
             className="flex-1"
             onClick={() => setDeleteConfirm(null)}
           >
-            Cancel
+            Keep venue
           </Button>
           <Button
             variant="destructive"
