@@ -7,7 +7,7 @@ import { Alert } from "@/components/ui/alert";
 import { MapPin, ChevronLeft, ChevronRight } from "lucide-react";
 import { VenueSearch } from "@/components/venues/VenueSearch";
 
-const ITEMS_PER_PAGE = 12;
+const ITEMS_PER_PAGE = 16;
 
 function getPageNumbers(
   currentPage: number,
