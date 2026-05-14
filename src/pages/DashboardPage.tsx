@@ -257,7 +257,9 @@ export const DashboardPage = () => {
                                     booking.dateTo,
                                   ).toLocaleDateString()}
                                 </span>
-                                <span className="pl-5 sm:pl-0">{booking.guests} guest(s)</span>
+                                <span className="pl-5 sm:pl-0">
+                                  {booking.guests} guest(s)
+                                </span>
                               </div>
                             ))}
                           </div>
