@@ -26,3 +26,10 @@ dist-ssr
 # Environment variables
 .env
 .env.local
+
+# Playwright auth state (contains real tokens — never commit)
+tests/e2e/.auth/
+
+# Playwright output — generated on every run, not source code
+test-results/
+playwright-report/
