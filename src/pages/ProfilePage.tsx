@@ -22,6 +22,7 @@ import {
   buildImageUrl,
   formatDate,
   formatPrice,
+  VENUE_PLACEHOLDER,
 } from "@/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "@tanstack/react-router";
@@ -282,7 +283,8 @@ export const ProfilePage = () => {
                           alt={booking.venue.name}
                           className="h-full w-full object-cover"
                           onError={(e) => {
-                            (e.target as HTMLImageElement).src = "";
+                            (e.target as HTMLImageElement).src =
+                              VENUE_PLACEHOLDER;
                           }}
                         />
                       </div>

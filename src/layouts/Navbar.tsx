@@ -20,7 +20,7 @@ export const Navbar = () => {
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b  border-(--color-border) bg-(--color-background)/95 backdrop-blur supports-backdrop-filter:bg-(--color-background)/60">
+    <header className="sticky top-0 z-40 w-full border-b border-(--color-border) bg-(--color-background)/95 backdrop-blur supports-backdrop-filter:bg-(--color-background)/60">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
@@ -33,7 +33,7 @@ export const Navbar = () => {
           <nav className="hidden md:flex items-center gap-6">
             <Link
               to="/"
-              className="text-sm font-medium text-muted-foreground hover:text-(--color-foreground) transition-colors [&.active]:text-(--color-foreground)"
+              className="text-sm font-medium text-(--color-muted-foreground) hover:text-(--color-foreground) transition-colors [&.active]:text-(--color-foreground)"
             >
               Venues
             </Link>
