@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { loginSchema, registerSchema, createVenueSchema } from "@/schemas/index";
+import {
+  loginSchema,
+  registerSchema,
+  createVenueSchema,
+  contactSchema,
+} from "@/schemas/index";
 
 // ---------------------------------------------------------------------------
 // loginSchema
@@ -190,5 +195,99 @@ describe("createVenueSchema", () => {
       media: [{ url: "https://example.com/image.jpg", alt: "photo" }],
     });
     expect(result.success).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// contactSchema
+// ---------------------------------------------------------------------------
+describe("contactSchema", () => {
+  const validContact = {
+    name: "Jane Doe",
+    email: "jane@example.com",
+    subject: "general" as const,
+    message: "Hello, this is a test message long enough to pass.",
+  };
+
+  it("passes with valid data", () => {
+    const result = contactSchema.safeParse(validContact);
+    expect(result.success).toBe(true);
+  });
+
+  it("passes with each valid subject value", () => {
+    for (const subject of [
+      "general",
+      "booking",
+      "hosting",
+      "report",
+    ] as const) {
+      const result = contactSchema.safeParse({ ...validContact, subject });
+      expect(result.success).toBe(true);
+    }
+  });
+
+  it("fails when name is shorter than 3 characters", () => {
+    const result = contactSchema.safeParse({ ...validContact, name: "Jo" });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].path[0]).toBe("name");
+    }
+  });
+
+  it("fails when email is invalid", () => {
+    const result = contactSchema.safeParse({
+      ...validContact,
+      email: "not-an-email",
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].path[0]).toBe("email");
+    }
+  });
+
+  it("fails when subject is not one of the allowed values", () => {
+    const result = contactSchema.safeParse({
+      ...validContact,
+      subject: "other",
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].path[0]).toBe("subject");
+    }
+  });
+
+  it("fails when message is shorter than 10 characters", () => {
+    const result = contactSchema.safeParse({
+      ...validContact,
+      message: "Too short",
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].path[0]).toBe("message");
+    }
+  });
+
+  it("fails when message exceeds 1000 characters", () => {
+    const result = contactSchema.safeParse({
+      ...validContact,
+      message: "a".repeat(1001),
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].path[0]).toBe("message");
+    }
+  });
+
+  it("passes when message is exactly 1000 characters", () => {
+    const result = contactSchema.safeParse({
+      ...validContact,
+      message: "a".repeat(1000),
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("fails when required fields are missing", () => {
+    const result = contactSchema.safeParse({});
+    expect(result.success).toBe(false);
   });
 });
