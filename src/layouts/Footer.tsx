@@ -148,7 +148,7 @@ const Footer = () => {
                         to="/dashboard"
                         className="text-sm text-(--color-muted-foreground) hover:text-(--color-foreground) transition-colors"
                       >
-                        Dashboard
+                        My Venues
                       </Link>
                     </li>
                   )}

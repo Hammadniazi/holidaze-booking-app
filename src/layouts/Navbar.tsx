@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { Menu, X, MapPin, LogOut, User, Moon, Sun } from "lucide-react";
+import { Menu, X, MapPin, LogOut, User, Moon, Sun, Building2 } from "lucide-react";
 import { cn } from "@/utils";
 import { useThemeStore } from "@/store/themeStore";
 
@@ -50,7 +50,7 @@ export const Navbar = () => {
                 to="/dashboard"
                 className="text-sm font-medium text-(--color-muted-foreground) hover:text-(--color-foreground) transition-colors [&.active]:text-(--color-foreground)"
               >
-                Dashboard
+                My Venues
               </Link>
             )}
             <Link
@@ -120,7 +120,7 @@ export const Navbar = () => {
                           className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-(--color-accent) transition-colors"
                           onClick={() => setDropdownOpen(false)}
                         >
-                          <MapPin className="h-4 w-4" /> Dashboard
+                          <Building2 className="h-4 w-4" /> My Venues
                         </Link>
                       )}
 
@@ -195,7 +195,7 @@ export const Navbar = () => {
               className="rounded-(--radius) px-3 py-2 text-sm font-medium hover:bg-(--color-accent) transition-colors"
               onClick={() => setMobileOpen(false)}
             >
-              Dashboard
+              My Venues
             </Link>
           )}
           <Link

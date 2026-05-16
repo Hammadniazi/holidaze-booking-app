@@ -25,8 +25,8 @@ import {
   VENUE_PLACEHOLDER,
 } from "@/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigate } from "@tanstack/react-router";
-import { Calendar, Edit, MapPin, Trash2 } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { Building2, Calendar, Edit, MapPin, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useForm, type Resolver } from "react-hook-form";
 import { toast } from "sonner";
@@ -253,6 +253,26 @@ export const ProfilePage = () => {
         )}
       </div>
 
+      {/* Host Dashboard CTA — only for venue managers */}
+      {user?.venueManager && (
+        <div className="mb-8 rounded-(--radius) border border-(--color-border) bg-(--color-muted)/40 p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-start gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-(--color-primary)/10">
+              <Building2 className="h-5 w-5 text-(--color-primary)" />
+            </div>
+            <div>
+              <p className="font-semibold text-sm">Manage your venues</p>
+              <p className="text-xs text-(--color-muted-foreground) mt-0.5">
+                View bookings, add new venues, and update your listings.
+              </p>
+            </div>
+          </div>
+          <Button asChild size="sm" className="shrink-0">
+            <Link to="/dashboard">Go to My Venues</Link>
+          </Button>
+        </div>
+      )}
+
       {/* Bookings section */}
       <div>
         <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
@@ -267,7 +287,7 @@ export const ProfilePage = () => {
               Start exploring venues to make your first booking.
             </p>
             <Button asChild>
-              <a href="/">Browse venues</a>
+              <Link to="/">Browse venues</Link>
             </Button>
           </div>
         ) : (
