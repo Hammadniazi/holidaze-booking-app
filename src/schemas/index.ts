@@ -137,9 +137,22 @@ export const updateProfileSchema = z.object({
     .optional(),
 });
 
+export const contactSchema = z.object({
+  name: z.string().min(3, "Name must be at least 3 characters"),
+  email: z.string().email("Invalid email address"),
+  subject: z.enum(["general", "booking", "hosting", "report"], {
+    error: () => "Please select a subject",
+  }),
+  message: z
+    .string()
+    .min(10, "Message must be at least 10 characters")
+    .max(1000, "Message must be under 1000 characters"),
+});
+
 export type BookingInput = z.infer<typeof bookingSchema>;
 export type EditBookingInput = z.infer<typeof editBookingSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 export type CreateVenueInput = z.infer<typeof createVenueSchema>;
+export type ContactInput = z.infer<typeof contactSchema>;
