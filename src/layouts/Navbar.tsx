@@ -53,6 +53,12 @@ export const Navbar = () => {
                 Dashboard
               </Link>
             )}
+            <Link
+              to="/contact"
+              className="text-sm font-medium text-(--color-muted-foreground) hover:text-(--color-foreground) transition-colors [&.active]:text-(--color-foreground)"
+            >
+              Contact
+            </Link>
           </nav>
 
           {/* Right area */}
@@ -192,6 +198,13 @@ export const Navbar = () => {
               Dashboard
             </Link>
           )}
+          <Link
+            to="/contact"
+            className="rounded-(--radius) px-3 py-2 text-sm font-medium hover:bg-(--color-accent) transition-colors"
+            onClick={() => setMobileOpen(false)}
+          >
+            Contact
+          </Link>
 
           {!isAuthenticated ? (
             <div className="flex gap-2 pt-2">

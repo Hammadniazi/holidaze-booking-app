@@ -11,6 +11,7 @@ import RegisterPage from "@/pages/RegisterPage";
 import { VenueDetailPage } from "@/pages/VenueDetailPage";
 import ProfilePage from "@/pages/ProfilePage";
 import DashboardPage from "@/pages/DashboardPage";
+import ContactPage from "@/pages/ContactPage";
 
 // Root route with layout
 const rootRoute = createRootRoute({
@@ -61,6 +62,12 @@ const dashboardRoute = createRoute({
   component: DashboardPage,
 });
 
+const contactRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/contact",
+  component: ContactPage,
+});
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   venueRoute,
@@ -68,6 +75,7 @@ const routeTree = rootRoute.addChildren([
   registerRoute,
   profileRoute,
   dashboardRoute,
+  contactRoute,
 ]);
 
 export const router = createRouter({ routeTree });
