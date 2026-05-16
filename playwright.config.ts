@@ -39,7 +39,11 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "npm run preview",
+    // In CI the build step already ran; locally we must build first so the
+    // dist always includes the latest routes (e.g. /contact).
+    command: process.env.CI
+      ? "npm run preview"
+      : "npm run build && npm run preview",
     url: "http://localhost:4173",
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

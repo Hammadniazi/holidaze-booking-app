@@ -104,8 +104,8 @@ describe("Navbar — guest (not logged in)", () => {
     expect(screen.queryByRole("link", { name: "Profile" })).not.toBeInTheDocument();
   });
 
-  it("does not render Dashboard link", () => {
-    expect(screen.queryByRole("link", { name: "Dashboard" })).not.toBeInTheDocument();
+  it("does not render My Venues link", () => {
+    expect(screen.queryByRole("link", { name: "My Venues" })).not.toBeInTheDocument();
   });
 
   it("does not render Logout button", () => {
@@ -128,9 +128,9 @@ describe("Navbar — authenticated customer", () => {
     expect(screen.getAllByRole("link", { name: "Profile" })[0]).toBeInTheDocument();
   });
 
-  it("does not render Dashboard link", () => {
-    // Dashboard link only appears for venue managers
-    expect(screen.queryByRole("link", { name: "Dashboard" })).not.toBeInTheDocument();
+  it("does not render My Venues link", () => {
+    // My Venues link only appears for venue managers
+    expect(screen.queryByRole("link", { name: "My Venues" })).not.toBeInTheDocument();
   });
 
   it("does not render Login or Register links", () => {
@@ -158,8 +158,8 @@ describe("Navbar — authenticated venue manager", () => {
     expect(screen.getAllByRole("link", { name: "Profile" })[0]).toBeInTheDocument();
   });
 
-  it("renders Dashboard link", () => {
-    expect(screen.getAllByRole("link", { name: "Dashboard" })[0]).toBeInTheDocument();
+  it("renders My Venues link", () => {
+    expect(screen.getAllByRole("link", { name: "My Venues" })[0]).toBeInTheDocument();
   });
 
   it("does not render Login or Register links", () => {

@@ -59,6 +59,7 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family:
+      "Geist Variable",
       system-ui,
       -apple-system,
       sans-serif;
