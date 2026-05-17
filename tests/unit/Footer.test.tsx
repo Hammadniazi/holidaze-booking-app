@@ -83,10 +83,14 @@ describe("Footer — unauthenticated", () => {
   });
 
   it("renders social icon links for GitHub, LinkedIn, and Twitter/X", () => {
-    expect(screen.getByRole("link", { name: "GitHub" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "LinkedIn" })).toBeInTheDocument();
     expect(
-      screen.getByRole("link", { name: "Twitter / X" }),
+      screen.getByRole("link", { name: "GitHub (opens in new tab)" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "LinkedIn (opens in new tab)" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Twitter / X (opens in new tab)" }),
     ).toBeInTheDocument();
   });
 
