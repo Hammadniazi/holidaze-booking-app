@@ -20,8 +20,10 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
       <textarea
         id={id}
         ref={ref}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error && id ? `${id}-error` : undefined}
         className={cn(
-          "flex min-h-[80px] w-full rounded-(--radius) border border-(--color-input)",
+          "flex min-h-20 w-full rounded-(--radius) border border-(--color-input)",
           "bg-(--color-background) px-3 py-2 text-sm",
           "placeholder:text-(--color-muted-foreground) focus-visible:outline-none",
           "focus-visible:ring-2 focus-visible:ring-(--color-ring)",
@@ -31,7 +33,11 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         )}
         {...props}
       />
-      {error && <p className="text-xs text-(--color-destructive)">{error}</p>}
+      {error && (
+        <p id={id ? `${id}-error` : undefined} role="alert" className="text-xs text-(--color-destructive)">
+          {error}
+        </p>
+      )}
     </div>
   ),
 );

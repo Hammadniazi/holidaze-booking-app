@@ -8,7 +8,16 @@ import {
   VENUE_PLACEHOLDER,
   truncate,
 } from "@/utils";
-import { Star, MapPin, Users, Wifi, Car, Coffee, PawPrint, Heart } from "lucide-react";
+import {
+  Star,
+  MapPin,
+  Users,
+  Wifi,
+  Car,
+  Coffee,
+  PawPrint,
+  Heart,
+} from "lucide-react";
 import { useFavoritesStore } from "@/store/favoritesStore";
 
 interface VenueCardProps {
@@ -29,7 +38,7 @@ export function VenueCard({ venue }: VenueCardProps) {
       params={{ id: venue.id }}
       className="group block focus-visible:outline-none"
     >
-      <Card className="overflow-hidden transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 group-focus-visible:ring-2 group-focus-visible:ring-[var(--color-ring)]">
+      <Card className="overflow-hidden transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 group-focus-visible:ring-2 group-focus-visible:ring-(--color-ring)">
         {/* Image */}
         <div className="relative h-48 overflow-hidden bg-(--color-muted)">
           <img
@@ -41,8 +50,8 @@ export function VenueCard({ venue }: VenueCardProps) {
               (e.target as HTMLImageElement).src = VENUE_PLACEHOLDER;
             }}
           />
-          {/* Amenity icons — top-left */}
-          <div className="absolute top-2 left-2 flex gap-1">
+          {/* Amenity icons — top-left (decorative; detail page has text badges) */}
+          <div className="absolute top-2 left-2 flex gap-1" aria-hidden="true">
             {venue.meta.wifi && (
               <span
                 className="rounded-full bg-black/60 p-1"
@@ -80,7 +89,9 @@ export function VenueCard({ venue }: VenueCardProps) {
           {/* Favorite heart button — top-right */}
           <button
             type="button"
-            aria-label={favorited ? "Remove from favourites" : "Add to favourites"}
+            aria-label={
+              favorited ? "Remove from favourites" : "Add to favourites"
+            }
             aria-pressed={favorited}
             onClick={(e) => {
               e.preventDefault();
@@ -108,10 +119,16 @@ export function VenueCard({ venue }: VenueCardProps) {
             <h3 className="font-semibold text-base leading-snug line-clamp-1">
               {venue.name}
             </h3>
-            <div className="flex items-center gap-1 shrink-0 text-sm text-(--color-muted-foreground)">
-              <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-              <span>{venue.rating.toFixed(1)}</span>
-            </div>
+            <span
+              aria-label={`Rated ${venue.rating.toFixed(1)} out of 5`}
+              className="flex items-center gap-1 shrink-0 text-sm text-(--color-muted-foreground)"
+            >
+              <Star
+                className="h-3.5 w-3.5 fill-amber-400 text-amber-400"
+                aria-hidden="true"
+              />
+              <span aria-hidden="true">{venue.rating.toFixed(1)}</span>
+            </span>
           </div>
 
           {location && (

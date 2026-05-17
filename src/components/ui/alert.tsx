@@ -48,7 +48,7 @@ export function Alert({
     <div
       role="alert"
       className={cn(
-        "flex gap-3 rounded-[var(--radius)] border p-4",
+        "flex gap-3 rounded-(--radius) border p-4",
         config.wrapper,
         className,
       )}
@@ -56,7 +56,7 @@ export function Alert({
       <Icon className={cn("mt-0.5 h-5 w-5 shrink-0", config.iconClass)} />
       <div className="flex-1">
         {title && <p className="font-medium text-sm mb-1">{title}</p>}
-        <div className="text-sm text-[var(--color-muted-foreground)]">
+        <div className="text-sm text-(--color-muted-foreground)">
           {children}
         </div>
       </div>

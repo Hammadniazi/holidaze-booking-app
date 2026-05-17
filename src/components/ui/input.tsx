@@ -12,7 +12,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       {label && (
         <label
           htmlFor={id}
-          className="text-sm font-medium text-[var(--color-foreground)]"
+          className="text-sm font-medium text-(--color-foreground)"
         >
           {label}
         </label>
@@ -20,19 +20,23 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       <input
         id={id}
         ref={ref}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error && id ? `${id}-error` : undefined}
         className={cn(
-          "flex h-10 w-full rounded-[var(--radius)] border border-[var(--color-input)]",
-          "bg-[var(--color-background)] px-3 py-2 text-sm",
-          "ring-offset-[var(--color-background)] placeholder:text-[var(--color-muted-foreground)]",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)]",
+          "flex h-10 w-full rounded-(--radius) border border-(--color-input)",
+          "bg-(--color-background) px-3 py-2 text-sm",
+          "ring-offset-(--color-background) placeholder:text-(--color-muted-foreground)",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-ring)",
           "disabled:cursor-not-allowed disabled:opacity-50",
-          error && "border-[var(--color-destructive)]",
+          error && "border-(--color-destructive)",
           className,
         )}
         {...props}
       />
       {error && (
-        <p className="text-xs text-[var(--color-destructive)]">{error}</p>
+        <p id={id ? `${id}-error` : undefined} role="alert" className="text-xs text-(--color-destructive)">
+          {error}
+        </p>
       )}
     </div>
   ),
