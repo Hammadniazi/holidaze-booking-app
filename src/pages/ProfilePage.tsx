@@ -158,7 +158,13 @@ export const ProfilePage = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="animate-spin h-8 w-8 rounded-full border-2 border-(--color-primary) border-t-transparent" />
+        <div role="status" aria-label="Loading">
+          <div
+            className="animate-spin h-8 w-8 rounded-full border-2 border-(--color-primary) border-t-transparent"
+            aria-hidden="true"
+          />
+          <span className="sr-only">Loading...</span>
+        </div>
       </div>
     );
   }
@@ -276,7 +282,7 @@ export const ProfilePage = () => {
       {/* Bookings section */}
       <div>
         <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-          <Calendar className="h-5 w-5" /> My Bookings
+          <Calendar className="h-5 w-5" aria-hidden="true" /> My Bookings
         </h2>
 
         {bookings.length === 0 ? (

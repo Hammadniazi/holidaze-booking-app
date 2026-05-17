@@ -154,10 +154,18 @@ export const VenueDetailPage = ({ id }: VenueDetailPageProps) => {
           <div>
             <div className="flex items-start justify-between gap-4 mb-2">
               <h1 className="text-2xl sm:text-3xl font-bold">{venue.name}</h1>
-              <div className="flex items-center gap-1 shrink-0 text-sm">
-                <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-                <span className="font-medium">{venue.rating.toFixed(1)}</span>
-              </div>
+              <span
+                aria-label={`Rated ${venue.rating.toFixed(1)} out of 5`}
+                className="flex items-center gap-1 shrink-0 text-sm"
+              >
+                <Star
+                  className="h-4 w-4 fill-amber-400 text-amber-400"
+                  aria-hidden="true"
+                />
+                <span aria-hidden="true" className="font-medium">
+                  {venue.rating.toFixed(1)}
+                </span>
+              </span>
             </div>
 
             {location && (

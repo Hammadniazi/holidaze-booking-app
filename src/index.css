@@ -17,7 +17,7 @@
   --color-secondary: rgba(241, 245, 249, 1);
   --color-secondary-foreground: rgba(15, 23, 42, 1);
   --color-muted: rgba(241, 245, 249, 1);
-  --color-muted-foreground: rgba(100, 116, 139, 1);
+  --color-muted-foreground: rgba(71, 85, 105, 1);
   --color-accent: rgba(241, 245, 249, 1);
   --color-accent-foreground: rgba(15, 23, 42, 1);
   --color-destructive: rgba(239, 68, 68, 1);
@@ -31,9 +31,10 @@
 .dark {
   --color-background: rgba(2, 8, 23, 1);
   --color-foreground: rgba(248, 250, 252, 1);
-  --color-card: rgba(2, 8, 23, 1);
+  /* Cards elevated above page background for visual separation */
+  --color-card: rgba(15, 23, 42, 1);
   --color-card-foreground: rgba(248, 250, 252, 1);
-  --color-popover: rgba(2, 8, 23, 1);
+  --color-popover: rgba(22, 32, 52, 1);
   --color-popover-foreground: rgba(248, 250, 252, 1);
   --color-primary: rgba(59, 130, 246, 1);
   --color-primary-foreground: rgba(15, 23, 42, 1);
@@ -43,11 +44,13 @@
   --color-muted-foreground: rgba(148, 163, 184, 1);
   --color-accent: rgba(30, 41, 59, 1);
   --color-accent-foreground: rgba(248, 250, 252, 1);
-  --color-destructive: rgba(127, 29, 29, 1);
-  --color-destructive-foreground: rgba(248, 250, 252, 1);
+  /* Bright red so destructive text meets WCAG AA on dark backgrounds */
+  --color-destructive: rgba(239, 68, 68, 1);
+  --color-destructive-foreground: rgba(15, 23, 42, 1);
   --color-border: rgba(30, 41, 59, 1);
   --color-input: rgba(30, 41, 59, 1);
-  --color-ring: rgba(29, 78, 216, 1);
+  /* Blue-400 — high contrast on near-black for WCAG focus appearance */
+  --color-ring: rgba(96, 165, 250, 1);
 }
 
 @layer base {

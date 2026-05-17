@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -28,18 +28,34 @@ export const Navbar = () => {
     navigate({ to: "/" });
   };
 
+  // Close dropdown on Escape key
+  useEffect(() => {
+    if (!dropdownOpen) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setDropdownOpen(false);
+    };
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [dropdownOpen]);
+
   return (
     <header className="sticky top-0 z-40 w-full border-b border-(--color-border) bg-(--color-background)/95 backdrop-blur supports-backdrop-filter:bg-(--color-background)/60">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 font-bold text-xl">
-            <MapPin className="h-6 w-6 text-(--color-primary)" />
+            <MapPin
+              className="h-6 w-6 text-(--color-primary)"
+              aria-hidden="true"
+            />
             <span className="text-(--color-foreground)">Holidaze</span>
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-6">
+          <nav
+            aria-label="Primary"
+            className="hidden md:flex items-center gap-6"
+          >
             <Link
               to="/"
               className="text-sm font-medium text-(--color-muted-foreground) hover:text-(--color-foreground) transition-colors [&.active]:text-(--color-foreground)"
@@ -93,6 +109,9 @@ export const Navbar = () => {
                   variant="ghost"
                   className="flex items-center gap-2"
                   onClick={() => setDropdownOpen((p) => !p)}
+                  aria-expanded={dropdownOpen}
+                  aria-haspopup="menu"
+                  id="user-menu-button"
                 >
                   {user?.avatar?.url ? (
                     <img
@@ -114,31 +133,39 @@ export const Navbar = () => {
                       className="fixed inset-0 z-10"
                       onClick={() => setDropdownOpen(false)}
                     />
-                    <div className="absolute right-0 top-full mt-1 z-20 w-48 rounded-(--radius) border border-(--color-border) bg-(--color-background) shadow-lg py-1">
+                    <div
+                      role="menu"
+                      aria-labelledby="user-menu-button"
+                      className="absolute right-0 top-full mt-1 z-20 w-48 rounded-(--radius) border border-(--color-border) bg-(--color-background) shadow-lg py-1"
+                    >
                       <Link
                         to="/profile"
+                        role="menuitem"
                         className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-(--color-accent) transition-colors"
                         onClick={() => setDropdownOpen(false)}
                       >
-                        <User className="h-4 w-4" /> Profile
+                        <User className="h-4 w-4" aria-hidden="true" /> Profile
                       </Link>
 
                       {isVenueManager && (
                         <Link
                           to="/dashboard"
+                          role="menuitem"
                           className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-(--color-accent) transition-colors"
                           onClick={() => setDropdownOpen(false)}
                         >
-                          <Building2 className="h-4 w-4" /> My Venues
+                          <Building2 className="h-4 w-4" aria-hidden="true" />{" "}
+                          My Venues
                         </Link>
                       )}
 
                       <hr className="my-1 border-(--color-border)" />
                       <button
+                        role="menuitem"
                         className="flex w-full items-center gap-2 px-3 py-2 text-sm text-(--color-destructive) hover:bg-(--color-accent) transition-colors"
                         onClick={handleLogout}
                       >
-                        <LogOut className="h-4 w-4" /> Logout
+                        <LogOut className="h-4 w-4" aria-hidden="true" /> Logout
                       </button>
                     </div>
                   </>
@@ -162,6 +189,7 @@ export const Navbar = () => {
               className="md:hidden"
               onClick={() => setMobileOpen((p) => !p)}
               aria-label="Toggle menu"
+              aria-expanded={mobileOpen}
             >
               {mobileOpen ? (
                 <X className="h-5 w-5" />
@@ -181,7 +209,7 @@ export const Navbar = () => {
           mobileOpen ? "max-h-96" : "max-h-0",
         )}
       >
-        <nav className="flex flex-col p-4 gap-2">
+        <nav aria-label="Mobile" className="flex flex-col p-4 gap-2">
           <Link
             to="/"
             className="rounded-(--radius) px-3 py-2 text-sm font-medium hover:bg-(--color-accent) transition-colors"

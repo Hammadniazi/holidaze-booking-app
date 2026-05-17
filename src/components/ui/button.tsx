@@ -17,22 +17,22 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variants: Record<NonNullable<ButtonProps["variant"]>, string> = {
   default:
-    "bg-[var(--color-primary)] text-[var(--color-primary-foreground)] hover:bg-[var(--color-primary)]/90",
+    "bg-(--color-primary) text-(--color-primary-foreground) hover:bg-(--color-primary)/90",
   destructive:
-    "bg-[var(--color-destructive)] text-[var(--color-destructive-foreground)] hover:bg-[var(--color-destructive)]/90",
+    "bg-(--color-destructive) text-(--color-destructive-foreground) hover:bg-(--color-destructive)/90",
   outline:
-    "border border-[var(--color-input)] bg-transparent hover:bg-[var(--color-accent)] hover:text-[var(--color-accent-foreground)]",
+    "border border-(--color-input) bg-transparent hover:bg-(--color-accent) hover:text-(--color-accent-foreground)",
   secondary:
-    "bg-[var(--color-secondary)] text-[var(--color-secondary-foreground)] hover:bg-[var(--color-secondary)]/80",
+    "bg-(--color-secondary) text-(--color-secondary-foreground) hover:bg-(--color-secondary)/80",
   ghost:
-    "hover:bg-[var(--color-accent)] hover:text-[var(--color-accent-foreground)]",
-  link: "text-[var(--color-primary)] underline-offset-4 hover:underline",
+    "hover:bg-(--color-accent) hover:text-(--color-accent-foreground)",
+  link: "text-(--color-primary) underline-offset-4 hover:underline",
 };
 
 const sizes: Record<NonNullable<ButtonProps["size"]>, string> = {
   default: "h-10 px-4 py-2",
-  sm: "h-8 rounded-[var(--radius)] px-3 text-xs",
-  lg: "h-11 rounded-[var(--radius)] px-8",
+  sm: "h-8 rounded-(--radius) px-3 text-xs",
+  lg: "h-11 rounded-(--radius) px-8",
   icon: "h-10 w-10",
 };
 
@@ -56,9 +56,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         disabled={disabled || isLoading}
         className={cn(
-          "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[var(--radius)] text-sm font-medium",
-          "ring-offset-[var(--color-background)] transition-colors",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)] focus-visible:ring-offset-2",
+          "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-(--radius) text-sm font-medium",
+          "ring-offset-(--color-background) transition-colors",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-ring) focus-visible:ring-offset-2",
           "disabled:pointer-events-none disabled:opacity-50",
           variants[variant],
           sizes[size],
@@ -75,6 +75,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
                 className="h-4 w-4 animate-spin"
                 viewBox="0 0 24 24"
                 fill="none"
+                aria-hidden="true"
               >
                 <circle
                   className="opacity-25"

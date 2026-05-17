@@ -6,7 +6,10 @@ export function NotFoundPage() {
   return (
     <div className="flex min-h-[calc(100vh-8rem)] flex-col items-center justify-center px-4 text-center">
       {/* Decorative icon */}
-      <div className="flex h-20 w-20 items-center justify-center rounded-full bg-(--color-primary)/10 mb-6">
+      <div
+        className="flex h-20 w-20 items-center justify-center rounded-full bg-(--color-primary)/10 mb-6"
+        aria-hidden="true"
+      >
         <MapPin className="h-10 w-10 text-(--color-primary)" />
       </div>
 

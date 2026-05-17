@@ -85,7 +85,13 @@ export const DashboardPage = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="animate-spin h-8 w-8 rounded-full border-2 border-(--color-primary) border-t-transparent" />
+        <div role="status" aria-label="Loading">
+          <div
+            className="animate-spin h-8 w-8 rounded-full border-2 border-(--color-primary) border-t-transparent"
+            aria-hidden="true"
+          />
+          <span className="sr-only">Loading...</span>
+        </div>
       </div>
     );
   }
@@ -95,7 +101,11 @@ export const DashboardPage = () => {
       <div className="flex flex-wrap items-center justify-between gap-y-3 mb-8">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Building2 className="h-6 w-6 text-(--color-primary)" /> My Venues
+            <Building2
+              className="h-6 w-6 text-(--color-primary)"
+              aria-hidden="true"
+            />{" "}
+            My Venues
           </h1>
           <p className="text-(--color-muted-foreground) text-sm mt-1">
             Manage your listed venues and view bookings
@@ -217,6 +227,8 @@ export const DashboardPage = () => {
                         variant="ghost"
                         size="sm"
                         className="text-xs h-6 px-2"
+                        aria-expanded={bookingsExpanded === venue.id}
+                        aria-controls={`bookings-${venue.id}`}
                         onClick={() =>
                           setBookingsExpanded(
                             bookingsExpanded === venue.id ? null : venue.id,
@@ -232,7 +244,10 @@ export const DashboardPage = () => {
                     {bookingsExpanded === venue.id &&
                       venue.bookings &&
                       venue.bookings.length > 0 && (
-                        <div className="mt-3 border-t border-(--color-border) pt-3">
+                        <div
+                          id={`bookings-${venue.id}`}
+                          className="mt-3 border-t border-(--color-border) pt-3"
+                        >
                           <p className="text-xs font-medium text-(--color-muted-foreground) mb-2">
                             Bookings
                           </p>
@@ -267,7 +282,10 @@ export const DashboardPage = () => {
                       )}
                     {bookingsExpanded === venue.id &&
                       (!venue.bookings || venue.bookings.length === 0) && (
-                        <div className="mt-3 border-t border-(--color-border) pt-3">
+                        <div
+                          id={`bookings-${venue.id}`}
+                          className="mt-3 border-t border-(--color-border) pt-3"
+                        >
                           <p className="text-xs text-(--color-muted-foreground)">
                             No bookings for this venue yet.
                           </p>

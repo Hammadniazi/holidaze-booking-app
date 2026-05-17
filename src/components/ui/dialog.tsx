@@ -1,4 +1,4 @@
-import { type ReactNode } from "react";
+import { type ReactNode, useEffect, useRef } from "react";
 import { cn } from "@/utils";
 import { X } from "lucide-react";
 import { Button } from "./button";
@@ -12,6 +12,10 @@ interface DialogProps {
   className?: string;
 }
 
+const FOCUSABLE =
+  'a[href], area[href], input:not([disabled]), select:not([disabled]), ' +
+  'textarea:not([disabled]), button:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
 export function Dialog({
   open,
   onClose,
@@ -20,6 +24,53 @@ export function Dialog({
   children,
   className,
 }: DialogProps) {
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+
+    // Capture trigger so we can restore focus when the dialog closes
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+
+    // Move focus to the first focusable element inside the panel
+    const frame = requestAnimationFrame(() => {
+      const first = panelRef.current?.querySelector<HTMLElement>(FOCUSABLE);
+      first?.focus();
+    });
+
+    return () => {
+      cancelAnimationFrame(frame);
+      previouslyFocused?.focus();
+    };
+  }, [open]);
+
+  // Trap Tab within panel; close on Escape
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "Escape") {
+      onClose();
+      return;
+    }
+    if (e.key === "Tab") {
+      const focusable = Array.from(
+        panelRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? [],
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    }
+  };
+
   if (!open) return null;
 
   return (
@@ -28,6 +79,8 @@ export function Dialog({
       role="dialog"
       aria-modal="true"
       aria-labelledby={title ? "dialog-title" : undefined}
+      aria-describedby={description ? "dialog-desc" : undefined}
+      onKeyDown={handleKeyDown}
     >
       {/* Backdrop */}
       <div
@@ -37,6 +90,7 @@ export function Dialog({
       />
       {/* Panel */}
       <div
+        ref={panelRef}
         className={cn(
           "relative z-10 w-full max-w-lg rounded-(--radius) border border-(--color-border)",
           "bg-(--color-background) p-6 shadow-xl mx-4",
@@ -58,7 +112,7 @@ export function Dialog({
           </h2>
         )}
         {description && (
-          <p className="text-sm text-(--color-muted-foreground) mb-4">
+          <p id="dialog-desc" className="text-sm text-(--color-muted-foreground) mb-4">
             {description}
           </p>
         )}
@@ -67,3 +121,4 @@ export function Dialog({
     </div>
   );
 }
+

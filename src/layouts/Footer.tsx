@@ -74,7 +74,10 @@ const Footer = () => {
               to="/"
               className="flex items-center gap-2 font-bold text-lg mb-3"
             >
-              <MapPin className="h-5 w-5 text-(--color-primary)" />
+              <MapPin
+                className="h-5 w-5 text-(--color-primary)"
+                aria-hidden="true"
+              />
               <span className="text-(--color-foreground)">Holidaze</span>
             </Link>
             <p className="text-sm text-(--color-muted-foreground) leading-relaxed">
@@ -169,7 +172,7 @@ const Footer = () => {
                   href={href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label={label}
+                  aria-label={`${label} (opens in new tab)`}
                   className={`h-10 w-10 rounded-(--radius) flex items-center justify-center hover:bg-(--color-accent) transition-colors ${colorClass}`}
                 >
                   <Icon />

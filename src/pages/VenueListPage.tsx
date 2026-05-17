@@ -116,6 +116,7 @@ export const VenueListPage = () => {
               <span
                 key={`ellipsis-${i}`}
                 className="px-2 text-(--color-muted-foreground) select-none"
+                aria-hidden="true"
               >
                 …
               </span>

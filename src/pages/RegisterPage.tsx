@@ -90,35 +90,52 @@ export const RegisterPage = () => {
               </Alert>
             )}
 
-             {/* Account type selector */}
-            <div className="grid grid-cols-2 gap-3 mb-5">
-              <button
-                type="button"
-                onClick={() => setAccountType("customer")}
-                className={`flex flex-col items-center gap-2 rounded-(--radius) border p-3 text-sm transition-all ${
-                  accountType === "customer"
-                    ? "border-(--color-primary) bg-(--color-primary)/5 text-(--color-primary)"
-                    : "border-(--color-border) hover:border-(--color-muted-foreground)"
-                }`}
-              >
-                <User className="h-5 w-5" />
-                <span className="font-medium">Customer</span>
-                <span className="text-xs opacity-70">Book venues</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setAccountType("manager")}
-                className={`flex flex-col items-center gap-2 rounded-(--radius) border p-3 text-sm transition-all ${
-                  accountType === "manager"
-                    ? "border-(--color-primary) bg-(--color-primary)/5 text-(--color-primary)"
-                    : "border-(--color-border) hover:border-(--color-muted-foreground)"
-                }`}
-              >
-                <Building2 className="h-5 w-5" />
-                <span className="font-medium">Venue Manager</span>
-                <span className="text-xs opacity-70">List venues</span>
-              </button>
-            </div>
+             {/* Account type selector — fieldset+radio for proper screen-reader semantics */}
+            <fieldset className="mb-5">
+              <legend className="text-sm font-medium text-(--color-foreground) mb-3">
+                Account type
+              </legend>
+              <div className="grid grid-cols-2 gap-3">
+                <label
+                  className={`flex flex-col items-center gap-2 rounded-(--radius) border p-3 text-sm cursor-pointer transition-all ${
+                    accountType === "customer"
+                      ? "border-(--color-primary) bg-(--color-primary)/5 text-(--color-primary)"
+                      : "border-(--color-border) hover:border-(--color-muted-foreground)"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="accountType"
+                    value="customer"
+                    checked={accountType === "customer"}
+                    onChange={() => setAccountType("customer")}
+                    className="sr-only"
+                  />
+                  <User className="h-5 w-5" aria-hidden="true" />
+                  <span className="font-medium">Customer</span>
+                  <span className="text-xs opacity-70">Book venues</span>
+                </label>
+                <label
+                  className={`flex flex-col items-center gap-2 rounded-(--radius) border p-3 text-sm cursor-pointer transition-all ${
+                    accountType === "manager"
+                      ? "border-(--color-primary) bg-(--color-primary)/5 text-(--color-primary)"
+                      : "border-(--color-border) hover:border-(--color-muted-foreground)"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="accountType"
+                    value="manager"
+                    checked={accountType === "manager"}
+                    onChange={() => setAccountType("manager")}
+                    className="sr-only"
+                  />
+                  <Building2 className="h-5 w-5" aria-hidden="true" />
+                  <span className="font-medium">Venue Manager</span>
+                  <span className="text-xs opacity-70">List venues</span>
+                </label>
+              </div>
+            </fieldset>
 
             <form
               onSubmit={handleSubmit(onSubmit)}
