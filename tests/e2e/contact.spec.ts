@@ -5,9 +5,8 @@ test.describe("Contact page", () => {
     await page.goto("/contact");
   });
 
-  // -------------------------------------------------------------------------
   // Structure
-  // -------------------------------------------------------------------------
+
   test("loads with the main heading", async ({ page }) => {
     await expect(
       page.getByRole("heading", { name: /get in touch/i }),
@@ -33,9 +32,8 @@ test.describe("Contact page", () => {
     ).toBeVisible();
   });
 
-  // -------------------------------------------------------------------------
   // Navigation
-  // -------------------------------------------------------------------------
+
   test("is reachable via the navbar Contact link", async ({ page }) => {
     await page.goto("/");
     await page
@@ -54,9 +52,8 @@ test.describe("Contact page", () => {
     await expect(page).toHaveURL(/\/contact/);
   });
 
-  // -------------------------------------------------------------------------
   // Validation
-  // -------------------------------------------------------------------------
+
   test("shows validation errors when form is submitted empty", async ({
     page,
   }) => {

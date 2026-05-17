@@ -12,6 +12,7 @@ import { VenueDetailPage } from "@/pages/VenueDetailPage";
 import ProfilePage from "@/pages/ProfilePage";
 import DashboardPage from "@/pages/DashboardPage";
 import ContactPage from "@/pages/ContactPage";
+import { NotFoundPage } from "@/pages/NotFoundPage";
 
 // Root route with layout
 const rootRoute = createRootRoute({
@@ -20,6 +21,7 @@ const rootRoute = createRootRoute({
       <Outlet />
     </RootLayout>
   ),
+  notFoundComponent: NotFoundPage,
 });
 
 const indexRoute = createRoute({
@@ -78,4 +80,7 @@ const routeTree = rootRoute.addChildren([
   contactRoute,
 ]);
 
-export const router = createRouter({ routeTree });
+export const router = createRouter({
+  routeTree,
+  defaultNotFoundComponent: NotFoundPage,
+});

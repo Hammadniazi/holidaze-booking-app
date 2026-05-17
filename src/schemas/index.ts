@@ -81,15 +81,20 @@ export const createVenueSchema = z.object({
     lng: z.coerce.number().optional(),
   }),
 });
-export const bookingSchema = z.object({
-  dateFrom: z.string(),
-  dateTo: z.string(),
-  guests: z.coerce
-    .number()
-    .int()
-    .min(1, { message: " At least 1 guest is required" }),
-  venueId: z.string(),
-});
+export const bookingSchema = z
+  .object({
+    dateFrom: z.string().min(1, "Check-in date is required"),
+    dateTo: z.string().min(1, "Check-out date is required"),
+    guests: z.coerce
+      .number()
+      .int()
+      .min(1, { message: "At least 1 guest is required" }),
+    venueId: z.string(),
+  })
+  .refine((d) => new Date(d.dateTo) > new Date(d.dateFrom), {
+    message: "Check-out must be after check-in",
+    path: ["dateTo"],
+  });
 
 export const editBookingSchema = z.object({
   dateFrom: z.string().min(1, { message: "Check-in date is required" }),
