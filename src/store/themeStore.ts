@@ -9,7 +9,10 @@ interface ThemeState {
 export const useThemeStore = create<ThemeState>()(
   persist(
     (set, get) => ({
-      isDark: window.matchMedia("(prefers-color-scheme: dark)").matches,
+      isDark:
+        typeof window !== "undefined"
+          ? window.matchMedia("(prefers-color-scheme: dark)").matches
+          : false,
 
       toggle: () => {
         const next = !get().isDark;

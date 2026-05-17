@@ -31,7 +31,7 @@ export const useVenueStore = create<VenueState>((set) => ({
   currentPage: 1,
   isLoading: false,
   error: null,
-  // Default: show newest venues first, no active search.
+  // Default: show newest venues first
   searchQuery: "",
   sortBy: "created",
   sortOrder: "desc",

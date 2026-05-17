@@ -79,7 +79,7 @@ export const VenueDetailPage = ({ id }: VenueDetailPageProps) => {
     .filter(Boolean)
     .join(", ");
 
-  // Noroff API defaults unset coordinates to 0,0 — treat that as "no coords"
+  // API defaults unset coordinates to 0,0 — treat that as "no coords"
   const hasCoords = venue.location.lat !== 0 || venue.location.lng !== 0;
 
   // Google Maps embed src — pin on exact coords if available, city search otherwise
@@ -226,7 +226,7 @@ export const VenueDetailPage = ({ id }: VenueDetailPageProps) => {
             </div>
           )}
 
-          {/* Upcoming bookings — removed: calendar already shows blocked dates visually */}
+          {/* Upcoming bookings: calendar already shows blocked dates visually */}
         </div>
 
         {/* Right: Booking form */}
@@ -269,7 +269,7 @@ export const VenueDetailPage = ({ id }: VenueDetailPageProps) => {
             />
           </div>
 
-          {/* Below map: just the link — location already shown as subtitle above */}
+          {/* Below map: just the link */}
           <div className="mt-3 flex justify-end">
             <a
               href={mapsLink}
