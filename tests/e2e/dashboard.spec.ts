@@ -3,15 +3,14 @@ import { test, expect } from "@playwright/test";
 // Uses the saved venue manager session from auth setup
 test.use({ storageState: "tests/e2e/.auth/manager.json" });
 
-test.describe("Dashboard page — authenticated venue manager", () => {
+test.describe("Venue management — authenticated venue manager on Profile", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/dashboard");
+    await page.goto("/profile");
   });
 
-  test("loads the dashboard without redirecting", async ({ page }) => {
+  test("loads the profile page without redirecting", async ({ page }) => {
     await expect(page).not.toHaveURL(/\/login/);
-    await expect(page).not.toHaveURL(/\/profile/);
-    await expect(page).toHaveURL(/\/dashboard/);
+    await expect(page).toHaveURL(/\/profile/);
   });
 
   test("renders the dashboard page heading", async ({ page }) => {
