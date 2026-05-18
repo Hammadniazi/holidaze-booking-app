@@ -89,7 +89,7 @@ export const BookingForm = ({ venue, onSuccess }: BookingFormProps) => {
             log in as a customer.
           </p>
           <Button variant="outline" className="w-full" asChild>
-            <Link to="/dashboard">Go to My Venues</Link>
+            <Link to="/profile">Go to My Venues</Link>
           </Button>
         </CardContent>
       </Card>
