@@ -26,7 +26,8 @@ import {
 } from "@/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Building2, Calendar, Edit, MapPin, Trash2 } from "lucide-react";
+import { Calendar, Edit, MapPin, Trash2 } from "lucide-react";
+import { VenueManagement } from "@/components/dashboard/VenueManagement";
 import { useCallback, useEffect, useState } from "react";
 import { useForm, type Resolver } from "react-hook-form";
 import { toast } from "sonner";
@@ -235,55 +236,31 @@ export const ProfilePage = () => {
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="flex flex-wrap gap-4 mb-8">
-        <Card className="flex-1 min-w-35">
-          <CardContent className="p-4 text-center">
-            <p className="text-2xl font-bold">
-              {profileData?._count?.bookings ?? bookings.length}
-            </p>
-            <p className="text-xs text-(--color-muted-foreground)">Bookings</p>
-          </CardContent>
-        </Card>
-        {user?.venueManager && (
+      {/* Stats — customers only; managers get full stats inside VenueManagement */}
+      {!user?.venueManager && (
+        <div className="flex flex-wrap gap-4 mb-8">
           <Card className="flex-1 min-w-35">
             <CardContent className="p-4 text-center">
               <p className="text-2xl font-bold">
-                {profileData?._count?.venues ?? 0}
+                {profileData?._count?.bookings ?? bookings.length}
               </p>
               <p className="text-xs text-(--color-muted-foreground)">
-                Venues managed
+                Bookings
               </p>
             </CardContent>
           </Card>
-        )}
-      </div>
-
-      {/* Host Dashboard CTA — only for venue managers */}
-      {user?.venueManager && (
-        <div className="mb-8 rounded-(--radius) border border-(--color-border) bg-(--color-muted)/40 p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-start gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-(--color-primary)/10">
-              <Building2 className="h-5 w-5 text-(--color-primary)" />
-            </div>
-            <div>
-              <p className="font-semibold text-sm">Manage your venues</p>
-              <p className="text-xs text-(--color-muted-foreground) mt-0.5">
-                View bookings, add new venues, and update your listings.
-              </p>
-            </div>
-          </div>
-          <Button asChild size="sm" className="shrink-0">
-            <Link to="/dashboard">Go to My Venues</Link>
-          </Button>
         </div>
       )}
 
-      {/* Bookings section */}
-      <div>
-        <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-          <Calendar className="h-5 w-5" aria-hidden="true" /> My Bookings
-        </h2>
+      {/* Venue management — inline for managers */}
+      {user?.venueManager && <VenueManagement />}
+
+      {/* Bookings section — customers only */}
+      {!user?.venueManager && (
+        <div>
+          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            <Calendar className="h-5 w-5" aria-hidden="true" /> My Bookings
+          </h2>
 
         {bookings.length === 0 ? (
           <div className="text-center py-12 rounded-(--radius) border border-dashed border-(--color-border)">
@@ -392,6 +369,7 @@ export const ProfilePage = () => {
           </div>
         )}
       </div>
+      )}
 
       {/* Cancel booking confirmation dialog */}
       <Dialog

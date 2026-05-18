@@ -1,9 +1,11 @@
 import { test, expect } from "@playwright/test";
 
-// Uses the saved customer session from auth setup
+// Uses the saved session from auth setup.
+// Note: the E2E_USER account (khan@stud.noroff.no) has venueManager:true,
+// so this suite exercises the venue manager's profile experience.
 test.use({ storageState: "tests/e2e/.auth/user.json" });
 
-test.describe("Profile page — authenticated customer", () => {
+test.describe("Profile page — authenticated user", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/profile");
   });
@@ -25,10 +27,15 @@ test.describe("Profile page — authenticated customer", () => {
     ).toBeVisible({ timeout: 8_000 });
   });
 
-  test("renders the bookings section heading", async ({ page }) => {
+  test("renders the venue management section heading", async ({ page }) => {
+    // Wait for the profile to finish loading (edit button appears after API fetch)
     await expect(
-      page.getByRole("heading", { name: /bookings/i }),
-    ).toBeVisible({ timeout: 8_000 });
+      page.getByRole("button", { name: /edit profile/i }),
+    ).toBeVisible({ timeout: 10_000 });
+    // Venue manager's profile shows the My Venues section
+    await expect(
+      page.getByRole("heading", { name: /my venues/i }),
+    ).toBeVisible({ timeout: 5_000 });
   });
 
   test("opens the edit profile dialog when Edit profile is clicked", async ({

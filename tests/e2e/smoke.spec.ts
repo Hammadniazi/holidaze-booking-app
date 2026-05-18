@@ -57,11 +57,4 @@ test.describe("Protected route redirects — unauthenticated", () => {
     await page.goto("/profile");
     await expect(page).toHaveURL(/\/login/, { timeout: 5_000 });
   });
-
-  test("visiting /dashboard redirects to /login when not logged in", async ({
-    page,
-  }) => {
-    await page.goto("/dashboard");
-    await expect(page).toHaveURL(/\/login/, { timeout: 5_000 });
-  });
 });
