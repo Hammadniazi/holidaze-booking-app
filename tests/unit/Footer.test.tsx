@@ -149,8 +149,10 @@ describe("Footer — authenticated venue manager", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders My Venues link for a venue manager", () => {
-    expect(screen.getByRole("link", { name: "My Venues" })).toBeInTheDocument();
+  it("does not render a separate My Venues link (venue management is on Profile)", () => {
+    expect(
+      screen.queryByRole("link", { name: "My Venues" }),
+    ).not.toBeInTheDocument();
   });
 });
 

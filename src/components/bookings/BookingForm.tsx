@@ -19,7 +19,7 @@ interface BookingFormProps {
   onSuccess: () => void;
 }
 export const BookingForm = ({ venue, onSuccess }: BookingFormProps) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isVenueManager } = useAuth();
   const { createBooking, isSubmitting } = useBookings();
   const navigate = useNavigate();
   const [range, setRange] = useState<DateRange | undefined>(undefined);
@@ -75,6 +75,22 @@ export const BookingForm = ({ venue, onSuccess }: BookingFormProps) => {
               <Link to="/register">Register</Link>
             </Button>
           </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (isVenueManager) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <p className="text-sm text-(--color-muted-foreground) mb-4">
+            Venue managers cannot make bookings. To book a stay, register or
+            log in as a customer.
+          </p>
+          <Button variant="outline" className="w-full" asChild>
+            <Link to="/dashboard">Go to My Venues</Link>
+          </Button>
         </CardContent>
       </Card>
     );

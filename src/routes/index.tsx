@@ -10,7 +10,6 @@ import {
 import RegisterPage from "@/pages/RegisterPage";
 import { VenueDetailPage } from "@/pages/VenueDetailPage";
 import ProfilePage from "@/pages/ProfilePage";
-import DashboardPage from "@/pages/DashboardPage";
 import ContactPage from "@/pages/ContactPage";
 import { NotFoundPage } from "@/pages/NotFoundPage";
 
@@ -58,12 +57,6 @@ const profileRoute = createRoute({
   component: ProfilePage,
 });
 
-const dashboardRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/dashboard",
-  component: DashboardPage,
-});
-
 const contactRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/contact",
@@ -76,7 +69,6 @@ const routeTree = rootRoute.addChildren([
   loginRoute,
   registerRoute,
   profileRoute,
-  dashboardRoute,
   contactRoute,
 ]);
 

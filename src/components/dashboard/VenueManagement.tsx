@@ -2,33 +2,23 @@ import { useCallback, useEffect, useState } from "react";
 import { ApiError, profilesApi, venuesApi } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Dialog } from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/useAuth";
 import type { ApiResponse, Booking, Venue } from "@/types";
 import { buildImageUrl, formatPrice, VENUE_PLACEHOLDER } from "@/utils";
-import { useNavigate } from "@tanstack/react-router";
-import { Badge } from "@/components/ui/badge";
 import { Building2, Calendar, Edit, Plus, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
-import { Dialog } from "@/components/ui/dialog";
-import { VenueForm } from "@/components/dashboard/VenueForm";
+import { VenueForm } from "./VenueForm";
 
-export const DashboardPage = () => {
-  const { isAuthenticated, isVenueManager, user } = useAuth();
-  const navigate = useNavigate();
+export const VenueManagement = () => {
+  const { user } = useAuth();
   const [venues, setVenues] = useState<Venue[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [createOpen, setCreateOpen] = useState(false);
   const [editVenue, setEditVenue] = useState<Venue | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [bookingsExpanded, setBookingsExpanded] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      void navigate({ to: "/login" });
-    } else if (!isVenueManager) {
-      void navigate({ to: "/profile" });
-    }
-  }, [isAuthenticated, isVenueManager, navigate]);
 
   const fetchVenues = useCallback(async () => {
     if (!user) return;
@@ -47,8 +37,6 @@ export const DashboardPage = () => {
   useEffect(() => {
     void fetchVenues();
   }, [fetchVenues]);
-
-  if (!isAuthenticated || !isVenueManager) return null;
 
   const totalBookings = venues.reduce(
     (acc, v) => acc + (v._count?.bookings ?? v.bookings?.length ?? 0),
@@ -84,40 +72,36 @@ export const DashboardPage = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <div role="status" aria-label="Loading">
+      <div className="flex items-center justify-center py-12">
+        <div role="status" aria-label="Loading venues">
           <div
             className="animate-spin h-8 w-8 rounded-full border-2 border-(--color-primary) border-t-transparent"
             aria-hidden="true"
           />
-          <span className="sr-only">Loading...</span>
+          <span className="sr-only">Loading venues...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-8">
-      <div className="flex flex-wrap items-center justify-between gap-y-3 mb-8">
-        <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Building2
-              className="h-6 w-6 text-(--color-primary)"
-              aria-hidden="true"
-            />{" "}
-            My Venues
-          </h1>
-          <p className="text-(--color-muted-foreground) text-sm mt-1">
-            Manage your listed venues and view bookings
-          </p>
-        </div>
-        <Button onClick={() => setCreateOpen(true)}>
+    <div>
+      {/* Section header */}
+      <div className="flex items-center justify-between gap-4 mb-6">
+        <h2 className="text-lg font-semibold flex items-center gap-2">
+          <Building2
+            className="h-5 w-5 text-(--color-primary)"
+            aria-hidden="true"
+          />
+          My Venues
+        </h2>
+        <Button size="sm" onClick={() => setCreateOpen(true)}>
           <Plus className="h-4 w-4 mr-1" /> Add venue
         </Button>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
         <Card>
           <CardContent className="p-4 text-center">
             <p className="text-2xl font-bold">{venues.length}</p>
@@ -153,7 +137,7 @@ export const DashboardPage = () => {
       {venues.length === 0 ? (
         <div className="text-center py-16 rounded-(--radius) border border-dashed border-(--color-border)">
           <Building2 className="mx-auto h-12 w-12 text-(--color-muted-foreground) mb-4" />
-          <h2 className="text-xl font-semibold mb-2">No venues yet</h2>
+          <h3 className="text-xl font-semibold mb-2">No venues yet</h3>
           <p className="text-(--color-muted-foreground) mb-4">
             Create your first venue to start accepting bookings.
           </p>
@@ -358,5 +342,3 @@ export const DashboardPage = () => {
     </div>
   );
 };
-
-export default DashboardPage;
