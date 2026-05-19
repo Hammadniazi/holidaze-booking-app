@@ -180,10 +180,12 @@ describe("Navbar — authenticated venue manager", () => {
     ).toBeInTheDocument();
   });
 
-  it("does not render a separate My Venues link (venue management is on Profile)", () => {
-    expect(
-      screen.queryByRole("link", { name: "My Venues" }),
-    ).not.toBeInTheDocument();
+  it("renders My Venues links pointing to /dashboard", () => {
+    const links = screen.getAllByRole("link", { name: "My Venues" });
+    expect(links.length).toBeGreaterThanOrEqual(1);
+    links.forEach((link) =>
+      expect(link).toHaveAttribute("href", "/dashboard"),
+    );
   });
 
   it("does not render Login or Register links", () => {

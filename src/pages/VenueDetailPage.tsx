@@ -32,7 +32,7 @@ interface VenueDetailPageProps {
 
 export const VenueDetailPage = ({ id }: VenueDetailPageProps) => {
   const { currentVenue: venue } = useVenueStore();
-  const { isLoading, error } = useVenue(id);
+  const { isLoading, error, refetch } = useVenue(id);
   const navigate = useNavigate();
   const [imgIndex, setImgIndex] = useState(0);
 
@@ -249,7 +249,7 @@ export const VenueDetailPage = ({ id }: VenueDetailPageProps) => {
                 / night
               </span>
             </div>
-            <BookingForm venue={venue} onSuccess={() => {}} />
+            <BookingForm venue={venue} onSuccess={() => void refetch(true)} />
           </div>
         </div>
       </div>

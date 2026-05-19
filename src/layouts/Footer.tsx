@@ -58,7 +58,7 @@ const SOCIAL_LINKS = [
 ];
 
 const Footer = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isVenueManager } = useAuth();
   const year = new Date().getFullYear();
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
@@ -136,14 +136,26 @@ const Footer = () => {
                   </li>
                 </>
               ) : (
-                <li>
-                  <Link
-                    to="/profile"
-                    className="text-sm text-(--color-muted-foreground) hover:text-(--color-foreground) transition-colors"
-                  >
-                    My profile
-                  </Link>
-                </li>
+                <>
+                  <li>
+                    <Link
+                      to="/profile"
+                      className="text-sm text-(--color-muted-foreground) hover:text-(--color-foreground) transition-colors"
+                    >
+                      My profile
+                    </Link>
+                  </li>
+                  {isVenueManager && (
+                    <li>
+                      <Link
+                        to="/dashboard"
+                        className="text-sm text-(--color-muted-foreground) hover:text-(--color-foreground) transition-colors"
+                      >
+                        My venues
+                      </Link>
+                    </li>
+                  )}
+                </>
               )}
             </ul>
           </div>

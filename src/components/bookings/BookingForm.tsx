@@ -19,7 +19,7 @@ interface BookingFormProps {
   onSuccess: () => void;
 }
 export const BookingForm = ({ venue, onSuccess }: BookingFormProps) => {
-  const { isAuthenticated, isVenueManager } = useAuth();
+  const { isAuthenticated } = useAuth();
   const { createBooking, isSubmitting } = useBookings();
   const navigate = useNavigate();
   const [range, setRange] = useState<DateRange | undefined>(undefined);
@@ -80,22 +80,6 @@ export const BookingForm = ({ venue, onSuccess }: BookingFormProps) => {
     );
   }
 
-  if (isVenueManager) {
-    return (
-      <Card>
-        <CardContent className="p-6">
-          <p className="text-sm text-(--color-muted-foreground) mb-4">
-            Venue managers cannot make bookings. To book a stay, register or
-            log in as a customer.
-          </p>
-          <Button variant="outline" className="w-full" asChild>
-            <Link to="/profile">Go to My Venues</Link>
-          </Button>
-        </CardContent>
-      </Card>
-    );
-  }
-
   if (success) {
     return (
       <Card>
@@ -114,7 +98,9 @@ export const BookingForm = ({ venue, onSuccess }: BookingFormProps) => {
             </Button>
             <Button
               className="flex-1"
-              onClick={() => void navigate({ to: "/profile" })}
+              onClick={() =>
+                void navigate({ to: "/profile", search: { tab: "trips" } })
+              }
             >
               View bookings
             </Button>

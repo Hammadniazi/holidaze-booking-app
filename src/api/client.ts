@@ -186,7 +186,4 @@ export const profilesApi = {
   // Get venues of a profile if venue manager
   getVenues: (name: string) =>
     request(`/holidaze/profiles/${name}/venues?_bookings=true`),
-  // Get bookings of a profile
-  getBookings: (name: string) =>
-    request(`/holidaze/profiles/${name}/bookings?_venue=true`),
 };

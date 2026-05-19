@@ -75,4 +75,3 @@ export interface ApiResponse<T> {
 export interface AuthUser extends Profile {
   accessToken: string;
 }
-export type UserRole = "customer" | "venueManager";
