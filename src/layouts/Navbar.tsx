@@ -10,6 +10,7 @@ import {
   User,
   Moon,
   Sun,
+  Building2,
 } from "lucide-react";
 import { cn } from "@/utils";
 import { useThemeStore } from "@/store/themeStore";
@@ -67,6 +68,14 @@ export const Navbar = () => {
                 className="text-sm font-medium text-(--color-muted-foreground) hover:text-(--color-foreground) transition-colors [&.active]:text-(--color-foreground)"
               >
                 Profile
+              </Link>
+            )}
+            {isAuthenticated && user?.venueManager && (
+              <Link
+                to="/dashboard"
+                className="text-sm font-medium text-(--color-muted-foreground) hover:text-(--color-foreground) transition-colors [&.active]:text-(--color-foreground)"
+              >
+                My Venues
               </Link>
             )}
             <Link
@@ -137,6 +146,16 @@ export const Navbar = () => {
                       >
                         <User className="h-4 w-4" aria-hidden="true" /> Profile
                       </Link>
+                      {user?.venueManager && (
+                        <Link
+                          to="/dashboard"
+                          role="menuitem"
+                          className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-(--color-accent) transition-colors"
+                          onClick={() => setDropdownOpen(false)}
+                        >
+                          <Building2 className="h-4 w-4" aria-hidden="true" /> My Venues
+                        </Link>
+                      )}
 
                       <hr className="my-1 border-(--color-border)" />
                       <button
@@ -203,6 +222,15 @@ export const Navbar = () => {
               onClick={() => setMobileOpen(false)}
             >
               Profile
+            </Link>
+          )}
+          {isAuthenticated && user?.venueManager && (
+            <Link
+              to="/dashboard"
+              className="rounded-(--radius) px-3 py-2 text-sm font-medium hover:bg-(--color-accent) transition-colors"
+              onClick={() => setMobileOpen(false)}
+            >
+              My Venues
             </Link>
           )}
           <Link

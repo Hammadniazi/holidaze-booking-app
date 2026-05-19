@@ -19,7 +19,7 @@ interface BookingFormProps {
   onSuccess: () => void;
 }
 export const BookingForm = ({ venue, onSuccess }: BookingFormProps) => {
-  const { isAuthenticated, isVenueManager } = useAuth();
+  const { isAuthenticated } = useAuth();
   const { createBooking, isSubmitting } = useBookings();
   const navigate = useNavigate();
   const [range, setRange] = useState<DateRange | undefined>(undefined);
@@ -80,26 +80,6 @@ export const BookingForm = ({ venue, onSuccess }: BookingFormProps) => {
     );
   }
 
-  if (isVenueManager) {
-    return (
-      <Card>
-        <CardContent className="p-6 flex gap-3">
-          <span className="mt-0.5 shrink-0 text-(--color-muted-foreground)" aria-hidden="true">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20A10 10 0 0012 2z" />
-            </svg>
-          </span>
-          <div>
-            <p className="text-sm font-medium mb-1">You're signed in as a venue manager</p>
-            <p className="text-sm text-(--color-muted-foreground)">
-              Browsing is welcome, but bookings require a guest account.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
   if (success) {
     return (
       <Card>
@@ -118,7 +98,9 @@ export const BookingForm = ({ venue, onSuccess }: BookingFormProps) => {
             </Button>
             <Button
               className="flex-1"
-              onClick={() => void navigate({ to: "/profile" })}
+              onClick={() =>
+                void navigate({ to: "/profile", search: { tab: "trips" } })
+              }
             >
               View bookings
             </Button>

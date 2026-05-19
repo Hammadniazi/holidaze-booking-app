@@ -10,6 +10,7 @@ import {
 import RegisterPage from "@/pages/RegisterPage";
 import { VenueDetailPage } from "@/pages/VenueDetailPage";
 import ProfilePage from "@/pages/ProfilePage";
+import DashboardPage from "@/pages/DashboardPage";
 import ContactPage from "@/pages/ContactPage";
 import { NotFoundPage } from "@/pages/NotFoundPage";
 
@@ -51,9 +52,12 @@ const registerRoute = createRoute({
   component: RegisterPage,
 });
 
-const profileRoute = createRoute({
+export const profileRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/profile",
+  validateSearch: (search: Record<string, unknown>) => ({
+    tab: search.tab === "trips" ? ("trips" as const) : undefined,
+  }),
   component: ProfilePage,
 });
 
@@ -63,6 +67,12 @@ const contactRoute = createRoute({
   component: ContactPage,
 });
 
+const dashboardRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/dashboard",
+  component: DashboardPage,
+});
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   venueRoute,
@@ -70,6 +80,7 @@ const routeTree = rootRoute.addChildren([
   registerRoute,
   profileRoute,
   contactRoute,
+  dashboardRoute,
 ]);
 
 export const router = createRouter({

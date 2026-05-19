@@ -26,7 +26,7 @@ import {
 } from "@/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Calendar, Edit, MapPin, Trash2 } from "lucide-react";
+import { Calendar, Building2, Edit, MapPin, Trash2 } from "lucide-react";
 import { VenueManagement } from "@/components/dashboard/VenueManagement";
 import { useCallback, useEffect, useState } from "react";
 import { useForm, type Resolver } from "react-hook-form";
@@ -46,6 +46,10 @@ export const ProfilePage = () => {
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [bookingError, setBookingError] = useState<string | null>(null);
   const [cancelConfirmId, setCancelConfirmId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<"venues" | "trips">(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("tab") === "trips" ? "trips" : "venues";
+  });
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -154,6 +158,104 @@ export const ProfilePage = () => {
   );
   const bannerUrl = buildImageUrl(profileData?.banner?.url, "");
 
+  const bookingsListJSX = bookings.length === 0 ? (
+    <div className="text-center py-12 rounded-(--radius) border border-dashed border-(--color-border)">
+      <Calendar className="mx-auto h-10 w-10 text-(--color-muted-foreground) mb-3" />
+      <h3 className="font-medium mb-1">No trips yet</h3>
+      <p className="text-sm text-(--color-muted-foreground) mb-4">
+        Start exploring venues to make your first booking.
+      </p>
+      <Button asChild>
+        <Link to="/">Browse venues</Link>
+      </Button>
+    </div>
+  ) : (
+    <div className="space-y-3">
+      {bookings.map((booking) => (
+        <Card key={booking.id} className="overflow-hidden">
+          <CardContent className="p-0">
+            <div className="flex flex-col sm:flex-row">
+              {booking.venue?.media?.[0]?.url && (
+                <div className="h-40 sm:h-auto w-full sm:w-28 shrink-0 overflow-hidden bg-(--color-muted)">
+                  <img
+                    src={booking.venue.media[0].url}
+                    alt={booking.venue.name}
+                    className="h-full w-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = VENUE_PLACEHOLDER;
+                    }}
+                  />
+                </div>
+              )}
+              <div className="flex-1 p-4">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold truncate">
+                      {booking.venue?.name ?? "Venue"}
+                    </p>
+                    {booking.venue?.location && (
+                      <div className="flex items-center gap-1 text-xs text-(--color-muted-foreground) mt-0.5">
+                        <MapPin className="h-3 w-3" />
+                        {[
+                          booking.venue.location.city,
+                          booking.venue.location.country,
+                        ]
+                          .filter(Boolean)
+                          .join(", ")}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-(--color-muted-foreground) hover:text-(--color-foreground)"
+                      onClick={() => openEditBooking(booking)}
+                      aria-label="Edit booking"
+                    >
+                      <Edit className="h-4 w-4 sm:mr-1" />
+                      <span className="hidden sm:inline">Edit</span>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-(--color-destructive) hover:text-(--color-destructive) hover:bg-destructive/10"
+                      onClick={() => setCancelConfirmId(booking.id)}
+                      aria-label="Cancel booking"
+                    >
+                      <Trash2 className="h-4 w-4 sm:mr-1" />
+                      <span className="hidden sm:inline">Cancel</span>
+                    </Button>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-4 mt-2 text-sm">
+                  <div>
+                    <span className="text-(--color-muted-foreground)">Check-in: </span>
+                    <span className="font-medium">{formatDate(booking.dateFrom)}</span>
+                  </div>
+                  <div>
+                    <span className="text-(--color-muted-foreground)">Check-out: </span>
+                    <span className="font-medium">{formatDate(booking.dateTo)}</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between mt-2">
+                  <Badge variant="secondary">
+                    {booking.guests} guest{booking.guests > 1 ? "s" : ""}
+                  </Badge>
+                  {booking.venue?.price && (
+                    <span className="text-sm font-medium">
+                      {formatPrice(booking.venue.price)} / night
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+
   if (!isAuthenticated) return null;
 
   if (isLoading) {
@@ -236,139 +338,91 @@ export const ProfilePage = () => {
         </div>
       </div>
 
-      {/* Stats — customers only; managers get full stats inside VenueManagement */}
-      {!user?.venueManager && (
-        <div className="flex flex-wrap gap-4 mb-8">
-          <Card className="flex-1 min-w-35">
-            <CardContent className="p-4 text-center">
-              <p className="text-2xl font-bold">
-                {profileData?._count?.bookings ?? bookings.length}
-              </p>
-              <p className="text-xs text-(--color-muted-foreground)">
-                Bookings
-              </p>
-            </CardContent>
-          </Card>
+
+
+      {/* Manager layout: tabbed */}
+      {user?.venueManager && (
+        <div>
+          {/* Tab bar */}
+          <div
+            role="tablist"
+            aria-label="Profile sections"
+            className="flex border-b border-(--color-border) mb-6"
+          >
+            <button
+              role="tab"
+              aria-selected={activeTab === "venues"}
+              aria-controls="tab-venues"
+              onClick={() => setActiveTab("venues")}
+              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 -mb-px transition-colors ${
+                activeTab === "venues"
+                  ? "border-(--color-primary) text-(--color-foreground)"
+                  : "border-transparent text-(--color-muted-foreground) hover:text-(--color-foreground)"
+              }`}
+            >
+              <Building2 className="h-4 w-4" aria-hidden="true" />
+              My Venues
+            </button>
+            <button
+              role="tab"
+              aria-selected={activeTab === "trips"}
+              aria-controls="tab-trips"
+              onClick={() => setActiveTab("trips")}
+              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 -mb-px transition-colors ${
+                activeTab === "trips"
+                  ? "border-(--color-primary) text-(--color-foreground)"
+                  : "border-transparent text-(--color-muted-foreground) hover:text-(--color-foreground)"
+              }`}
+            >
+              <Calendar className="h-4 w-4" aria-hidden="true" />
+              My Trips
+              {bookings.length > 0 && (
+                <span className="ml-0.5 rounded-full bg-(--color-muted) px-1.5 py-0.5 text-xs font-medium">
+                  {bookings.length}
+                </span>
+              )}
+            </button>
+          </div>
+
+          {/* Venues tab */}
+          <div
+            id="tab-venues"
+            role="tabpanel"
+            aria-labelledby="tab-venues"
+            hidden={activeTab !== "venues"}
+          >
+            <VenueManagement />
+          </div>
+
+          {/* Trips tab */}
+          <div
+            id="tab-trips"
+            role="tabpanel"
+            aria-labelledby="tab-trips"
+            hidden={activeTab !== "trips"}
+          >
+            {bookingsListJSX}
+          </div>
         </div>
       )}
 
-      {/* Venue management — inline for managers */}
-      {user?.venueManager && <VenueManagement />}
-
-      {/* Bookings section — customers only */}
+      {/* Customer bookings section (non-managers) */}
       {!user?.venueManager && (
-        <div>
-          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <Calendar className="h-5 w-5" aria-hidden="true" /> My Bookings
+        <section aria-labelledby="trips-heading">
+          <h2
+            id="trips-heading"
+            className="text-lg font-semibold mb-6 flex items-center gap-2"
+          >
+            <Calendar className="h-5 w-5 text-(--color-primary)" aria-hidden="true" />
+            My Trips
+            {bookings.length > 0 && (
+              <span className="text-sm font-normal text-(--color-muted-foreground)">
+                · {bookings.length}
+              </span>
+            )}
           </h2>
-
-        {bookings.length === 0 ? (
-          <div className="text-center py-12 rounded-(--radius) border border-dashed border-(--color-border)">
-            <Calendar className="mx-auto h-10 w-10 text-(--color-muted-foreground) mb-3" />
-            <h3 className="font-medium mb-1">No bookings yet</h3>
-            <p className="text-sm text-(--color-muted-foreground) mb-4">
-              Start exploring venues to make your first booking.
-            </p>
-            <Button asChild>
-              <Link to="/">Browse venues</Link>
-            </Button>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {bookings.map((booking) => (
-              <Card key={booking.id} className="overflow-hidden">
-                <CardContent className="p-0">
-                  <div className="flex flex-col sm:flex-row">
-                    {booking.venue?.media?.[0]?.url && (
-                      <div className="h-40 sm:h-auto w-full sm:w-28 shrink-0 overflow-hidden bg-(--color-muted)">
-                        <img
-                          src={booking.venue.media[0].url}
-                          alt={booking.venue.name}
-                          className="h-full w-full object-cover"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src =
-                              VENUE_PLACEHOLDER;
-                          }}
-                        />
-                      </div>
-                    )}
-                    <div className="flex-1 p-4">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold truncate">
-                            {booking.venue?.name ?? "Venue"}
-                          </p>
-                          {booking.venue?.location && (
-                            <div className="flex items-center gap-1 text-xs text-(--color-muted-foreground) mt-0.5">
-                              <MapPin className="h-3 w-3" />
-                              {[
-                                booking.venue.location.city,
-                                booking.venue.location.country,
-                              ]
-                                .filter(Boolean)
-                                .join(", ")}
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-1 shrink-0">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-(--color-muted-foreground) hover:text-(--color-foreground)"
-                            onClick={() => openEditBooking(booking)}
-                            aria-label="Edit booking"
-                          >
-                            <Edit className="h-4 w-4 sm:mr-1" />
-                            <span className="hidden sm:inline">Edit</span>
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-(--color-destructive) hover:text-(--color-destructive) hover:bg-destructive/10"
-                            onClick={() => setCancelConfirmId(booking.id)}
-                            aria-label="Cancel booking"
-                          >
-                            <Trash2 className="h-4 w-4 sm:mr-1" />
-                            <span className="hidden sm:inline">Cancel</span>
-                          </Button>
-                        </div>
-                      </div>
-                      <div className="flex flex-wrap gap-4 mt-2 text-sm">
-                        <div>
-                          <span className="text-(--color-muted-foreground)">
-                            Check-in:{" "}
-                          </span>
-                          <span className="font-medium">
-                            {formatDate(booking.dateFrom)}
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-(--color-muted-foreground)">
-                            Check-out:{" "}
-                          </span>
-                          <span className="font-medium">
-                            {formatDate(booking.dateTo)}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between mt-2">
-                        <Badge variant="secondary">
-                          {booking.guests} guest{booking.guests > 1 ? "s" : ""}
-                        </Badge>
-                        {booking.venue?.price && (
-                          <span className="text-sm font-medium">
-                            {formatPrice(booking.venue.price)} / night
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-      </div>
+          {bookingsListJSX}
+        </section>
       )}
 
       {/* Cancel booking confirmation dialog */}
