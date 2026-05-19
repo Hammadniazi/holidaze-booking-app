@@ -83,14 +83,18 @@ export const BookingForm = ({ venue, onSuccess }: BookingFormProps) => {
   if (isVenueManager) {
     return (
       <Card>
-        <CardContent className="p-6">
-          <p className="text-sm text-(--color-muted-foreground) mb-4">
-            Venue managers cannot make bookings. To book a stay, register or
-            log in as a customer.
-          </p>
-          <Button variant="outline" className="w-full" asChild>
-            <Link to="/profile">Go to My Venues</Link>
-          </Button>
+        <CardContent className="p-6 flex gap-3">
+          <span className="mt-0.5 shrink-0 text-(--color-muted-foreground)" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20A10 10 0 0012 2z" />
+            </svg>
+          </span>
+          <div>
+            <p className="text-sm font-medium mb-1">You're signed in as a venue manager</p>
+            <p className="text-sm text-(--color-muted-foreground)">
+              Browsing is welcome, but bookings require a guest account.
+            </p>
+          </div>
         </CardContent>
       </Card>
     );

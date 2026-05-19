@@ -59,10 +59,12 @@ export function useVenue(id: string) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setLocalError] = useState<string | null>(null);
 
-  const fetchVenue = useCallback(async () => {
+  const fetchVenue = useCallback(async (silent = false) => {
     if (!id) return;
-    setIsLoading(true);
-    setLoading(true);
+    if (!silent) {
+      setIsLoading(true);
+      setLoading(true);
+    }
     try {
       const res = (await venuesApi.getOne(id)) as ApiResponse<Venue>;
       setCurrentVenue(res.data);
@@ -72,8 +74,10 @@ export function useVenue(id: string) {
       setLocalError(msg);
       setError(msg);
     } finally {
-      setIsLoading(false);
-      setLoading(false);
+      if (!silent) {
+        setIsLoading(false);
+        setLoading(false);
+      }
     }
   }, [id, setCurrentVenue, setLoading, setError]);
 

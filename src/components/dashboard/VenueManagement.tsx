@@ -7,9 +7,10 @@ import { Dialog } from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/useAuth";
 import type { ApiResponse, Booking, Venue } from "@/types";
 import { buildImageUrl, formatPrice, VENUE_PLACEHOLDER } from "@/utils";
-import { Building2, Calendar, Edit, Plus, Trash2, Users } from "lucide-react";
+import { Building2, Calendar, Edit, ExternalLink, Plus, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 import { VenueForm } from "./VenueForm";
+import { Link } from "@tanstack/react-router";
 
 export const VenueManagement = () => {
   const { user } = useAuth();
@@ -152,22 +153,36 @@ export const VenueManagement = () => {
               <CardContent className="p-0">
                 <div className="flex flex-col sm:flex-row">
                   <div className="h-44 sm:h-auto w-full sm:w-32 shrink-0 overflow-hidden bg-(--color-muted)">
-                    <img
-                      src={buildImageUrl(
-                        venue.media[0]?.url,
-                        VENUE_PLACEHOLDER,
-                      )}
-                      alt={venue.name}
-                      className="h-full w-full object-cover"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = VENUE_PLACEHOLDER;
-                      }}
-                    />
+                    <Link
+                      to="/venue/$id"
+                      params={{ id: venue.id }}
+                      aria-label={`Preview listing: ${venue.name}`}
+                      className="block h-full w-full"
+                    >
+                      <img
+                        src={buildImageUrl(
+                          venue.media[0]?.url,
+                          VENUE_PLACEHOLDER,
+                        )}
+                        alt={venue.name}
+                        className="h-full w-full object-cover transition-opacity hover:opacity-90"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = VENUE_PLACEHOLDER;
+                        }}
+                      />
+                    </Link>
                   </div>
                   <div className="flex-1 p-4">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold truncate">{venue.name}</h3>
+                        <Link
+                          to="/venue/$id"
+                          params={{ id: venue.id }}
+                          className="group/title inline-flex items-center gap-1 font-semibold hover:text-(--color-primary) transition-colors"
+                        >
+                          <span className="truncate">{venue.name}</span>
+                          <ExternalLink className="h-3 w-3 shrink-0 opacity-0 group-hover/title:opacity-60 transition-opacity" aria-hidden="true" />
+                        </Link>
                         <p className="text-sm text-(--color-muted-foreground)">
                           {formatPrice(venue.price)} / night · Up to{" "}
                           {venue.maxGuests} guests
