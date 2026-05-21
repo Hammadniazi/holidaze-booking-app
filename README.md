@@ -4,15 +4,17 @@ A modern accommodation booking application built with React, TypeScript, and Tai
 
 ## Project links
 
-|                       |                                                                                                                                        |
-| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| **GitHub Repository** | [github.com/Hammadniazi/holidaze-booking-app](https://github.com/Hammadniazi/holidaze-booking-app)                                     |
-| **Live demo**         | [holidazebooking.vercel.app](https://holidazebooking.vercel.app/)                                                                      |
-| **Figma Design**      | _(link coming soon)_                                                                                                                   |
-| **Figma Style Guide** | _(link coming soon)_                                                                                                                   |
-| **Kanban Board**      | [github.com/users/Hammadniazi/projects/10](https://github.com/users/Hammadniazi/projects/10)                                           |
-| **Gantt Chart**       | [View timeline](https://github.com/users/Hammadniazi/projects/10/views/4?sortedBy%5Bdirection%5D=asc&sortedBy%5BcolumnId%5D=284477411) |
-| **Project Report**    | _(link coming soon)_                                                                                                                   |
+|                             |                                                                                                                                        |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| **GitHub Repository**       | [github.com/Hammadniazi/holidaze-booking-app](https://github.com/Hammadniazi/holidaze-booking-app)                                     |
+| **Live demo**               | [holidazebooking.vercel.app](https://holidazebooking.vercel.app/)                                                                      |
+| **Figma Prototype Desktop** | _https://www.figma.com/design/rZAfIrOHWjqglkQMvgYH1Q/Holidaze?node-id=0-1&t=h8jXn4jpr77k8rvl-1_                                        |
+| **Figma Prototype Mobile**  | _https://www.figma.com/design/rZAfIrOHWjqglkQMvgYH1Q/Holidaze?node-id=134-9784&t=h8jXn4jpr77k8rvl-1_                                   |
+| **Figma Style Guide**       | _https://www.figma.com/design/rZAfIrOHWjqglkQMvgYH1Q/Holidaze?node-id=66-420&t=h8jXn4jpr77k8rvl-1_                                     |
+| **Figma Low-Fi**            | _https://www.figma.com/design/rZAfIrOHWjqglkQMvgYH1Q/Holidaze?node-id=6-3942&t=h8jXn4jpr77k8rvl-1_                                     |
+| **Kanban Board**            | [github.com/users/Hammadniazi/projects/10](https://github.com/users/Hammadniazi/projects/10)                                           |
+| **Gantt Chart**             | [View timeline](https://github.com/users/Hammadniazi/projects/10/views/4?sortedBy%5Bdirection%5D=asc&sortedBy%5BcolumnId%5D=284477411) |
+| **Project Report**          | _(link coming soon)_                                                                                                                   |
 
 ---
 
@@ -235,17 +237,6 @@ The project is pre-configured for **Vercel**.
 1. Import the repository in the [Vercel dashboard](https://vercel.com/new)
 2. Add `VITE_API_KEY` as a project environment variable
 3. Deploy — `vercel.json` handles everything else
-
-`vercel.json` configures:
-
-| Setting                   | Value                                                       |
-| ------------------------- | ----------------------------------------------------------- |
-| SPA rewrite               | All paths → `index.html`                                    |
-| `Content-Security-Policy` | Allowlists Noroff API, Unsplash images, Google Maps iframes |
-| `X-Frame-Options`         | `SAMEORIGIN`                                                |
-| `X-Content-Type-Options`  | `nosniff`                                                   |
-| `Referrer-Policy`         | `strict-origin-when-cross-origin`                           |
-| `Permissions-Policy`      | Blocks camera, microphone, geolocation                      |
 
 ---
 
