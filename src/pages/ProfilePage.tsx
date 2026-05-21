@@ -53,7 +53,7 @@ export const ProfilePage = () => {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      navigate({ to: "/login" });
+      void navigate({ to: "/login" });
     }
   }, [isAuthenticated, navigate]);
 
@@ -350,6 +350,7 @@ export const ProfilePage = () => {
             className="flex border-b border-(--color-border) mb-6"
           >
             <button
+              id="tab-btn-venues"
               role="tab"
               aria-selected={activeTab === "venues"}
               aria-controls="tab-venues"
@@ -364,6 +365,7 @@ export const ProfilePage = () => {
               My Venues
             </button>
             <button
+              id="tab-btn-trips"
               role="tab"
               aria-selected={activeTab === "trips"}
               aria-controls="tab-trips"
@@ -388,7 +390,7 @@ export const ProfilePage = () => {
           <div
             id="tab-venues"
             role="tabpanel"
-            aria-labelledby="tab-venues"
+            aria-labelledby="tab-btn-venues"
             hidden={activeTab !== "venues"}
           >
             <VenueManagement />
@@ -398,7 +400,7 @@ export const ProfilePage = () => {
           <div
             id="tab-trips"
             role="tabpanel"
-            aria-labelledby="tab-trips"
+            aria-labelledby="tab-btn-trips"
             hidden={activeTab !== "trips"}
           >
             {bookingsListJSX}
