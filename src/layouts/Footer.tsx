@@ -39,13 +39,13 @@ const TwitterIcon = () => (
 const SOCIAL_LINKS = [
   {
     label: "GitHub",
-    href: "https://github.com/",
+    href: "https://github.com/Hammadniazi",
     Icon: GitHubIcon,
     colorClass: "text-neutral-700 dark:text-neutral-300",
   },
   {
     label: "LinkedIn",
-    href: "https://linkedin.com/",
+    href: "https://www.linkedin.com/in/hammad-khan-902bb7b7/",
     Icon: LinkedInIcon,
     colorClass: "text-blue-600",
   },
