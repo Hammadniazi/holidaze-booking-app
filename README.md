@@ -14,7 +14,7 @@ A modern accommodation booking application built with React, TypeScript, and Tai
 | **Figma Low-Fi**            | [View low-fidelity wireframes](https://www.figma.com/design/rZAfIrOHWjqglkQMvgYH1Q/Holidaze?node-id=6-3942&t=h8jXn4jpr77k8rvl-1)       |
 | **Kanban Board**            | [github.com/users/Hammadniazi/projects/10](https://github.com/users/Hammadniazi/projects/10)                                           |
 | **Gantt Chart**             | [View timeline](https://github.com/users/Hammadniazi/projects/10/views/4?sortedBy%5Bdirection%5D=asc&sortedBy%5BcolumnId%5D=284477411) |
-| **Project Report**          | [View project report](https://drive.google.com/file/d/18KHwVNEDvlQ9j71zCcpDW3jw2S-lpOvL/view?usp=sharing)                              |
+| **Project Report**          | [View project report](https://drive.google.com/file/d/1uqX_Qa557eEu8p-_iOIg_BYK2iH6PMBf/view?usp=sharing)                              |
 
 ---
 
