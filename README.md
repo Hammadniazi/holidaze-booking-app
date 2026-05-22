@@ -8,13 +8,13 @@ A modern accommodation booking application built with React, TypeScript, and Tai
 | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
 | **GitHub Repository**       | [github.com/Hammadniazi/holidaze-booking-app](https://github.com/Hammadniazi/holidaze-booking-app)                                     |
 | **Live demo**               | [holidazebooking.vercel.app](https://holidazebooking.vercel.app/)                                                                      |
-| **Figma Prototype Desktop** | _https://www.figma.com/design/rZAfIrOHWjqglkQMvgYH1Q/Holidaze?node-id=0-1&t=h8jXn4jpr77k8rvl-1_                                        |
-| **Figma Prototype Mobile**  | _https://www.figma.com/design/rZAfIrOHWjqglkQMvgYH1Q/Holidaze?node-id=134-9784&t=h8jXn4jpr77k8rvl-1_                                   |
-| **Figma Style Guide**       | _https://www.figma.com/design/rZAfIrOHWjqglkQMvgYH1Q/Holidaze?node-id=66-420&t=h8jXn4jpr77k8rvl-1_                                     |
-| **Figma Low-Fi**            | _https://www.figma.com/design/rZAfIrOHWjqglkQMvgYH1Q/Holidaze?node-id=6-3942&t=h8jXn4jpr77k8rvl-1_                                     |
+| **Figma Prototype Desktop** | [View desktop prototype](https://www.figma.com/design/rZAfIrOHWjqglkQMvgYH1Q/Holidaze?node-id=0-1&t=h8jXn4jpr77k8rvl-1)                |
+| **Figma Prototype Mobile**  | [View mobile prototype](https://www.figma.com/design/rZAfIrOHWjqglkQMvgYH1Q/Holidaze?node-id=134-9784&t=h8jXn4jpr77k8rvl-1)            |
+| **Figma Style Guide**       | [View style guide](https://www.figma.com/design/rZAfIrOHWjqglkQMvgYH1Q/Holidaze?node-id=66-420&t=h8jXn4jpr77k8rvl-1)                   |
+| **Figma Low-Fi**            | [View low-fidelity wireframes](https://www.figma.com/design/rZAfIrOHWjqglkQMvgYH1Q/Holidaze?node-id=6-3942&t=h8jXn4jpr77k8rvl-1)       |
 | **Kanban Board**            | [github.com/users/Hammadniazi/projects/10](https://github.com/users/Hammadniazi/projects/10)                                           |
 | **Gantt Chart**             | [View timeline](https://github.com/users/Hammadniazi/projects/10/views/4?sortedBy%5Bdirection%5D=asc&sortedBy%5BcolumnId%5D=284477411) |
-| **Project Report**          | _(link coming soon)_                                                                                                                   |
+| **Project Report**          | [View project report](https://drive.google.com/file/d/18KHwVNEDvlQ9j71zCcpDW3jw2S-lpOvL/view?usp=sharing)                               |
 
 ---
 
@@ -270,4 +270,4 @@ This project is created as part of a school assignment at Noroff School of Techn
 
 ---
 
-**Happy Tour!** 🌍
+**Happy Visiting!** 🌍
