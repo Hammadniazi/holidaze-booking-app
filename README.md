@@ -8,13 +8,13 @@ A modern accommodation booking application built with React, TypeScript, and Tai
 | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
 | **GitHub Repository**       | [github.com/Hammadniazi/holidaze-booking-app](https://github.com/Hammadniazi/holidaze-booking-app)                                     |
 | **Live demo**               | [holidazebooking.vercel.app](https://holidazebooking.vercel.app/)                                                                      |
-| **Figma Prototype Desktop** | [View desktop prototype](https://www.figma.com/design/rZAfIrOHWjqglkQMvgYH1Q/Holidaze?node-id=0-1&t=h8jXn4jpr77k8rvl-1)                |
-| **Figma Prototype Mobile**  | [View mobile prototype](https://www.figma.com/design/rZAfIrOHWjqglkQMvgYH1Q/Holidaze?node-id=134-9784&t=h8jXn4jpr77k8rvl-1)            |
+| **Figma Prototype Desktop** | [View desktop prototype](https://www.figma.com/proto/rZAfIrOHWjqglkQMvgYH1Q/Holidaze?node-id=0-1&t=kdhA83avjtddk2Y2-1)                 |
+| **Figma Prototype Mobile**  | [View mobile prototype](https://www.figma.com/proto/rZAfIrOHWjqglkQMvgYH1Q/Holidaze?node-id=134-9784&t=kdhA83avjtddk2Y2-1)             |
 | **Figma Style Guide**       | [View style guide](https://www.figma.com/design/rZAfIrOHWjqglkQMvgYH1Q/Holidaze?node-id=66-420&t=h8jXn4jpr77k8rvl-1)                   |
 | **Figma Low-Fi**            | [View low-fidelity wireframes](https://www.figma.com/design/rZAfIrOHWjqglkQMvgYH1Q/Holidaze?node-id=6-3942&t=h8jXn4jpr77k8rvl-1)       |
 | **Kanban Board**            | [github.com/users/Hammadniazi/projects/10](https://github.com/users/Hammadniazi/projects/10)                                           |
 | **Gantt Chart**             | [View timeline](https://github.com/users/Hammadniazi/projects/10/views/4?sortedBy%5Bdirection%5D=asc&sortedBy%5BcolumnId%5D=284477411) |
-| **Project Report**          | [View project report](https://drive.google.com/file/d/18KHwVNEDvlQ9j71zCcpDW3jw2S-lpOvL/view?usp=sharing)                               |
+| **Project Report**          | [View project report](https://drive.google.com/file/d/18KHwVNEDvlQ9j71zCcpDW3jw2S-lpOvL/view?usp=sharing)                              |
 
 ---
 
@@ -27,8 +27,6 @@ A modern accommodation booking application built with React, TypeScript, and Tai
 - [Project structure](#project-structure)
 - [Features](#features)
 - [Testing](#testing)
-- [Deployment](#deployment)
-- [Environment variables](#environment-variables)
 - [API reference](#api-reference)
 - [License](#license)
 - [Author](#author)
@@ -227,24 +225,6 @@ npm run test:e2e:fresh
 **Unit test coverage:** Navbar, Footer, VenueCard, Zod schemas, Zustand stores, utility functions, ContactPage — 144 tests, 7 files.
 
 **E2e spec files:** `smoke.spec.ts`, `auth.spec.ts`, `venues.spec.ts`, `profile.spec.ts`, `dashboard.spec.ts`, `contact.spec.ts` — all passing.
-
----
-
-## Deployment
-
-The project is pre-configured for **Vercel**.
-
-1. Import the repository in the [Vercel dashboard](https://vercel.com/new)
-2. Add `VITE_API_KEY` as a project environment variable
-3. Deploy — `vercel.json` handles everything else
-
----
-
-## Environment variables
-
-| Variable       | Required | Description                                                          |
-| -------------- | -------- | -------------------------------------------------------------------- |
-| `VITE_API_KEY` | ✅       | Noroff API key — the `VITE_` prefix exposes it to the browser bundle |
 
 ---
 
