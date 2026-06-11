@@ -24,6 +24,7 @@ export const BookingForm = ({ venue, onSuccess }: BookingFormProps) => {
   const navigate = useNavigate();
   const [range, setRange] = useState<DateRange | undefined>(undefined);
   const [success, setSuccess] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const {
     register,
@@ -49,16 +50,23 @@ export const BookingForm = ({ venue, onSuccess }: BookingFormProps) => {
 
   const onSubmit = async (data: unknown) => {
     const typedData = data as BookingInput;
-    await createBooking({
-      dateFrom: typedData.dateFrom,
-      dateTo: typedData.dateTo,
-      guests: typedData.guests,
-      venueId: typedData.venueId,
-    });
-    setSuccess(true);
-    reset();
-    setRange(undefined);
-    onSuccess?.();
+    setFormError(null);
+    try {
+      await createBooking({
+        dateFrom: typedData.dateFrom,
+        dateTo: typedData.dateTo,
+        guests: typedData.guests,
+        venueId: typedData.venueId,
+      });
+      setSuccess(true);
+      reset();
+      setRange(undefined);
+      onSuccess?.();
+    } catch (err) {
+      setFormError(
+        err instanceof Error ? err.message : "Something went wrong. Please try again.",
+      );
+    }
   };
   if (!isAuthenticated) {
     return (
@@ -169,6 +177,12 @@ export const BookingForm = ({ venue, onSuccess }: BookingFormProps) => {
           <p className="text-xs text-(--color-muted-foreground)">
             Max {venue.maxGuests} guests
           </p>
+
+          {formError && (
+            <Alert variant="destructive" title="Booking failed">
+              {formError}
+            </Alert>
+          )}
 
           <Button
             type="submit"
