@@ -19,7 +19,7 @@ export const registerSchema = z
     email: z
       .string()
       .email({ message: "Invalid email address" })
-      .regex(/@stud\.noroff\.no$/, {
+      .refine((v) => v.toLowerCase().endsWith("@stud.noroff.no"), {
         message: "Email must be a stud.noroff.no address",
       }),
     password: z

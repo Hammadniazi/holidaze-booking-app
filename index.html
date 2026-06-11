@@ -13,6 +13,9 @@
     />
     <meta name="theme-color" content="#2563eb" />
 
+    <!-- Canonical -->
+    <link rel="canonical" href="https://holidazebooking.vercel.app/" />
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta
@@ -37,6 +40,21 @@
       content="Discover and book unique venues worldwide &mdash; from cosy cottages to luxury villas."
     />
     <meta name="twitter:image" content="https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=1200&auto=format&fit=crop" />
+    <!-- Structured data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Holidaze",
+        "url": "https://holidazebooking.vercel.app/",
+        "description": "Discover and book unique venues worldwide — from cosy cottages to luxury villas. Create an account to list your own property.",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://holidazebooking.vercel.app/venues?q={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
