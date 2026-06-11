@@ -75,8 +75,8 @@ export const VenueForm = ({ venue, onSuccess, onCancel }: VenueFormProps) => {
           zip: data.location.zip || null,
           country: data.location.country || null,
           continent: data.location.continent || null,
-          lat: data.location.lat ?? 0,
-          lng: data.location.lng ?? 0,
+          lat: data.location.lat ?? null,
+          lng: data.location.lng ?? null,
         },
       };
 
