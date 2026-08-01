@@ -37,6 +37,15 @@ export function calculateNights(from: Date, to: Date): number {
   return Math.max(0, differenceInDays(to, from));
 }
 
+// Converts a local calendar date (e.g. midnight from a date picker) to an ISO
+// string for that same Y/M/D — using `date.toISOString()` directly shifts the
+// day backward for any timezone ahead of UTC (Norway included).
+export function toUTCDateString(date: Date): string {
+  return new Date(
+    Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()),
+  ).toISOString();
+}
+
 export const VENUE_PLACEHOLDER =
   "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&auto=format&fit=crop";
 export const AVATAR_PLACEHOLDER =
