@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Alert } from "../ui/alert";
-import { calculateNights, formatDate, formatPrice } from "@/utils";
+import { calculateNights, formatDate, formatPrice, toUTCDateString } from "@/utils";
 import { BookingCalendar } from "./BookingCalendar";
 import { type DateRange } from "react-day-picker";
 import { Link, useNavigate } from "@tanstack/react-router";
@@ -44,8 +44,9 @@ export const BookingForm = ({ venue, onSuccess }: BookingFormProps) => {
   const handleRangeSelect = (r: DateRange | undefined) => {
     setRange(r);
     if (r?.from)
-      setValue("dateFrom", r.from.toISOString(), { shouldValidate: true });
-    if (r?.to) setValue("dateTo", r.to.toISOString(), { shouldValidate: true });
+      setValue("dateFrom", toUTCDateString(r.from), { shouldValidate: true });
+    if (r?.to)
+      setValue("dateTo", toUTCDateString(r.to), { shouldValidate: true });
   };
 
   const onSubmit = async (data: unknown) => {
