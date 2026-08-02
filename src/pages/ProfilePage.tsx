@@ -1,4 +1,4 @@
-import { ApiError, profilesApi } from "@/api/client";
+import { ApiError, profilesApi, venuesApi } from "@/api/client";
 import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,20 +16,24 @@ import {
 } from "@/schemas";
 import { useAuthStore } from "@/store/authStore";
 import { useBookingStore } from "@/store/bookingStore";
-import type { ApiResponse, Booking, Profile } from "@/types";
+import type { ApiResponse, Booking, Profile, Venue } from "@/types";
 import {
   AVATAR_PLACEHOLDER,
   buildImageUrl,
   formatDate,
   formatPrice,
+  toUTCDateString,
   VENUE_PLACEHOLDER,
 } from "@/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Calendar, Building2, Edit, MapPin, Trash2 } from "lucide-react";
 import { VenueManagement } from "@/components/dashboard/VenueManagement";
+import { BookingCalendar } from "@/components/bookings/BookingCalendar";
 import { useCallback, useEffect, useState } from "react";
 import { useForm, type Resolver } from "react-hook-form";
+import { parseISO } from "date-fns";
+import { type DateRange } from "react-day-picker";
 import { toast } from "sonner";
 
 export const ProfilePage = () => {
@@ -45,6 +49,11 @@ export const ProfilePage = () => {
   const [editBookingOpen, setEditBookingOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [bookingError, setBookingError] = useState<string | null>(null);
+  const [editRange, setEditRange] = useState<DateRange | undefined>(undefined);
+  const [availabilityBookings, setAvailabilityBookings] = useState<Booking[]>(
+    [],
+  );
+  const [isLoadingAvailability, setIsLoadingAvailability] = useState(false);
   const [cancelConfirmId, setCancelConfirmId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"venues" | "trips">(() => {
     const params = new URLSearchParams(window.location.search);
@@ -92,21 +101,56 @@ export const ProfilePage = () => {
     register: registerBooking,
     handleSubmit: handleBookingSubmit,
     reset: resetBookingForm,
+    setValue: setEditBookingValue,
     formState: { errors: bookingErrors, isSubmitting: isBookingSubmitting },
   } = useForm<EditBookingInput>({
     resolver: zodResolver(editBookingSchema) as Resolver<EditBookingInput>,
   });
 
-  const openEditBooking = (booking: Booking) => {
+  const openEditBooking = async (booking: Booking) => {
     setSelectedBooking(booking);
     setBookingError(null);
-    // Convert ISO string → YYYY-MM-DD for date inputs
     resetBookingForm({
-      dateFrom: booking.dateFrom.slice(0, 10),
-      dateTo: booking.dateTo.slice(0, 10),
+      dateFrom: booking.dateFrom,
+      dateTo: booking.dateTo,
       guests: booking.guests,
     });
+    setEditRange({
+      from: parseISO(booking.dateFrom),
+      to: parseISO(booking.dateTo),
+    });
+    setAvailabilityBookings([]);
     setEditBookingOpen(true);
+
+    // Fetch the venue's current bookings so the calendar can block dates
+    // that overlap someone else's stay — excluding this booking's own dates.
+    if (booking.venue?.id) {
+      setIsLoadingAvailability(true);
+      try {
+        const res = (await venuesApi.getOne(
+          booking.venue.id,
+        )) as ApiResponse<Venue>;
+        setAvailabilityBookings(
+          (res.data.bookings ?? []).filter((b) => b.id !== booking.id),
+        );
+      } catch {
+        // Non-fatal — calendar just won't reflect live conflicts if this fails
+      } finally {
+        setIsLoadingAvailability(false);
+      }
+    }
+  };
+
+  const handleEditRangeSelect = (r: DateRange | undefined) => {
+    setEditRange(r);
+    if (r?.from)
+      setEditBookingValue("dateFrom", toUTCDateString(r.from), {
+        shouldValidate: true,
+      });
+    if (r?.to)
+      setEditBookingValue("dateTo", toUTCDateString(r.to), {
+        shouldValidate: true,
+      });
   };
 
   const onUpdateBooking = async (data: EditBookingInput) => {
@@ -114,8 +158,8 @@ export const ProfilePage = () => {
     setBookingError(null);
     try {
       await editBooking(selectedBooking.id, {
-        dateFrom: new Date(data.dateFrom).toISOString(),
-        dateTo: new Date(data.dateTo).toISOString(),
+        dateFrom: data.dateFrom,
+        dateTo: data.dateTo,
         guests: data.guests,
       });
       setEditBookingOpen(false);
@@ -210,7 +254,7 @@ export const ProfilePage = () => {
                       variant="ghost"
                       size="sm"
                       className="text-(--color-muted-foreground) hover:text-(--color-foreground)"
-                      onClick={() => openEditBooking(booking)}
+                      onClick={() => void openEditBooking(booking)}
                       aria-label="Edit booking"
                     >
                       <Edit className="h-4 w-4 sm:mr-1" />
@@ -474,20 +518,22 @@ export const ProfilePage = () => {
           onSubmit={handleBookingSubmit(onUpdateBooking)}
           className="space-y-4"
         >
-          <Input
-            id="editDateFrom"
-            label="Check-in date"
-            type="date"
-            error={bookingErrors.dateFrom?.message}
-            {...registerBooking("dateFrom")}
-          />
-          <Input
-            id="editDateTo"
-            label="Check-out date"
-            type="date"
-            error={bookingErrors.dateTo?.message}
-            {...registerBooking("dateTo")}
-          />
+          {isLoadingAvailability ? (
+            <div className="h-64 flex items-center justify-center rounded-(--radius) border border-(--color-border) text-sm text-(--color-muted-foreground)">
+              Checking availability...
+            </div>
+          ) : (
+            <BookingCalendar
+              bookings={availabilityBookings}
+              selected={editRange}
+              onRangeSelect={handleEditRangeSelect}
+            />
+          )}
+          {(bookingErrors.dateFrom || bookingErrors.dateTo) && (
+            <p className="text-xs text-(--color-destructive)">
+              Please select valid check-in and check-out dates
+            </p>
+          )}
           <Input
             id="editGuests"
             label="Number of guests"
