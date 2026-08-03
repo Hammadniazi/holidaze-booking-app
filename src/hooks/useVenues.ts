@@ -17,7 +17,12 @@ export function useVenues(page = 1, limit = 12) {
     setError(null);
     try {
       const res = searchQuery
-        ? ((await venuesApi.search(searchQuery)) as ApiResponse<Venue[]>)
+        ? ((await venuesApi.search(searchQuery, {
+            page,
+            limit,
+            sort: sortBy,
+            sortOrder,
+          })) as ApiResponse<Venue[]>)
         : ((await venuesApi.getAll({
             page,
             limit,
