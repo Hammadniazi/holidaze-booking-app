@@ -135,11 +135,26 @@ export const venuesApi = {
       { requiresAuth: false },
     ),
 
-  search: (query: string) =>
-    request<ApiResponse<Venue[]>>(
-      `/holidaze/venues/search?q=${encodeURIComponent(query)}&_owner=true`,
+  search: (
+    query: string,
+    params?: {
+      page?: number;
+      limit?: number;
+      sort?: string;
+      sortOrder?: string;
+    },
+  ) => {
+    const search = new URLSearchParams();
+    search.set("q", query);
+    if (params?.page) search.set("page", String(params.page));
+    if (params?.limit) search.set("limit", String(params.limit));
+    if (params?.sort) search.set("sort", params.sort);
+    if (params?.sortOrder) search.set("sortOrder", params.sortOrder);
+    return request<ApiResponse<Venue[]>>(
+      `/holidaze/venues/search?_owner=true&${search.toString()}`,
       { requiresAuth: false },
-    ),
+    );
+  },
   create: (data: unknown) =>
     request("/holidaze/venues", { method: "POST", body: data }),
 

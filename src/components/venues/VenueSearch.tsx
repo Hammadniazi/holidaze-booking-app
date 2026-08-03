@@ -80,32 +80,30 @@ export function VenueSearch() {
         <Button type="submit">Search</Button>
       </form>
 
-      {/* Sort controls — only shown when not in search mode */}
-      {!searchQuery && (
-        <div className="mt-3 flex items-center gap-2 flex-wrap">
-          <span className="text-xs text-(--color-muted-foreground)">Sort:</span>
-          <select
-            value={sortBy}
-            onChange={handleSortBy}
-            className="h-8 text-xs rounded-(--radius) border border-(--color-input) bg-(--color-background) px-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-ring)"
-            aria-label="Sort by"
-          >
-            <option value="created">Date added</option>
-            <option value="name">Name</option>
-            <option value="price">Price</option>
-            <option value="rating">Rating</option>
-          </select>
-          <select
-            value={sortOrder}
-            onChange={handleSortOrder}
-            className="h-8 text-xs rounded-(--radius) border border-(--color-input) bg-(--color-background) px-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-ring)"
-            aria-label="Sort order"
-          >
-            <option value="desc">Descending</option>
-            <option value="asc">Ascending</option>
-          </select>
-        </div>
-      )}
+      {/* Sort controls — the search endpoint supports sort/sortOrder too */}
+      <div className="mt-3 flex items-center gap-2 flex-wrap">
+        <span className="text-xs text-(--color-muted-foreground)">Sort:</span>
+        <select
+          value={sortBy}
+          onChange={handleSortBy}
+          className="h-8 text-xs rounded-(--radius) border border-(--color-input) bg-(--color-background) px-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-ring)"
+          aria-label="Sort by"
+        >
+          <option value="created">Date added</option>
+          <option value="name">Name</option>
+          <option value="price">Price</option>
+          <option value="rating">Rating</option>
+        </select>
+        <select
+          value={sortOrder}
+          onChange={handleSortOrder}
+          className="h-8 text-xs rounded-(--radius) border border-(--color-input) bg-(--color-background) px-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-ring)"
+          aria-label="Sort order"
+        >
+          <option value="desc">Descending</option>
+          <option value="asc">Ascending</option>
+        </select>
+      </div>
     </div>
   );
 }

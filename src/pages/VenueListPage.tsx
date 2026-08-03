@@ -52,10 +52,10 @@ export const VenueListPage = () => {
       {/* Results header */}
       <div className="flex items-center justify-between mb-4">
         <p className="text-sm text-(--color-muted-foreground)">
-          {searchQuery
-            ? `${venues.length} results for "${searchQuery}"`
-            : loading
-              ? "Loading venues..."
+          {loading
+            ? "Loading venues..."
+            : searchQuery
+              ? `${totalCount} results for "${searchQuery}"`
               : `${totalCount} venues available`}
         </p>
       </div>
@@ -97,7 +97,7 @@ export const VenueListPage = () => {
       )}
 
       {/* Pagination */}
-      {!searchQuery && totalPages > 1 && (
+      {totalPages > 1 && (
         <div className="flex items-center justify-center gap-1 mt-10 pb-8 flex-wrap">
           {/* Prev */}
           <Button
