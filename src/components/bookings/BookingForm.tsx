@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { bookingSchema, type BookingInput } from "@/schemas";
+import { createBookingSchema, type BookingInput } from "@/schemas";
 import { useBookings } from "@/hooks/useBookings";
 import { useAuth } from "@/hooks/useAuth";
 import type { Venue } from "@/types";
@@ -33,7 +33,7 @@ export const BookingForm = ({ venue, onSuccess }: BookingFormProps) => {
     formState: { errors },
     reset,
   } = useForm<BookingInput>({
-    resolver: zodResolver(bookingSchema) as never,
+    resolver: zodResolver(createBookingSchema(venue.maxGuests)) as never,
     defaultValues: { venueId: venue.id, guests: 1 },
   });
 
