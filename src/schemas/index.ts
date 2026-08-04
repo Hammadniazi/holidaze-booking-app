@@ -81,34 +81,47 @@ export const createVenueSchema = z.object({
     lng: z.coerce.number().optional(),
   }),
 });
-export const bookingSchema = z
-  .object({
-    dateFrom: z.string().min(1, "Check-in date is required"),
-    dateTo: z.string().min(1, "Check-out date is required"),
-    guests: z.coerce
-      .number()
-      .int()
-      .min(1, { message: "At least 1 guest is required" }),
-    venueId: z.string(),
-  })
-  .refine((d) => new Date(d.dateTo) > new Date(d.dateFrom), {
-    message: "Check-out must be after check-in",
-    path: ["dateTo"],
-  });
+// Guest count must be capped per-venue, so this is built by a factory rather
+// than a static schema — see createBookingSchema/createEditBookingSchema.
+function guestsField(maxGuests: number) {
+  return z.coerce
+    .number()
+    .int()
+    .min(1, { message: "At least 1 guest is required" })
+    .max(maxGuests, {
+      message:
+        maxGuests === 1
+          ? "This venue allows a maximum of 1 guest"
+          : `This venue allows a maximum of ${maxGuests} guests`,
+    });
+}
 
-export const editBookingSchema = z
-  .object({
-    dateFrom: z.string().min(1, { message: "Check-in date is required" }),
-    dateTo: z.string().min(1, { message: "Check-out date is required" }),
-    guests: z.coerce
-      .number()
-      .int()
-      .min(1, { message: "At least 1 guest is required" }),
-  })
-  .refine((d) => new Date(d.dateTo) > new Date(d.dateFrom), {
-    message: "Check-out must be after check-in",
-    path: ["dateTo"],
-  });
+export function createBookingSchema(maxGuests: number) {
+  return z
+    .object({
+      dateFrom: z.string().min(1, "Check-in date is required"),
+      dateTo: z.string().min(1, "Check-out date is required"),
+      guests: guestsField(maxGuests),
+      venueId: z.string(),
+    })
+    .refine((d) => new Date(d.dateTo) > new Date(d.dateFrom), {
+      message: "Check-out must be after check-in",
+      path: ["dateTo"],
+    });
+}
+
+export function createEditBookingSchema(maxGuests: number) {
+  return z
+    .object({
+      dateFrom: z.string().min(1, { message: "Check-in date is required" }),
+      dateTo: z.string().min(1, { message: "Check-out date is required" }),
+      guests: guestsField(maxGuests),
+    })
+    .refine((d) => new Date(d.dateTo) > new Date(d.dateFrom), {
+      message: "Check-out must be after check-in",
+      path: ["dateTo"],
+    });
+}
 // Update Profile Schema
 export const updateProfileSchema = z.object({
   bio: z
@@ -159,8 +172,10 @@ export const contactSchema = z.object({
     .max(1000, "Message must be under 1000 characters"),
 });
 
-export type BookingInput = z.infer<typeof bookingSchema>;
-export type EditBookingInput = z.infer<typeof editBookingSchema>;
+export type BookingInput = z.infer<ReturnType<typeof createBookingSchema>>;
+export type EditBookingInput = z.infer<
+  ReturnType<typeof createEditBookingSchema>
+>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;

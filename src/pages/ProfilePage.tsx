@@ -10,7 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useBookings } from "@/hooks/useBookings";
 import {
   updateProfileSchema,
-  editBookingSchema,
+  createEditBookingSchema,
   type UpdateProfileInput,
   type EditBookingInput,
 } from "@/schemas";
@@ -104,7 +104,13 @@ export const ProfilePage = () => {
     setValue: setEditBookingValue,
     formState: { errors: bookingErrors, isSubmitting: isBookingSubmitting },
   } = useForm<EditBookingInput>({
-    resolver: zodResolver(editBookingSchema) as Resolver<EditBookingInput>,
+    // Re-built on every render so it always reflects the currently selected
+    // booking's venue — react-hook-form re-reads `resolver` on each render.
+    resolver: zodResolver(
+      createEditBookingSchema(
+        selectedBooking?.venue?.maxGuests ?? Number.MAX_SAFE_INTEGER,
+      ),
+    ) as Resolver<EditBookingInput>,
   });
 
   const openEditBooking = async (booking: Booking) => {
