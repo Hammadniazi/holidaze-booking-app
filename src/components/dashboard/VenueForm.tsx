@@ -179,16 +179,27 @@ export const VenueForm = ({ venue, onSuccess, onCancel }: VenueFormProps) => {
       {/* Media */}
       <div>
         <div className="flex items-center justify-between mb-2">
-          <label className="text-sm font-medium">Images</label>
+          <label className="text-sm font-medium">
+            Images{" "}
+            <span className="text-(--color-muted-foreground) font-normal">
+              ({mediaFields.length} / 5)
+            </span>
+          </label>
           <Button
             type="button"
             variant="outline"
             size="sm"
+            disabled={mediaFields.length >= 5}
             onClick={() => addMedia({ url: "", alt: "" })}
           >
             <Plus className="h-3.5 w-3.5 mr-1" /> Add image
           </Button>
         </div>
+        {errors.media?.message && (
+          <p className="text-sm text-(--color-destructive) mb-2">
+            {errors.media.message}
+          </p>
+        )}
         {mediaFields.map((field, i) => (
           <div key={field.id} className="flex gap-2 mb-2">
             <Input
@@ -245,6 +256,32 @@ export const VenueForm = ({ venue, onSuccess, onCancel }: VenueFormProps) => {
           <Input placeholder="City" {...register("location.city")} />
           <Input placeholder="Country" {...register("location.country")} />
           <Input placeholder="ZIP code" {...register("location.zip")} />
+        </div>
+        <div className="mt-3">
+          <p className="text-xs text-(--color-muted-foreground) mb-2">
+            Latitude / longitude — optional. Pins the exact spot on the map
+            instead of just the city.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Input
+              placeholder="Latitude, e.g. 59.9139"
+              type="number"
+              step="any"
+              error={errors.location?.lat?.message}
+              {...register("location.lat", {
+                setValueAs: (v) => (v === "" ? undefined : Number(v)),
+              })}
+            />
+            <Input
+              placeholder="Longitude, e.g. 10.7522"
+              type="number"
+              step="any"
+              error={errors.location?.lng?.message}
+              {...register("location.lng", {
+                setValueAs: (v) => (v === "" ? undefined : Number(v)),
+              })}
+            />
+          </div>
         </div>
       </div>
 

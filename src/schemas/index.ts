@@ -63,6 +63,7 @@ export const createVenueSchema = z.object({
         alt: z.string().optional().default(""),
       }),
     )
+    .max(5, "You can add up to 5 images")
     .optional()
     .default([]),
   meta: z.object({
