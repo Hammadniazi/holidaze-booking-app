@@ -88,6 +88,7 @@ export const ProfilePage = () => {
   const {
     register,
     handleSubmit,
+    reset: resetProfileForm,
     formState: { errors, isSubmitting },
   } = useForm<UpdateProfileInput>({
     resolver: zodResolver(updateProfileSchema),
@@ -96,6 +97,25 @@ export const ProfilePage = () => {
       avatar: { url: user?.avatar?.url ?? "", alt: user?.avatar?.alt ?? "" },
     },
   });
+
+  const openEditProfile = () => {
+    // Re-populate from the freshly fetched profile (not the auth store's
+    // stale login-time snapshot) so bio/avatar/banner all reflect what's
+    // actually on the page right now — banner previously wasn't prefilled
+    // at all, making it look unset even when one exists.
+    resetProfileForm({
+      bio: profileData?.bio ?? "",
+      avatar: {
+        url: profileData?.avatar?.url ?? "",
+        alt: profileData?.avatar?.alt ?? "",
+      },
+      banner: {
+        url: profileData?.banner?.url ?? "",
+        alt: profileData?.banner?.alt ?? "",
+      },
+    });
+    setEditOpen(true);
+  };
 
   const {
     register: registerBooking,
@@ -358,7 +378,7 @@ export const ProfilePage = () => {
               variant="outline"
               size="sm"
               className="shrink-0"
-              onClick={() => setEditOpen(true)}
+              onClick={openEditProfile}
             >
               <Edit className="h-4 w-4 mr-1" /> Edit profile
             </Button>
