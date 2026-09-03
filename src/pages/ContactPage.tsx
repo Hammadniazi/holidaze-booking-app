@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { MapPin, Mail, Clock, CheckCircle2, MessageSquare } from "lucide-react";
+import { Container } from "@/components/ui/container";
 
 const SUBJECT_OPTIONS = [
   { value: "general", label: "General enquiry" },
@@ -54,7 +55,7 @@ export const ContactPage = () => {
   };
 
   return (
-    <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-12">
+    <Container className="py-12">
       {/* Hero */}
       <div className="text-center mb-10">
         <div className="flex justify-center mb-4">
@@ -191,7 +192,7 @@ export const ContactPage = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </Container>
   );
 };
 

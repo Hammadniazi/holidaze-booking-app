@@ -9,7 +9,8 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     | "outline"
     | "secondary"
     | "ghost"
-    | "link";
+    | "link"
+    | "accent";
   size?: "default" | "sm" | "lg" | "icon";
   isLoading?: boolean;
   asChild?: boolean;
@@ -27,13 +28,19 @@ const variants: Record<NonNullable<ButtonProps["variant"]>, string> = {
   ghost:
     "hover:bg-(--color-accent) hover:text-(--color-accent-foreground)",
   link: "text-(--color-primary) underline-offset-4 hover:underline",
+  // Ember. Reserved for the primary commercial action (Confirm Booking,
+  // Search) so exactly one thing on any given screen is warm.
+  accent:
+    "bg-(--color-accent-brand) text-(--color-accent-brand-foreground) hover:brightness-110 shadow-[var(--elev-1)]",
 };
 
+// Heights meet the 44px touch minimum at `default` and above. `sm` is 40px and
+// is for dense desktop toolbars only — not for primary mobile actions.
 const sizes: Record<NonNullable<ButtonProps["size"]>, string> = {
-  default: "h-10 px-4 py-2",
-  sm: "h-8 rounded-(--radius) px-3 text-xs",
-  lg: "h-11 rounded-(--radius) px-8",
-  icon: "h-10 w-10",
+  default: "h-11 px-5 py-2",
+  sm: "h-10 rounded-(--radius) px-3.5 text-xs",
+  lg: "h-12 rounded-(--radius) px-8 text-base",
+  icon: "h-11 w-11",
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -57,9 +64,14 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={disabled || isLoading}
         className={cn(
           "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-(--radius) text-sm font-medium",
-          "ring-offset-(--color-background) transition-colors",
+          "ring-offset-(--color-background)",
+          "transition-[background-color,color,box-shadow,filter] duration-(--motion-fast) ease-(--ease-out)",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-ring) focus-visible:ring-offset-2",
-          "disabled:pointer-events-none disabled:opacity-50",
+          // Disabled gets its own muted pair rather than bleeding a tinted fill
+          // through opacity — opacity-50 on a colour fill reads as a rendering
+          // fault, not as a control waiting on input.
+          "disabled:cursor-not-allowed disabled:bg-(--color-muted) disabled:text-(--color-muted-foreground)",
+          "disabled:border-transparent disabled:shadow-none disabled:hover:brightness-100",
           variants[variant],
           sizes[size],
           className,

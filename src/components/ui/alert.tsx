@@ -11,27 +11,24 @@ interface AlertProps {
 
 const configs = {
   default: {
-    wrapper: "border-[var(--color-border)] bg-[var(--color-background)]",
+    wrapper: "border-(--color-border) bg-(--color-muted)",
     icon: Info,
-    iconClass: "text-[var(--color-muted-foreground)]",
+    iconClass: "text-(--color-muted-foreground)",
   },
   success: {
-    wrapper:
-      "border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950",
+    wrapper: "border-(--color-success)/35 bg-(--color-success)/10",
     icon: CheckCircle2,
-    iconClass: "text-green-600 dark:text-green-400",
+    iconClass: "text-(--color-success)",
   },
   warning: {
-    wrapper:
-      "border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-950",
+    wrapper: "border-(--color-warning)/35 bg-(--color-warning)/10",
     icon: AlertCircle,
-    iconClass: "text-yellow-600 dark:text-yellow-400",
+    iconClass: "text-(--color-warning)",
   },
   destructive: {
-    wrapper:
-      "border-[var(--color-destructive)]/30 bg-[var(--color-destructive)]/10",
+    wrapper: "border-(--color-destructive)/35 bg-(--color-destructive)/10",
     icon: XCircle,
-    iconClass: "text-[var(--color-destructive)]",
+    iconClass: "text-(--color-destructive)",
   },
 };
 
@@ -56,7 +53,7 @@ export function Alert({
       <Icon className={cn("mt-0.5 h-5 w-5 shrink-0", config.iconClass)} />
       <div className="flex-1">
         {title && <p className="font-medium text-sm mb-1">{title}</p>}
-        <div className="text-sm text-(--color-muted-foreground)">
+        <div className="text-sm text-(--color-foreground)/85">
           {children}
         </div>
       </div>

@@ -3,9 +3,19 @@ import { useVenueStore } from "@/store/venueStore";
 import { Button } from "@/components/ui/button";
 import { Search, X } from "lucide-react";
 
+/** Combined sort options. One control instead of two, and the labels say what
+ *  the user gets rather than naming a field and a direction. */
+const SORT_OPTIONS = [
+  { value: "created:desc", label: "Newest first" },
+  { value: "price:asc", label: "Price: low to high" },
+  { value: "price:desc", label: "Price: high to low" },
+  { value: "rating:desc", label: "Top rated" },
+  { value: "name:asc", label: "Name: A–Z" },
+] as const;
+
+const GUEST_OPTIONS = [0, 1, 2, 4, 6, 8] as const;
+
 export function VenueSearch() {
-  // Pull search/sort state and setters from the global venue store so that
-  // useVenues can react to changes and re-fetch automatically.
   const {
     searchQuery,
     setSearchQuery,
@@ -14,96 +24,124 @@ export function VenueSearch() {
     sortOrder,
     setSortBy,
     setSortOrder,
+    minGuests,
+    setMinGuests,
   } = useVenueStore();
 
-  // `inputValue` is local controlled state for the text input.
   const [inputValue, setInputValue] = useState(searchQuery);
 
-  const handleSearch = (e: React.FormEvent) => {
+  const submit = (e: React.FormEvent) => {
     e.preventDefault();
     setSearchQuery(inputValue.trim());
     setCurrentPage(1);
   };
 
-  const handleClear = () => {
+  const clear = () => {
     setInputValue("");
     setSearchQuery("");
     setCurrentPage(1);
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setInputValue(value);
-    if (value === "") {
-      setSearchQuery("");
-      setCurrentPage(1);
-    }
-  };
-
-  // Update sort field in the store and reset pagination so results are
-  // consistent with the new sort order from page 1.
-  const handleSortBy = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSortBy(e.target.value);
+  const handleSort = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const [field, order] = e.target.value.split(":");
+    setSortBy(field);
+    setSortOrder(order);
     setCurrentPage(1);
   };
 
-  const handleSortOrder = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSortOrder(e.target.value);
-    setCurrentPage(1);
-  };
+  const fieldCls =
+    "w-full bg-transparent text-base sm:text-sm font-medium text-(--color-foreground) " +
+    "placeholder:font-normal placeholder:text-(--color-muted-foreground) " +
+    "focus:outline-none";
+  const labelCls =
+    "block text-[11px] font-semibold uppercase tracking-wider text-(--color-muted-foreground)";
 
   return (
-    <div className="rounded-(--radius) border border-(--color-border) bg-(--color-card) p-4 shadow-sm">
-      <form onSubmit={handleSearch} className="flex gap-2">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-(--color-muted-foreground)" />
-          <input
-            type="text"
-            value={inputValue}
-            onChange={handleInputChange}
-            placeholder="Search venues by name..."
-            className="flex h-10 w-full rounded-(--radius) border border-(--color-input) bg-(--color-background) pl-9 pr-9 py-2 text-sm placeholder:text-(--color-muted-foreground) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-ring)"
-            aria-label="Search venues"
-          />
-          {/* Show the clear button only when there is text in the input */}
-          {inputValue && (
-            <button
-              type="button"
-              onClick={handleClear}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-(--color-muted-foreground) hover:text-(--color-foreground)"
-              aria-label="Clear search"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
-        </div>
-        <Button type="submit">Search</Button>
-      </form>
+    <form
+      onSubmit={submit}
+      className="flex flex-col gap-1 rounded-(--radius-lg) border border-(--color-input)
+                 bg-(--color-card) p-2 shadow-(--elev-2)
+                 sm:flex-row sm:items-center sm:gap-0 sm:rounded-full sm:p-1.5"
+    >
+      {/* Where */}
+      <div className="relative min-w-0 flex-[2] rounded-(--radius) px-3.5 py-2 sm:rounded-full sm:hover:bg-(--color-muted)">
+        <label htmlFor="venue-search" className={labelCls}>
+          Where
+        </label>
+        <input
+          id="venue-search"
+          type="text"
+          value={inputValue}
+          onChange={(e) => {
+            setInputValue(e.target.value);
+            if (e.target.value === "") {
+              setSearchQuery("");
+              setCurrentPage(1);
+            }
+          }}
+          placeholder="Search venues"
+          className={`${fieldCls} pr-6`}
+        />
+        {inputValue && (
+          <button
+            type="button"
+            onClick={clear}
+            aria-label="Clear search"
+            className="absolute right-2 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center
+                       rounded-full text-(--color-muted-foreground)
+                       hover:bg-(--color-muted) hover:text-(--color-foreground)"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
+      </div>
 
-      {/* Sort controls — the search endpoint supports sort/sortOrder too */}
-      <div className="mt-3 flex items-center gap-2 flex-wrap">
-        <span className="text-xs text-(--color-muted-foreground)">Sort:</span>
+      <div className="hidden h-9 w-px shrink-0 bg-(--color-border) sm:block" aria-hidden="true" />
+
+      {/* Guests */}
+      <div className="min-w-0 flex-1 rounded-(--radius) px-3.5 py-2 sm:rounded-full sm:hover:bg-(--color-muted)">
+        <label htmlFor="venue-guests" className={labelCls}>
+          Guests
+        </label>
         <select
-          value={sortBy}
-          onChange={handleSortBy}
-          className="h-8 text-xs rounded-(--radius) border border-(--color-input) bg-(--color-background) px-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-ring)"
-          aria-label="Sort by"
+          id="venue-guests"
+          value={minGuests}
+          onChange={(e) => setMinGuests(Number(e.target.value))}
+          className={`${fieldCls} -ml-0.5 cursor-pointer`}
         >
-          <option value="created">Date added</option>
-          <option value="name">Name</option>
-          <option value="price">Price</option>
-          <option value="rating">Rating</option>
-        </select>
-        <select
-          value={sortOrder}
-          onChange={handleSortOrder}
-          className="h-8 text-xs rounded-(--radius) border border-(--color-input) bg-(--color-background) px-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-ring)"
-          aria-label="Sort order"
-        >
-          <option value="desc">Descending</option>
-          <option value="asc">Ascending</option>
+          {GUEST_OPTIONS.map((n) => (
+            <option key={n} value={n}>
+              {n === 0 ? "Any" : `${n}+ guests`}
+            </option>
+          ))}
         </select>
       </div>
-    </div>
+
+      <div className="hidden h-9 w-px shrink-0 bg-(--color-border) sm:block" aria-hidden="true" />
+
+      {/* Sort */}
+      <div className="min-w-0 flex-1 rounded-(--radius) px-3.5 py-2 sm:rounded-full sm:hover:bg-(--color-muted)">
+        <label htmlFor="venue-sort" className={labelCls}>
+          Sort by
+        </label>
+        <select
+          id="venue-sort"
+          value={`${sortBy}:${sortOrder}`}
+          onChange={handleSort}
+          className={`${fieldCls} -ml-0.5 cursor-pointer`}
+        >
+          {SORT_OPTIONS.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <Button type="submit" variant="accent" className="shrink-0 sm:rounded-full sm:px-6">
+        <Search className="h-4 w-4" aria-hidden="true" />
+        Search
+      </Button>
+    </form>
   );
 }

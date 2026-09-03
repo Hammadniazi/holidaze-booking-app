@@ -1,167 +1,188 @@
 import { Link } from "@tanstack/react-router";
 import type { Venue } from "@/types";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   formatPrice,
   buildImageUrl,
   VENUE_PLACEHOLDER,
   truncate,
+  cn,
 } from "@/utils";
-import {
-  Star,
-  MapPin,
-  Users,
-  Wifi,
-  Car,
-  Coffee,
-  PawPrint,
-  Heart,
-} from "lucide-react";
+import { Star, MapPin, Users, Heart } from "lucide-react";
 import { useFavoritesStore } from "@/store/favoritesStore";
 
 interface VenueCardProps {
   venue: Venue;
+  /** Spans two grid columns with a wider crop. Used for the first result. */
+  featured?: boolean;
+  /** Index within the grid, used to stagger the entrance. */
+  index?: number;
 }
 
-export function VenueCard({ venue }: VenueCardProps) {
+/** Amenity labels, as text. Icons alone left this information unavailable to
+ *  screen-reader and touch users, and cluttered the photography. */
+function amenityLabels(meta: Venue["meta"]): string[] {
+  const out: string[] = [];
+  if (meta.wifi) out.push("Wifi");
+  if (meta.parking) out.push("Parking");
+  if (meta.breakfast) out.push("Breakfast");
+  if (meta.pets) out.push("Pets allowed");
+  return out;
+}
+
+export function VenueCard({ venue, featured = false, index = 0 }: VenueCardProps) {
   const imageUrl = buildImageUrl(venue.media[0]?.url, VENUE_PLACEHOLDER);
   const location = [venue.location.city, venue.location.country]
     .filter(Boolean)
     .join(", ");
   const favorited = useFavoritesStore((state) => state.ids.includes(venue.id));
   const toggle = useFavoritesStore((state) => state.toggle);
+  const amenities = amenityLabels(venue.meta);
+  const isRated = venue.rating > 0;
 
   return (
-    <Link
-      to="/venue/$id"
-      params={{ id: venue.id }}
-      className="group block focus-visible:outline-none"
+    <article
+      style={{ animationDelay: `${Math.min(index, 11) * 40}ms` }}
+      className={cn(
+        "group animate-card-in relative flex flex-col overflow-hidden",
+        "rounded-(--radius-lg) border border-(--color-border) bg-(--color-card)",
+        "shadow-(--elev-1) transition-shadow duration-(--motion-base) ease-(--ease-out)",
+        "hover:shadow-(--elev-2)",
+        "focus-within:ring-2 focus-within:ring-(--color-ring) focus-within:ring-offset-2",
+        "focus-within:ring-offset-(--color-background)",
+        featured && "sm:col-span-2",
+      )}
     >
-      <Card className="overflow-hidden transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 group-focus-visible:ring-2 group-focus-visible:ring-(--color-ring)">
-        {/* Image */}
-        <div className="relative h-48 overflow-hidden bg-(--color-muted)">
-          <img
-            src={imageUrl}
-            alt={venue.media[0]?.alt || venue.name}
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-            loading="lazy"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = VENUE_PLACEHOLDER;
-            }}
-          />
-          {/* Amenity icons — top-left (decorative; detail page has text badges) */}
-          <div className="absolute top-2 left-2 flex gap-1" aria-hidden="true">
-            {venue.meta.wifi && (
-              <span
-                className="rounded-full bg-black/60 p-1"
-                title="WiFi included"
-              >
-                <Wifi className="h-3 w-3 text-white" />
-              </span>
-            )}
-            {venue.meta.parking && (
-              <span
-                className="rounded-full bg-black/60 p-1"
-                title="Parking available"
-              >
-                <Car className="h-3 w-3 text-white" />
-              </span>
-            )}
-            {venue.meta.breakfast && (
-              <span
-                className="rounded-full bg-black/60 p-1"
-                title="Breakfast included"
-              >
-                <Coffee className="h-3 w-3 text-white" />
-              </span>
-            )}
-            {venue.meta.pets && (
-              <span
-                className="rounded-full bg-black/60 p-1"
-                title="Pets allowed"
-              >
-                <PawPrint className="h-3 w-3 text-white" />
-              </span>
-            )}
-          </div>
+      <div
+        className={cn(
+          "relative overflow-hidden bg-(--color-muted)",
+          // The featured card is as tall as the row its neighbours set, so its
+          // media grows to absorb the slack instead of leaving a gap above the
+          // title. On mobile it is a single column, so a ratio applies again.
+          featured
+            ? "aspect-[2/1] sm:aspect-auto sm:min-h-70 sm:flex-1"
+            : "aspect-[3/2]",
+        )}
+      >
+        <img
+          src={imageUrl}
+          alt={venue.media[0]?.alt || venue.name}
+          className="h-full w-full object-cover transition-transform duration-(--motion-slow) ease-(--ease-out) group-hover:scale-[1.04]"
+          loading={index < 4 ? "eager" : "lazy"}
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = VENUE_PLACEHOLDER;
+          }}
+        />
 
-          {/* Favorite heart button — top-right */}
-          <button
-            type="button"
-            aria-label={
-              favorited ? "Remove from favourites" : "Add to favourites"
-            }
-            aria-pressed={favorited}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              toggle(venue.id);
-            }}
-            className={[
-              "absolute top-2 right-2 rounded-full p-1.5 backdrop-blur-sm transition-all duration-150",
-              "active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white",
-              favorited
-                ? "bg-white/90 text-rose-500 shadow-sm"
-                : "bg-black/40 text-white hover:bg-white/80 hover:text-rose-400",
-            ].join(" ")}
+        {/* Sits above the stretched link so it stays independently clickable —
+            it is a sibling of the link, never nested inside it. */}
+        <button
+          type="button"
+          aria-label={favorited ? "Remove from favourites" : "Add to favourites"}
+          aria-pressed={favorited}
+          onClick={() => toggle(venue.id)}
+          className={cn(
+            "absolute right-2.5 top-2.5 z-20 grid h-11 w-11 place-items-center rounded-full",
+            "backdrop-blur-sm transition-[background-color,color,transform] duration-(--motion-fast)",
+            "active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white",
+            favorited
+              ? "bg-white/90 text-(--color-destructive) shadow-(--elev-1)"
+              : "bg-black/35 text-white hover:bg-white/85 hover:text-(--color-destructive)",
+          )}
+        >
+          <Heart className="h-[18px] w-[18px]" fill={favorited ? "currentColor" : "none"} />
+        </button>
+      </div>
+
+      <div
+        className={cn(
+          "flex flex-col",
+          // Only the standard card stretches its content box — that is what
+          // lets `mt-auto` below pin prices to a shared baseline across a row.
+          // On the featured card the *media* absorbs the slack instead, so the
+          // content box stays its natural height and leaves no gap.
+          featured ? "p-5" : "flex-1 p-4",
+        )}
+      >
+        <div className="flex items-start justify-between gap-3">
+          <h3
+            className={cn(
+              "font-display font-semibold leading-snug line-clamp-1",
+              featured ? "text-xl" : "text-base",
+            )}
           >
-            <Heart
-              className="h-4 w-4 transition-transform duration-150"
-              fill={favorited ? "currentColor" : "none"}
-              strokeWidth={2}
-            />
-          </button>
-        </div>
-
-        <CardContent className="p-4">
-          <div className="flex items-start justify-between gap-2 mb-1">
-            <h3 className="font-semibold text-base leading-snug line-clamp-1">
+            {/* Stretched link: the whole card is the click target, without
+                nesting interactive elements inside an anchor. */}
+            <Link
+              to="/venue/$id"
+              params={{ id: venue.id }}
+              className="after:absolute after:inset-0 after:content-[''] focus:outline-none"
+            >
               {venue.name}
-            </h3>
+            </Link>
+          </h3>
+
+          {isRated ? (
             <span
+              className="tnum flex shrink-0 items-center gap-1 text-sm font-medium"
               aria-label={`Rated ${venue.rating.toFixed(1)} out of 5`}
-              className="flex items-center gap-1 shrink-0 text-sm text-(--color-muted-foreground)"
             >
               <Star
-                className="h-3.5 w-3.5 fill-amber-400 text-amber-400"
+                className="h-4 w-4 fill-(--color-star) text-(--color-star)"
                 aria-hidden="true"
               />
               <span aria-hidden="true">{venue.rating.toFixed(1)}</span>
             </span>
-          </div>
-
-          {location && (
-            <div className="flex items-center gap-1 text-xs text-(--color-muted-foreground) mb-2">
-              <MapPin className="h-3 w-3" />
-              <span>{location}</span>
-            </div>
+          ) : (
+            <Badge variant="outline" className="shrink-0 font-medium">
+              New
+            </Badge>
           )}
+        </div>
 
-          <p className="text-xs text-(--color-muted-foreground) mb-3 line-clamp-2">
+        {/* Always occupies a line, so the price below keeps a shared baseline
+            across every card in the row even when a venue has no location. */}
+        <p className="mt-1 flex min-h-5 items-center gap-1 text-xs text-(--color-muted-foreground)">
+          {location && (
+            <>
+              <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+              <span className="line-clamp-1">{location}</span>
+            </>
+          )}
+        </p>
+
+        {!featured && (
+          <p className="mt-2 line-clamp-2 min-h-8 text-xs leading-relaxed text-(--color-muted-foreground)">
             {truncate(venue.description, 100)}
           </p>
+        )}
 
-          <div className="flex items-center justify-between">
-            <div>
-              <span className="font-bold text-(--color-foreground)">
-                {formatPrice(venue.price)}
-              </span>
-              <span className="text-xs text-(--color-muted-foreground)">
-                {" "}
-                / night
-              </span>
-            </div>
-            <Badge
-              variant="secondary"
-              className="flex items-center gap-1 text-xs"
+        {amenities.length > 0 && (
+          <p className="mt-2 line-clamp-1 text-xs text-(--color-muted-foreground)">
+            {amenities.join(" · ")}
+          </p>
+        )}
+
+        {/* mt-auto pins the price row to the bottom of every card regardless of
+            how much metadata sits above it. */}
+        <div className="mt-auto flex items-baseline justify-between gap-2 pt-3">
+          <p className="tnum">
+            <span
+              className={cn(
+                "font-display font-bold text-(--color-accent-brand)",
+                featured ? "text-2xl" : "text-lg",
+              )}
             >
-              <Users className="h-3 w-3" />
-              Up to {venue.maxGuests}
-            </Badge>
-          </div>
-        </CardContent>
-      </Card>
-    </Link>
+              {formatPrice(venue.price)}
+            </span>
+            <span className="text-xs text-(--color-muted-foreground)"> / night</span>
+          </p>
+          <span className="flex shrink-0 items-center gap-1 text-xs text-(--color-muted-foreground)">
+            <Users className="h-3.5 w-3.5" aria-hidden="true" />
+            Up to {venue.maxGuests}
+          </span>
+        </div>
+      </div>
+    </article>
   );
 }

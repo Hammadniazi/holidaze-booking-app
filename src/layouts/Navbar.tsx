@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/utils";
 import { useThemeStore } from "@/store/themeStore";
+import { Container } from "@/components/ui/container";
 
 export const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -40,7 +41,7 @@ export const Navbar = () => {
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-(--color-border) bg-(--color-background)/95 backdrop-blur supports-backdrop-filter:bg-(--color-background)/60">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <Container>
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 font-bold text-xl">
@@ -197,13 +198,16 @@ export const Navbar = () => {
             </Button>
           </div>
         </div>
-      </div>
+      </Container>
 
       {/* Mobile menu */}
 
       <div
+        inert={!mobileOpen}
+        aria-hidden={!mobileOpen}
         className={cn(
-          "md:hidden border-t border-(--color-border) bg-(--color-background) overflow-hidden transition-all duration-200",
+          "md:hidden overflow-hidden border-t border-(--color-border) bg-(--color-background)",
+          "transition-[max-height] duration-(--motion-base) ease-(--ease-out)",
           mobileOpen ? "max-h-96" : "max-h-0",
         )}
       >

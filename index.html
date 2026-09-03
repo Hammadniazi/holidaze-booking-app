@@ -11,7 +11,26 @@
       name="description"
       content="Discover and book unique venues worldwide &mdash; from cosy cottages to luxury villas. Create an account to list your own property."
     />
-    <meta name="theme-color" content="#2563eb" />
+    <meta name="theme-color" content="#faf9f7" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#111110" media="(prefers-color-scheme: dark)" />
+
+    <!-- Apply the stored theme before first paint. Without this the .dark class
+         only lands after Zustand rehydrates (post-hydration), so dark-mode
+         users get a full-screen white flash on every load. -->
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem("holidaze_theme");
+          var isDark = stored
+            ? JSON.parse(stored).state.isDark
+            : window.matchMedia("(prefers-color-scheme: dark)").matches;
+          if (isDark) document.documentElement.classList.add("dark");
+        } catch (e) {
+          if (window.matchMedia("(prefers-color-scheme: dark)").matches)
+            document.documentElement.classList.add("dark");
+        }
+      })();
+    </script>
 
     <!-- Canonical -->
     <link rel="canonical" href="https://holidazebooking.vercel.app/" />
