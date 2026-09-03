@@ -67,6 +67,25 @@ describe("VenueCard", () => {
     expect(screen.getByText("4.5")).toBeInTheDocument();
   });
 
+  it("shows a New chip instead of 0.0 for an unrated venue", () => {
+    render(<VenueCard venue={makeVenue({ rating: 0 })} />);
+    expect(screen.getByText("New")).toBeInTheDocument();
+    expect(screen.queryByText("0.0")).not.toBeInTheDocument();
+  });
+
+  it("shows the rating rather than a New chip once a venue is rated", () => {
+    render(<VenueCard venue={makeVenue({ rating: 3.2 })} />);
+    expect(screen.getByText("3.2")).toBeInTheDocument();
+    expect(screen.queryByText("New")).not.toBeInTheDocument();
+  });
+
+  it("exposes the favourite control as a labelled button", () => {
+    render(<VenueCard venue={makeVenue()} />);
+    expect(
+      screen.getByRole("button", { name: /favourites/i }),
+    ).toBeInTheDocument();
+  });
+
   it("renders a truncated description", () => {
     const longDesc = "A".repeat(120);
     render(<VenueCard venue={makeVenue({ description: longDesc })} />);
@@ -75,41 +94,49 @@ describe("VenueCard", () => {
     expect(screen.getByText(/…/)).toBeInTheDocument();
   });
 
-  it("shows WiFi icon when meta.wifi is true", () => {
+  // Amenities are visible text, not icon-only tooltips. `title` was reachable
+  // by neither keyboard nor touch, and the icons were aria-hidden, so amenity
+  // information was unavailable to screen readers browsing the grid. These
+  // assertions therefore check what a user can actually perceive.
+  it("lists WiFi when meta.wifi is true", () => {
     render(<VenueCard venue={makeVenue({ meta: { wifi: true, parking: false, breakfast: false, pets: false } })} />);
-    expect(screen.getByTitle("WiFi included")).toBeInTheDocument();
+    expect(screen.getByText("Wifi")).toBeInTheDocument();
   });
 
-  it("does not show WiFi icon when meta.wifi is false", () => {
+  it("does not list WiFi when meta.wifi is false", () => {
     render(<VenueCard venue={makeVenue()} />);
-    expect(screen.queryByTitle("WiFi included")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Wifi/)).not.toBeInTheDocument();
   });
 
-  it("shows Parking icon when meta.parking is true", () => {
+  it("lists Parking when meta.parking is true", () => {
     render(<VenueCard venue={makeVenue({ meta: { wifi: false, parking: true, breakfast: false, pets: false } })} />);
-    expect(screen.getByTitle("Parking available")).toBeInTheDocument();
+    expect(screen.getByText("Parking")).toBeInTheDocument();
   });
 
-  it("shows Breakfast icon when meta.breakfast is true", () => {
+  it("lists Breakfast when meta.breakfast is true", () => {
     render(<VenueCard venue={makeVenue({ meta: { wifi: false, parking: false, breakfast: true, pets: false } })} />);
-    expect(screen.getByTitle("Breakfast included")).toBeInTheDocument();
+    expect(screen.getByText("Breakfast")).toBeInTheDocument();
   });
 
-  it("shows Pets icon when meta.pets is true", () => {
+  it("lists Pets allowed when meta.pets is true", () => {
     render(<VenueCard venue={makeVenue({ meta: { wifi: false, parking: false, breakfast: false, pets: true } })} />);
-    expect(screen.getByTitle("Pets allowed")).toBeInTheDocument();
+    expect(screen.getByText("Pets allowed")).toBeInTheDocument();
   });
 
-  it("shows all amenity icons when all meta flags are true", () => {
+  it("lists every amenity when all meta flags are true", () => {
     render(
       <VenueCard
         venue={makeVenue({ meta: { wifi: true, parking: true, breakfast: true, pets: true } })}
       />,
     );
-    expect(screen.getByTitle("WiFi included")).toBeInTheDocument();
-    expect(screen.getByTitle("Parking available")).toBeInTheDocument();
-    expect(screen.getByTitle("Breakfast included")).toBeInTheDocument();
-    expect(screen.getByTitle("Pets allowed")).toBeInTheDocument();
+    expect(
+      screen.getByText("Wifi · Parking · Breakfast · Pets allowed"),
+    ).toBeInTheDocument();
+  });
+
+  it("renders no amenity line when every meta flag is false", () => {
+    render(<VenueCard venue={makeVenue()} />);
+    expect(screen.queryByText(/·/)).not.toBeInTheDocument();
   });
 
   it("renders the venue image with correct alt text", () => {
