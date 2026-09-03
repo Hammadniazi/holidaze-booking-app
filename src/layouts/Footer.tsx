@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowUp, MapPin } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { Container } from "@/components/ui/container";
 
 // Inline SVG brand icons — lucide-react v1 removed social brand icons
 const GitHubIcon = () => (
@@ -65,7 +66,7 @@ const Footer = () => {
 
   return (
     <footer className="border-t border-(--color-border) bg-(--color-background)">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
+      <Container className="py-10">
         {/* Main grid: 1 col mobile → 2 col tablet → 4 col desktop */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand */}
@@ -195,7 +196,7 @@ const Footer = () => {
             <ArrowUp className="h-4 w-4" />
           </button>
         </div>
-      </div>
+      </Container>
     </footer>
   );
 };

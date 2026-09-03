@@ -25,6 +25,7 @@ import {
   Wifi,
 } from "lucide-react";
 import { useState } from "react";
+import { Container } from "@/components/ui/container";
 
 interface VenueDetailPageProps {
   id: string;
@@ -38,7 +39,7 @@ export const VenueDetailPage = ({ id }: VenueDetailPageProps) => {
 
   if (isLoading) {
     return (
-      <div className="mx-auto max-w-5xl px-4 py-8 space-y-6">
+      <Container className="py-8 space-y-6">
         <Skeleton className="h-72 w-full rounded-(--radius)" />
         <div className="space-y-3">
           <Skeleton className="h-8 w-1/2" />
@@ -46,13 +47,13 @@ export const VenueDetailPage = ({ id }: VenueDetailPageProps) => {
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-full" />
         </div>
-      </div>
+      </Container>
     );
   }
 
   if (error || !venue) {
     return (
-      <div className="mx-auto max-w-5xl px-4 py-8">
+      <Container className="py-8">
         <Alert variant="destructive" title="Venue not found">
           {error ?? "This venue could not be loaded."}
         </Alert>
@@ -63,7 +64,7 @@ export const VenueDetailPage = ({ id }: VenueDetailPageProps) => {
         >
           <ChevronLeft className="h-4 w-4 mr-1" /> Back to venues
         </Button>
-      </div>
+      </Container>
     );
   }
 
@@ -95,7 +96,7 @@ export const VenueDetailPage = ({ id }: VenueDetailPageProps) => {
     : `https://www.google.com/maps/search/?q=${encodeURIComponent(location)}`;
 
   return (
-    <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-8">
+    <Container className="py-8">
       {/* Back button */}
       <Button
         variant="ghost"
@@ -154,18 +155,24 @@ export const VenueDetailPage = ({ id }: VenueDetailPageProps) => {
           <div>
             <div className="flex items-start justify-between gap-4 mb-2">
               <h1 className="text-2xl sm:text-3xl font-bold">{venue.name}</h1>
-              <span
-                aria-label={`Rated ${venue.rating.toFixed(1)} out of 5`}
-                className="flex items-center gap-1 shrink-0 text-sm"
-              >
-                <Star
-                  className="h-4 w-4 fill-amber-400 text-amber-400"
-                  aria-hidden="true"
-                />
-                <span aria-hidden="true" className="font-medium">
-                  {venue.rating.toFixed(1)}
+              {venue.rating > 0 ? (
+                <span
+                  aria-label={`Rated ${venue.rating.toFixed(1)} out of 5`}
+                  className="tnum flex shrink-0 items-center gap-1 text-sm"
+                >
+                  <Star
+                    className="h-4 w-4 fill-(--color-star) text-(--color-star)"
+                    aria-hidden="true"
+                  />
+                  <span aria-hidden="true" className="font-medium">
+                    {venue.rating.toFixed(1)}
+                  </span>
                 </span>
-              </span>
+              ) : (
+                <Badge variant="outline" className="shrink-0">
+                  New
+                </Badge>
+              )}
             </div>
 
             {location && (
@@ -291,7 +298,7 @@ export const VenueDetailPage = ({ id }: VenueDetailPageProps) => {
           </div>
         </div>
       )}
-    </div>
+    </Container>
   );
 };
 

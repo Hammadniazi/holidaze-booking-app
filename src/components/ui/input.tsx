@@ -23,11 +23,11 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         aria-invalid={error ? true : undefined}
         aria-describedby={error && id ? `${id}-error` : undefined}
         className={cn(
-          "flex h-10 w-full rounded-(--radius) border border-(--color-input)",
-          "bg-(--color-background) px-3 py-2 text-sm",
+          "flex h-11 w-full rounded-(--radius) border border-(--color-input)",
+          "bg-(--color-card) px-3.5 py-2 text-base sm:text-sm",
           "ring-offset-(--color-background) placeholder:text-(--color-muted-foreground)",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-ring)",
-          "disabled:cursor-not-allowed disabled:opacity-50",
+          "disabled:cursor-not-allowed disabled:bg-(--color-muted) disabled:text-(--color-muted-foreground)",
           error && "border-(--color-destructive)",
           className,
         )}

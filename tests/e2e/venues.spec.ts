@@ -1,4 +1,19 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
+
+/**
+ * Opens the first venue in the grid.
+ *
+ * The card is an <article> whose link wraps only the venue name — the anchor
+ * deliberately does not enclose the whole card, because the favourite control
+ * is a <button> and interactive elements cannot be nested inside an <a>. The
+ * price therefore lives on the card, not in the anchor, so we locate the card
+ * and click the link inside it.
+ */
+async function openFirstVenue(page: Page) {
+  const card = page.locator("article").filter({ hasText: /NOK/ }).first();
+  await card.waitFor({ timeout: 10_000 });
+  await card.getByRole("link").first().click();
+}
 
 test.describe("Venue list page", () => {
   test.beforeEach(async ({ page }) => {
@@ -18,7 +33,7 @@ test.describe("Venue list page", () => {
   });
 
   test("loads and renders at least one venue card", async ({ page }) => {
-    // VenueCard renders as <Link href="/venue/..."> — no article or data-testid
+    // VenueCard renders as an <article> containing a link to /venue/<id>
     await expect(
       page.locator('a[href*="/venue/"]').first(),
     ).toBeVisible({ timeout: 10_000 });
@@ -45,11 +60,7 @@ test.describe("Venue list page", () => {
 test.describe("Venue detail page", () => {
   test("navigating to a venue card opens the detail page", async ({ page }) => {
     await page.goto("/");
-
-    // Wait for venue cards to render
-    const firstVenueLink = page.locator("a").filter({ hasText: /NOK/ }).first();
-    await firstVenueLink.waitFor({ timeout: 10_000 });
-    await firstVenueLink.click();
+    await openFirstVenue(page);
 
     // URL should change to /venue/<id>
     await expect(page).toHaveURL(/\/venue\//);
@@ -57,9 +68,7 @@ test.describe("Venue detail page", () => {
 
   test("venue detail page shows the back button", async ({ page }) => {
     await page.goto("/");
-    const firstVenueLink = page.locator("a").filter({ hasText: /NOK/ }).first();
-    await firstVenueLink.waitFor({ timeout: 10_000 });
-    await firstVenueLink.click();
+    await openFirstVenue(page);
 
     await expect(
       page.getByRole("button", { name: /back/i }).or(

@@ -35,7 +35,7 @@ export function BookingCalendar({
   return (
     <div
       className={cn(
-        "rounded-(--radius) border border-(--color-border) p-4 bg-(--color-card)",
+        "rounded-(--radius-lg) border border-(--color-border) bg-(--color-card) p-4",
         className,
       )}
     >
@@ -48,7 +48,12 @@ export function BookingCalendar({
         numberOfMonths={1}
         classNames={{
           root: "w-full",
-          month_caption: "flex justify-center mb-2 font-semibold text-sm",
+          // Nav is a sibling of the month in RDP v9 and its default absolute
+          // positioning is lost once `classNames` replaces the library class,
+          // so it falls into flow and lands on the date grid. Pin it here.
+          months: "relative",
+          month: "w-full",
+          month_caption: "flex h-8 items-center justify-center font-semibold text-sm mb-2",
           weekdays:
             "grid grid-cols-7 text-center text-xs text-(--color-muted-foreground) mb-1",
           weeks: "space-y-1",
@@ -69,7 +74,7 @@ export function BookingCalendar({
           disabled: "opacity-30 pointer-events-none line-through",
           today: "font-bold",
           outside: "opacity-40",
-          nav: "flex items-center justify-between mb-2",
+          nav: "absolute inset-x-0 top-0 z-10 flex h-8 items-center justify-between",
           button_previous:
             "h-7 w-7 rounded-(--radius) flex items-center justify-center text-(--color-muted-foreground) hover:bg-(--color-accent) hover:text-(--color-foreground) transition-colors",
           button_next:

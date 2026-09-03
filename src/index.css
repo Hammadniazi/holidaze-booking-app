@@ -1,75 +1,190 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/geist";
+@import "@fontsource-variable/outfit";
+@import "@fontsource-variable/work-sans";
 
 @custom-variant dark (&:is(.dark *));
 
+/* ---------------------------------------------------------------------------
+   Holidaze design tokens — "Confident & warm"
+   Warm neutral canvas · deep teal primary · ember accent held back for
+   price and primary action only. Every foreground/background pair below was
+   verified against its WCAG threshold (4.5:1 text, 3:1 non-text).
+   --------------------------------------------------------------------------- */
+
 @theme inline {
-  --color-background: rgba(255, 255, 255, 1);
-  --color-foreground: rgba(2, 8, 23, 1);
-  --color-card: rgba(255, 255, 255, 1);
-  --color-card-foreground: rgba(2, 8, 23, 1);
-  --color-popover: rgba(255, 255, 255, 1);
-  --color-popover-foreground: rgba(2, 8, 23, 1);
-  --color-primary: rgba(37, 99, 235, 1);
-  --color-primary-foreground: rgba(248, 250, 252, 1);
-  --color-secondary: rgba(241, 245, 249, 1);
-  --color-secondary-foreground: rgba(15, 23, 42, 1);
-  --color-muted: rgba(241, 245, 249, 1);
-  --color-muted-foreground: rgba(71, 85, 105, 1);
-  --color-accent: rgba(241, 245, 249, 1);
-  --color-accent-foreground: rgba(15, 23, 42, 1);
-  --color-destructive: rgba(239, 68, 68, 1);
-  --color-destructive-foreground: rgba(248, 250, 252, 1);
-  --color-border: rgba(226, 232, 240, 1);
-  --color-input: rgba(226, 232, 240, 1);
-  --color-ring: rgba(37, 99, 235, 1);
-  --radius: 0.5rem;
+  /* --- Type ------------------------------------------------------------- */
+  --font-display: "Outfit Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Work Sans Variable", ui-sans-serif, system-ui, sans-serif;
+
+  /* --- Surfaces (light) ------------------------------------------------- */
+  --color-background: #faf9f7; /* warm paper, replaces cold slate-50 */
+  --color-foreground: #1a1714; /* 16.96:1 on background */
+  --color-card: #ffffff;
+  --color-card-foreground: #1a1714;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #1a1714;
+
+  /* --- Brand ------------------------------------------------------------ */
+  --color-primary: #0d5c63; /* deep teal · 7.70:1 with white */
+  --color-primary-foreground: #ffffff;
+  --color-accent-brand: #b23f0a; /* ember · price + primary CTA ONLY · 5.82:1 */
+  --color-accent-brand-foreground: #ffffff;
+
+  /* --- Neutrals --------------------------------------------------------- */
+  --color-secondary: #f0ede8;
+  --color-secondary-foreground: #2a251f;
+  --color-muted: #f0ede8;
+  --color-muted-foreground: #5c544b; /* 7.43:1 on card, 7.07:1 on background */
+  --color-accent: #f0ede8; /* hover/active surface (shadcn slot) */
+  --color-accent-foreground: #2a251f;
+
+  /* --- Semantic --------------------------------------------------------- */
+  --color-destructive: #b42318; /* 6.57:1 on card (was 3.76:1 — AA fail) */
+  --color-destructive-foreground: #ffffff;
+  --color-success: #15803d; /* 5.02:1 on card */
+  --color-success-foreground: #ffffff;
+  --color-warning: #a16207; /* 4.92:1 on card */
+  --color-warning-foreground: #ffffff;
+  --color-star: #b45309; /* 5.02:1 — was amber-400 at 1.67:1 */
+
+  /* --- Lines ------------------------------------------------------------
+     Two tiers: `border` is decorative (dividers, card edges — not a control
+     boundary, so no contrast floor applies). `input` marks real control
+     boundaries and must clear 3:1 under WCAG 1.4.11.                      */
+  --color-border: #e5e0d8;
+  --color-input: #8c8378; /* 3.73:1 on white (was 1.23:1 — AA fail) */
+  --color-ring: #0d5c63; /* 7.70:1 */
+
+  /* --- Radius ----------------------------------------------------------- */
+  --radius-sm: 6px; /* chips, badges           */
+  --radius: 10px; /* inputs, buttons         */
+  --radius-lg: 18px; /* cards, media, panels    */
+  --radius-full: 999px;
+
+  /* --- Elevation -------------------------------------------------------- */
+  --elev-1: 0 1px 2px rgb(26 23 20 / 0.05);
+  --elev-2: 0 4px 12px -4px rgb(26 23 20 / 0.09);
+  --elev-3: 0 16px 40px -12px rgb(26 23 20 / 0.15);
+
+  /* --- Motion ----------------------------------------------------------- */
+  --motion-fast: 120ms;
+  --motion-base: 200ms;
+  --motion-slow: 320ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1); /* arriving  */
+  --ease-in: cubic-bezier(0.4, 0, 1, 1); /* leaving   */
 }
 
 .dark {
-  --color-background: rgba(2, 8, 23, 1);
-  --color-foreground: rgba(248, 250, 252, 1);
-  /* Cards elevated above page background for visual separation */
-  --color-card: rgba(15, 23, 42, 1);
-  --color-card-foreground: rgba(248, 250, 252, 1);
-  --color-popover: rgba(22, 32, 52, 1);
-  --color-popover-foreground: rgba(248, 250, 252, 1);
-  --color-primary: rgba(59, 130, 246, 1);
-  --color-primary-foreground: rgba(15, 23, 42, 1);
-  --color-secondary: rgba(30, 41, 59, 1);
-  --color-secondary-foreground: rgba(248, 250, 252, 1);
-  --color-muted: rgba(30, 41, 59, 1);
-  --color-muted-foreground: rgba(148, 163, 184, 1);
-  --color-accent: rgba(30, 41, 59, 1);
-  --color-accent-foreground: rgba(248, 250, 252, 1);
-  /* Bright red so destructive text meets WCAG AA on dark backgrounds */
-  --color-destructive: rgba(239, 68, 68, 1);
-  --color-destructive-foreground: rgba(15, 23, 42, 1);
-  --color-border: rgba(30, 41, 59, 1);
-  --color-input: rgba(30, 41, 59, 1);
-  /* Blue-400 — high contrast on near-black for WCAG focus appearance */
-  --color-ring: rgba(96, 165, 250, 1);
+  --color-background: #111110;
+  --color-foreground: #f5f3f0; /* 17.06:1 */
+  --color-card: #1b1a18;
+  --color-card-foreground: #f5f3f0;
+  --color-popover: #232120;
+  --color-popover-foreground: #f5f3f0;
+
+  --color-primary: #4fd1c5; /* 10.13:1 on background */
+  --color-primary-foreground: #0a2e31;
+  --color-accent-brand: #ff9a62; /* 8.32:1 on card */
+  --color-accent-brand-foreground: #2b1002;
+
+  --color-secondary: #232120;
+  --color-secondary-foreground: #f5f3f0;
+  --color-muted: #232120;
+  --color-muted-foreground: #a8a096; /* 6.74:1 on card */
+  --color-accent: #232120;
+  --color-accent-foreground: #f5f3f0;
+
+  --color-destructive: #ff7b6b; /* 6.87:1 on card */
+  --color-destructive-foreground: #2b1002;
+  --color-success: #5dd39e;
+  --color-success-foreground: #06281a;
+  --color-warning: #e3b341;
+  --color-warning-foreground: #2b1f02;
+  --color-star: #f0b429;
+
+  --color-border: #2e2b27;
+  --color-input: #6b655c; /* 3.28:1 on background (was 1.37:1) */
+  --color-ring: #4fd1c5;
+
+  --elev-1: 0 1px 2px rgb(0 0 0 / 0.4);
+  --elev-2: 0 4px 12px -4px rgb(0 0 0 / 0.5);
+  --elev-3: 0 16px 40px -12px rgb(0 0 0 / 0.6);
 }
 
 @layer base {
+  /* Tell the browser which palette to paint native UI with — without this,
+     scrollbars, <select> option lists and autofill stay light on a dark page. */
+  :root {
+    color-scheme: light;
+  }
+  :root:has(.dark),
+  html.dark {
+    color-scheme: dark;
+  }
+
   * {
     box-sizing: border-box;
   }
+
   body {
     margin: 0;
     background-color: var(--color-background);
     color: var(--color-foreground);
-    font-family:
-      "Geist Variable",
-      system-ui,
-      -apple-system,
-      sans-serif;
+    font-family: var(--font-body);
     -webkit-font-smoothing: antialiased;
-    min-height: 100vh;
+    min-height: 100dvh; /* dvh, not vh — vh is wrong under mobile browser chrome */
   }
+
   #root {
-    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  /* Prices, ratings and totals must not change width as their digits change. */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Staggered grid entrance. Distance is small and the easing decelerates, so it
+   reads as the grid settling rather than as an effect. Disabled wholesale by
+   the reduced-motion block below. */
+@keyframes card-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.animate-card-in {
+  animation: card-in var(--motion-slow) var(--ease-out) both;
+}
+
+/* ---------------------------------------------------------------------------
+   Reduced motion. Previously absent from the entire project while the UI
+   animated card lifts, image zooms, menu heights and spinners.
+   --------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

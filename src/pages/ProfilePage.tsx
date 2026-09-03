@@ -35,6 +35,7 @@ import { useForm, type Resolver } from "react-hook-form";
 import { parseISO } from "date-fns";
 import { type DateRange } from "react-day-picker";
 import { toast } from "sonner";
+import { Container } from "@/components/ui/container";
 
 export const ProfilePage = () => {
   const { user, isAuthenticated } = useAuth();
@@ -343,7 +344,7 @@ export const ProfilePage = () => {
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-8">
+    <Container className="py-8">
       {/* Profile header */}
       <div className="mb-8">
         {/* Banner */}
@@ -644,7 +645,7 @@ export const ProfilePage = () => {
           </div>
         </form>
       </Dialog>
-    </div>
+    </Container>
   );
 };
 
