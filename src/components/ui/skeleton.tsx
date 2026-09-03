@@ -8,7 +8,7 @@ export function Skeleton({ className }: SkeletonProps) {
   return (
     <div
       className={cn(
-        "animate-pulse rounded-[var(--radius)] bg-[var(--color-muted)]",
+        "animate-pulse rounded-(--radius) bg-(--color-muted)",
         className,
       )}
     />
@@ -17,17 +17,10 @@ export function Skeleton({ className }: SkeletonProps) {
 
 /** Mirrors the real card's geometry (3:2 crop, same padding and rows) so the
  *  grid does not reflow when results land. */
-export function VenueCardSkeleton({ featured = false }: { featured?: boolean }) {
+export function VenueCardSkeleton() {
   return (
-    <div
-      className={cn(
-        "overflow-hidden rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-card)]",
-        featured && "sm:col-span-2",
-      )}
-    >
-      <Skeleton
-        className={cn("w-full rounded-none", featured ? "aspect-[2/1]" : "aspect-[3/2]")}
-      />
+    <div className="flex flex-col overflow-hidden rounded-(--radius-lg) border border-(--color-border) bg-(--color-card)">
+      <Skeleton className="aspect-3/2 w-full rounded-none" />
       <div className="space-y-2.5 p-4">
         <div className="flex items-start justify-between gap-3">
           <Skeleton className="h-5 w-3/5" />

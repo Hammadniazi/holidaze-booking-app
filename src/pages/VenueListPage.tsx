@@ -78,7 +78,7 @@ export const VenueListPage = () => {
       {loading ? (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
-            <VenueCardSkeleton key={i} featured={i === 0 && currentPage === 1} />
+            <VenueCardSkeleton key={i} />
           ))}
         </div>
       ) : visible.length === 0 ? (
@@ -99,15 +99,7 @@ export const VenueListPage = () => {
       ) : (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {visible.map((venue, i) => (
-            <VenueCard
-              key={venue.id}
-              venue={venue}
-              index={i}
-              /* One wide card anchors the grid so it doesn't read as a
-                 spreadsheet. Only on an unfiltered first page, where the
-                 lead result is genuinely the most prominent one. */
-              featured={i === 0 && currentPage === 1 && !searchQuery && minGuests === 0}
-            />
+            <VenueCard key={venue.id} venue={venue} index={i} />
           ))}
         </div>
       )}
