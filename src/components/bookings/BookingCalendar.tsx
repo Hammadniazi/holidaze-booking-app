@@ -35,7 +35,9 @@ export function BookingCalendar({
   return (
     <div
       className={cn(
-        "rounded-(--radius-lg) border border-(--color-border) bg-(--color-card) p-4",
+        // Tighter padding on small screens hands the seven columns back the
+        // width they need for comfortable targets.
+        "rounded-(--radius-lg) border border-(--color-border) bg-(--color-card) p-3 sm:p-4",
         className,
       )}
     >
@@ -53,14 +55,22 @@ export function BookingCalendar({
           // so it falls into flow and lands on the date grid. Pin it here.
           months: "relative",
           month: "w-full",
-          month_caption: "flex h-8 items-center justify-center font-semibold text-sm mb-2",
+          // Without this the <table> sizes to its content. Once the day buttons
+          // became `w-full` they had no intrinsic width, so the whole grid
+          // collapsed to the width of the digits (~17px per cell).
+          month_grid: "w-full",
+          month_caption: "flex h-11 items-center justify-center font-semibold text-sm mb-2",
           weekdays:
             "grid grid-cols-7 text-center text-xs text-(--color-muted-foreground) mb-1",
           weeks: "space-y-1",
           week: "grid grid-cols-7",
           day: "text-center text-sm",
+          // Picking a date is the core interaction of the whole product, and
+          // every cell was 32x32. `w-full` rather than a fixed width: the cell
+          // takes a seventh of whatever width the sidebar gives it, so the
+          // target grows on desktop and can never overflow on a narrow phone.
           day_button: cn(
-            "h-8 w-8 rounded-(--radius) text-sm transition-colors mx-auto flex items-center justify-center",
+            "flex h-11 w-full items-center justify-center rounded-(--radius) text-sm transition-colors",
             "hover:bg-(--color-accent) hover:text-(--color-accent-foreground)",
             "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-(--color-ring)",
           ),
@@ -74,11 +84,13 @@ export function BookingCalendar({
           disabled: "opacity-30 pointer-events-none line-through",
           today: "font-bold",
           outside: "opacity-40",
-          nav: "absolute inset-x-0 top-0 z-10 flex h-8 items-center justify-between",
+          // Header row is 44px tall so the month arrows can be full-size
+          // targets flanking the centred caption.
+          nav: "absolute inset-x-0 top-0 z-10 flex h-11 items-center justify-between",
           button_previous:
-            "h-7 w-7 rounded-(--radius) flex items-center justify-center text-(--color-muted-foreground) hover:bg-(--color-accent) hover:text-(--color-foreground) transition-colors",
+            "h-11 w-11 rounded-(--radius) flex items-center justify-center text-(--color-muted-foreground) hover:bg-(--color-accent) hover:text-(--color-foreground) transition-colors",
           button_next:
-            "h-7 w-7 rounded-(--radius) flex items-center justify-center text-(--color-muted-foreground) hover:bg-(--color-accent) hover:text-(--color-foreground) transition-colors",
+            "h-11 w-11 rounded-(--radius) flex items-center justify-center text-(--color-muted-foreground) hover:bg-(--color-accent) hover:text-(--color-foreground) transition-colors",
         }}
       />
       <div className="mt-3 flex gap-4 text-xs text-(--color-muted-foreground)">
