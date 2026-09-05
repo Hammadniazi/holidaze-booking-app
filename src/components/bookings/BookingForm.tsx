@@ -40,6 +40,7 @@ export const BookingForm = ({ venue, onSuccess }: BookingFormProps) => {
   const nights =
     range?.from && range?.to ? calculateNights(range.from, range.to) : 0;
   const totalPrice = nights * venue.price;
+  const datesChosen = Boolean(range?.from && range?.to);
 
   const handleRangeSelect = (r: DateRange | undefined) => {
     setRange(r);
@@ -143,8 +144,14 @@ export const BookingForm = ({ venue, onSuccess }: BookingFormProps) => {
             </p>
           )}
 
+          {/* The live region must already be in the DOM when its contents
+              change, so the wrapper renders unconditionally (it collapses to
+              zero height while empty) and only the panel inside is conditional.
+              aria-atomic reads the whole summary, not just the changed cell —
+              the total was previously announced to nobody. */}
+          <div aria-live="polite" aria-atomic="true">
           {range?.from && range?.to && (
-            <div className="rounded-(--radius) bg-(--color-muted) p-3 text-sm space-y-1">
+            <div className="rounded-(--radius) bg-(--color-muted) p-3 text-sm space-y-1 tnum">
               <div className="flex justify-between">
                 <span className="text-(--color-muted-foreground)">
                   Check-in
@@ -165,6 +172,7 @@ export const BookingForm = ({ venue, onSuccess }: BookingFormProps) => {
               </div>
             </div>
           )}
+          </div>
 
           <Input
             id="guests"
@@ -189,10 +197,19 @@ export const BookingForm = ({ venue, onSuccess }: BookingFormProps) => {
             type="submit"
             className="w-full"
             isLoading={isSubmitting}
-            disabled={!range?.from || !range?.to}
+            disabled={!datesChosen}
           >
             {isSubmitting ? "Confirming..." : "Confirm Booking"}
           </Button>
+
+          {/* A disabled button is not focusable and takes no pointer events, so
+              it can carry neither a tooltip nor a description. The reason it is
+              inert has to be stated in the page itself. */}
+          {!datesChosen && (
+            <p className="text-center text-xs text-(--color-muted-foreground)">
+              Select your check-in and check-out dates to continue.
+            </p>
+          )}
         </form>
       </CardContent>
     </Card>
