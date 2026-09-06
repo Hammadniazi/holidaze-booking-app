@@ -179,12 +179,13 @@ export const VenueForm = ({ venue, onSuccess, onCancel }: VenueFormProps) => {
       {/* Media */}
       <div>
         <div className="flex items-center justify-between mb-2">
-          <label className="text-sm font-medium">
+          {/* Not a <label>: this names the whole list, not one control. */}
+          <p className="text-sm font-medium">
             Images{" "}
             <span className="text-(--color-muted-foreground) font-normal">
               ({mediaFields.length} / 5)
             </span>
-          </label>
+          </p>
           <Button
             type="button"
             variant="outline"
@@ -202,13 +203,20 @@ export const VenueForm = ({ venue, onSuccess, onCancel }: VenueFormProps) => {
         )}
         {mediaFields.map((field, i) => (
           <div key={field.id} className="flex gap-2 mb-2">
+            {/* Repeated rows carry their name via aria-label rather than a
+                visible one — five stacked "Image URL / Alt text" pairs would
+                be noise. The id is what wires each error to its own field. */}
             <Input
+              id={`media-${i}-url`}
+              aria-label={`Image ${i + 1} URL`}
               placeholder="https://example.com/image.jpg"
               error={errors.media?.[i]?.url?.message}
               className="flex-1"
               {...register(`media.${i}.url`)}
             />
             <Input
+              id={`media-${i}-alt`}
+              aria-label={`Image ${i + 1} alt text`}
               placeholder="Alt text"
               className="w-36"
               {...register(`media.${i}.alt`)}
@@ -252,10 +260,30 @@ export const VenueForm = ({ venue, onSuccess, onCancel }: VenueFormProps) => {
       <div>
         <p className="text-sm font-medium mb-2">Location (optional)</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <Input placeholder="Address" {...register("location.address")} />
-          <Input placeholder="City" {...register("location.city")} />
-          <Input placeholder="Country" {...register("location.country")} />
-          <Input placeholder="ZIP code" {...register("location.zip")} />
+          <Input
+            id="location-address"
+            label="Address"
+            autoComplete="off"
+            {...register("location.address")}
+          />
+          <Input
+            id="location-city"
+            label="City"
+            autoComplete="off"
+            {...register("location.city")}
+          />
+          <Input
+            id="location-country"
+            label="Country"
+            autoComplete="off"
+            {...register("location.country")}
+          />
+          <Input
+            id="location-zip"
+            label="ZIP code"
+            autoComplete="off"
+            {...register("location.zip")}
+          />
         </div>
         <div className="mt-3">
           <p className="text-xs text-(--color-muted-foreground) mb-2">
@@ -264,7 +292,9 @@ export const VenueForm = ({ venue, onSuccess, onCancel }: VenueFormProps) => {
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Input
-              placeholder="Latitude, e.g. 59.9139"
+              id="location-lat"
+              label="Latitude"
+              placeholder="e.g. 59.9139"
               type="number"
               step="any"
               error={errors.location?.lat?.message}
@@ -273,7 +303,9 @@ export const VenueForm = ({ venue, onSuccess, onCancel }: VenueFormProps) => {
               })}
             />
             <Input
-              placeholder="Longitude, e.g. 10.7522"
+              id="location-lng"
+              label="Longitude"
+              placeholder="e.g. 10.7522"
               type="number"
               step="any"
               error={errors.location?.lng?.message}

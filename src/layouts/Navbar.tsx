@@ -121,7 +121,7 @@ export const Navbar = () => {
                       className="h-7 w-7 rounded-full object-cover"
                     />
                   ) : (
-                    <div className="h-7 w-7 rounded-full bg-(--color-primary) flex items-center justify-center text-xs font-bold text-white">
+                    <div className="h-7 w-7 rounded-full bg-(--color-primary) flex items-center justify-center text-xs font-bold text-(--color-primary-foreground)">
                       {user?.name?.[0]?.toUpperCase()}
                     </div>
                   )}
