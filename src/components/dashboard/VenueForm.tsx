@@ -140,7 +140,8 @@ export const VenueForm = ({ venue, onSuccess, onCancel }: VenueFormProps) => {
                   onClick={() =>
                     field.onChange(star === field.value ? 0 : star)
                   }
-                  className="p-0.5 focus:outline-none"
+                  className="rounded-(--radius-sm) p-0.5 focus-visible:outline-none
+                             focus-visible:ring-2 focus-visible:ring-(--color-ring)"
                   aria-label={`${star} star${star > 1 ? "s" : ""}`}
                 >
                   <Star
@@ -242,7 +243,7 @@ export const VenueForm = ({ venue, onSuccess, onCancel }: VenueFormProps) => {
             (amenity) => (
               <label
                 key={amenity}
-                className="flex items-center gap-2 text-sm cursor-pointer"
+                className="flex min-h-6 items-center gap-2 text-sm cursor-pointer"
               >
                 <input
                   type="checkbox"
