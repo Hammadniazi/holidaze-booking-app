@@ -52,7 +52,7 @@ export function VenueSearch() {
   const fieldCls =
     "w-full bg-transparent text-base sm:text-sm font-medium text-(--color-foreground) " +
     "placeholder:font-normal placeholder:text-(--color-muted-foreground) " +
-    "focus:outline-none";
+    "focus-visible:outline-none";
   const labelCls =
     "block text-[11px] font-semibold uppercase tracking-wider text-(--color-muted-foreground)";
 
@@ -64,7 +64,11 @@ export function VenueSearch() {
                  sm:flex-row sm:items-center sm:gap-0 sm:rounded-full sm:p-1.5"
     >
       {/* Where */}
-      <div className="relative min-w-0 flex-[2] rounded-(--radius) px-3.5 py-2 sm:rounded-full sm:hover:bg-(--color-muted)">
+      <div
+        className="relative min-w-0 flex-[2] rounded-(--radius) px-3.5 py-2
+                   has-[input:focus-visible]:ring-2 has-[input:focus-visible]:ring-(--color-ring)
+                   sm:rounded-full sm:hover:bg-(--color-muted)"
+      >
         <label htmlFor="venue-search" className={labelCls}>
           Where
         </label>
@@ -89,7 +93,8 @@ export function VenueSearch() {
             aria-label="Clear search"
             className="absolute right-2 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center
                        rounded-full text-(--color-muted-foreground)
-                       hover:bg-(--color-muted) hover:text-(--color-foreground)"
+                       hover:bg-(--color-muted) hover:text-(--color-foreground)
+                       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-ring)"
           >
             <X className="h-4 w-4" />
           </button>
@@ -99,7 +104,11 @@ export function VenueSearch() {
       <div className="hidden h-9 w-px shrink-0 bg-(--color-border) sm:block" aria-hidden="true" />
 
       {/* Guests */}
-      <div className="min-w-0 flex-1 rounded-(--radius) px-3.5 py-2 sm:rounded-full sm:hover:bg-(--color-muted)">
+      <div
+        className="min-w-0 flex-1 rounded-(--radius) px-3.5 py-2
+                   has-[select:focus-visible]:ring-2 has-[select:focus-visible]:ring-(--color-ring)
+                   sm:rounded-full sm:hover:bg-(--color-muted)"
+      >
         <label htmlFor="venue-guests" className={labelCls}>
           Guests
         </label>
@@ -120,7 +129,11 @@ export function VenueSearch() {
       <div className="hidden h-9 w-px shrink-0 bg-(--color-border) sm:block" aria-hidden="true" />
 
       {/* Sort */}
-      <div className="min-w-0 flex-1 rounded-(--radius) px-3.5 py-2 sm:rounded-full sm:hover:bg-(--color-muted)">
+      <div
+        className="min-w-0 flex-1 rounded-(--radius) px-3.5 py-2
+                   has-[select:focus-visible]:ring-2 has-[select:focus-visible]:ring-(--color-ring)
+                   sm:rounded-full sm:hover:bg-(--color-muted)"
+      >
         <label htmlFor="venue-sort" className={labelCls}>
           Sort by
         </label>

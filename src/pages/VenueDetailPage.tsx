@@ -137,14 +137,20 @@ export const VenueDetailPage = ({ id }: VenueDetailPageProps) => {
                 >
                   <ChevronRight className="h-4 w-4" />
                 </button>
-                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex">
                   {images.map((_, i) => (
                     <button
                       key={i}
                       onClick={() => setImgIndex(i)}
-                      className={`h-2 w-2 rounded-full transition-all ${i === imgIndex ? "bg-white w-4" : "bg-white/50"}`}
+                      className="grid h-6 w-6 place-items-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
                       aria-label={`Go to image ${i + 1}`}
-                    />
+                      aria-current={i === imgIndex ? "true" : undefined}
+                    >
+                      <span
+                        aria-hidden="true"
+                        className={`h-2 rounded-full transition-all ${i === imgIndex ? "w-4 bg-white" : "w-2 bg-white/50"}`}
+                      />
+                    </button>
                   ))}
                 </div>
               </>
