@@ -1,5 +1,5 @@
 import { BookingForm } from "@/components/bookings/BookingForm";
-import { Alert } from "@/components/ui/alert";
+import { ErrorState } from "@/components/ui/error-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -33,7 +33,8 @@ interface VenueDetailPageProps {
 
 export const VenueDetailPage = ({ id }: VenueDetailPageProps) => {
   const { currentVenue: venue } = useVenueStore();
-  const { isLoading, error, refetch } = useVenue(id);
+  const { isLoading, error, notFound, refetch } = useVenue(id);
+  const [isRetrying, setIsRetrying] = useState(false);
   const navigate = useNavigate();
   const [imgIndex, setImgIndex] = useState(0);
 
@@ -52,18 +53,35 @@ export const VenueDetailPage = ({ id }: VenueDetailPageProps) => {
   }
 
   if (error || !venue) {
+    // Only a 404 means the venue is not there. A dropped connection used to
+    // report the same "Venue not found", sending readers away from a page that
+    // would have loaded on a second try.
+    const retry = async () => {
+      setIsRetrying(true);
+      await refetch();
+      setIsRetrying(false);
+    };
+
     return (
       <Container className="py-8">
-        <Alert variant="destructive" title="Venue not found">
-          {error ?? "This venue could not be loaded."}
-        </Alert>
-        <Button
-          variant="outline"
-          className="mt-4"
-          onClick={() => void navigate({ to: "/" })}
+        <ErrorState
+          title={notFound ? "Venue not found" : "Couldn't load this venue"}
+          message={
+            notFound
+              ? "This venue may have been removed by its host."
+              : (error ?? "This venue could not be loaded.")
+          }
+          onRetry={notFound ? undefined : () => void retry()}
+          isRetrying={isRetrying}
         >
-          <ChevronLeft className="h-4 w-4 mr-1" /> Back to venues
-        </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => void navigate({ to: "/" })}
+          >
+            <ChevronLeft className="h-4 w-4" /> Back to venues
+          </Button>
+        </ErrorState>
       </Container>
     );
   }

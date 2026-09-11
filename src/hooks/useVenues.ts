@@ -35,7 +35,7 @@ export function useVenues(page = 1, limit = 12) {
       setVenues(res.data, totalCount);
     } catch (err) {
       const msg =
-        err instanceof ApiError ? err.message : "Failed to load venues";
+        err instanceof ApiError ? err.message : "We couldn't reach the server.";
       setError(msg);
     } finally {
       setIsLoading(false);
@@ -63,6 +63,9 @@ export function useVenue(id: string) {
   const { setCurrentVenue, setLoading, setError } = useVenueStore();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setLocalError] = useState<string | null>(null);
+  // A 404 is an answer — the venue is gone. Anything else is a failure to
+  // reach the API, which a retry can fix. The page words itself accordingly.
+  const [notFound, setNotFound] = useState(false);
 
   const fetchVenue = useCallback(async (silent = false) => {
     if (!id) return;
@@ -70,14 +73,20 @@ export function useVenue(id: string) {
       setIsLoading(true);
       setLoading(true);
     }
+    // Cleared before the attempt: without this a successful retry still
+    // renders the previous failure, and Try again looks broken.
+    setLocalError(null);
+    setError(null);
+    setNotFound(false);
     try {
       const res = (await venuesApi.getOne(id)) as ApiResponse<Venue>;
       setCurrentVenue(res.data);
     } catch (err) {
       const msg =
-        err instanceof ApiError ? err.message : "Failed to load venue";
+        err instanceof ApiError ? err.message : "We couldn't reach the server.";
       setLocalError(msg);
       setError(msg);
+      if (err instanceof ApiError && err.status === 404) setNotFound(true);
     } finally {
       if (!silent) {
         setIsLoading(false);
@@ -91,5 +100,5 @@ export function useVenue(id: string) {
     return () => setCurrentVenue(null);
   }, [fetchVenue, setCurrentVenue]);
 
-  return { isLoading, error, refetch: fetchVenue };
+  return { isLoading, error, notFound, refetch: fetchVenue };
 }

@@ -9,6 +9,7 @@ import type { ApiResponse, Booking, Venue } from "@/types";
 import { buildImageUrl, formatPrice, VENUE_PLACEHOLDER } from "@/utils";
 import { Building2, Calendar, Edit, ExternalLink, Plus, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
+import { ErrorState } from "@/components/ui/error-state";
 import { VenueForm } from "./VenueForm";
 import { Link } from "@tanstack/react-router";
 
@@ -20,16 +21,25 @@ export const VenueManagement = () => {
   const [editVenue, setEditVenue] = useState<Venue | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [bookingsExpanded, setBookingsExpanded] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [isRetrying, setIsRetrying] = useState(false);
 
   const fetchVenues = useCallback(async () => {
     if (!user) return;
+    setLoadError(null);
     try {
       const res = (await profilesApi.getVenues(user.name)) as ApiResponse<
         Venue[]
       >;
       setVenues(res.data);
-    } catch {
-      toast.error("Failed to load venues");
+    } catch (error) {
+      // Held in state rather than only toasted: a toast disappears and leaves
+      // the empty state behind, which reads as "you have no venues".
+      setLoadError(
+        error instanceof ApiError
+          ? error.message
+          : "We couldn't reach the server.",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -38,6 +48,16 @@ export const VenueManagement = () => {
   useEffect(() => {
     void fetchVenues();
   }, [fetchVenues]);
+
+  const retry = async () => {
+    setIsRetrying(true);
+    await fetchVenues();
+    setIsRetrying(false);
+  };
+
+  // Nothing loaded, so every count below would be fabricated and the list
+  // would claim the account is empty.
+  const loadFailed = !!loadError && venues.length === 0;
 
   const totalBookings = venues.reduce(
     (acc, v) => acc + (v._count?.bookings ?? v.bookings?.length ?? 0),
@@ -101,41 +121,62 @@ export const VenueManagement = () => {
         </Button>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
-        <Card>
-          <CardContent className="p-4 text-center">
-            <p className="text-2xl font-bold">{venues.length}</p>
-            <p className="text-xs text-(--color-muted-foreground)">
-              Venues listed
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <p className="text-2xl font-bold">{totalBookings}</p>
-            <p className="text-xs text-(--color-muted-foreground)">
-              Total bookings
-            </p>
-          </CardContent>
-        </Card>
-        <Card className="hidden sm:block">
-          <CardContent className="p-4 text-center">
-            <p className="text-2xl font-bold">
-              {formatPrice(
-                venues.reduce((acc, v) => acc + v.price, 0) /
-                  (venues.length || 1),
-              )}
-            </p>
-            <p className="text-xs text-(--color-muted-foreground)">
-              Avg. price / night
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      {loadError && (
+        <ErrorState
+          title={
+            loadFailed
+              ? "Couldn't load your venues"
+              : "Couldn't refresh your venues"
+          }
+          message={
+            loadFailed
+              ? `${loadError} Your listings are safe — this is a problem loading them.`
+              : `${loadError} The list below may be incomplete.`
+          }
+          onRetry={() => void retry()}
+          isRetrying={isRetrying}
+          className="mb-6"
+        />
+      )}
+
+      {/* Stats are derived from `venues`, so on a failed load they would
+          report a confident "0 venues listed / 0 bookings". */}
+      {!loadFailed && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
+          <Card>
+            <CardContent className="p-4 text-center">
+              <p className="text-2xl font-bold">{venues.length}</p>
+              <p className="text-xs text-(--color-muted-foreground)">
+                Venues listed
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 text-center">
+              <p className="text-2xl font-bold">{totalBookings}</p>
+              <p className="text-xs text-(--color-muted-foreground)">
+                Total bookings
+              </p>
+            </CardContent>
+          </Card>
+          <Card className="hidden sm:block">
+            <CardContent className="p-4 text-center">
+              <p className="text-2xl font-bold">
+                {formatPrice(
+                  venues.reduce((acc, v) => acc + v.price, 0) /
+                    (venues.length || 1),
+                )}
+              </p>
+              <p className="text-xs text-(--color-muted-foreground)">
+                Avg. price / night
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* Venues list */}
-      {venues.length === 0 ? (
+      {loadFailed ? null : venues.length === 0 ? (
         <div className="text-center py-16 rounded-(--radius) border border-dashed border-(--color-border)">
           <Building2 className="mx-auto h-12 w-12 text-(--color-muted-foreground) mb-4" />
           <h3 className="text-xl font-semibold mb-2">No venues yet</h3>
