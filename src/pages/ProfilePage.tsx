@@ -1,5 +1,6 @@
 import { ApiError, profilesApi, venuesApi } from "@/api/client";
 import { Alert } from "@/components/ui/alert";
+import { ErrorState } from "@/components/ui/error-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -47,6 +48,8 @@ export const ProfilePage = () => {
   const [profileData, setProfileData] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [serverError, setServerError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [isRetrying, setIsRetrying] = useState(false);
   const [editBookingOpen, setEditBookingOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [bookingError, setBookingError] = useState<string | null>(null);
@@ -69,18 +72,31 @@ export const ProfilePage = () => {
 
   const fetchProfile = useCallback(async () => {
     if (!user) return;
+    setLoadError(null);
     try {
       const response = (await profilesApi.getOne(user.name)) as ApiResponse<
         Profile & { bookings?: Booking[] }
       >;
       setProfileData(response.data);
       if (response.data.bookings) setBookings(response.data.bookings);
-    } catch {
-      toast.error("Failed to load profile data. Please try again.");
+    } catch (error) {
+      // Bookings arrive in this response, so a silent failure shows
+      // "No trips yet" to someone who has trips.
+      setLoadError(
+        error instanceof ApiError
+          ? error.message
+          : "We couldn't reach the server.",
+      );
     } finally {
       setIsLoading(false);
     }
   }, [user, setBookings]);
+
+  const retryProfile = async () => {
+    setIsRetrying(true);
+    await fetchProfile();
+    setIsRetrying(false);
+  };
 
   useEffect(() => {
     fetchProfile();
@@ -229,7 +245,14 @@ export const ProfilePage = () => {
   );
   const bannerUrl = buildImageUrl(profileData?.banner?.url, "");
 
-  const bookingsListJSX = bookings.length === 0 ? (
+  const bookingsListJSX = loadError && bookings.length === 0 ? (
+    <ErrorState
+      title="Couldn't load your trips"
+      message={`${loadError} Your bookings are safe — this is a problem loading them.`}
+      onRetry={() => void retryProfile()}
+      isRetrying={isRetrying}
+    />
+  ) : bookings.length === 0 ? (
     <div className="text-center py-12 rounded-(--radius) border border-dashed border-(--color-border)">
       <Calendar className="mx-auto h-10 w-10 text-(--color-muted-foreground) mb-3" />
       <h3 className="font-medium mb-1">No trips yet</h3>

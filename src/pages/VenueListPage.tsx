@@ -3,7 +3,7 @@ import { useVenues } from "@/hooks/useVenues";
 import { VenueCard } from "@/components/venues/VenueCard";
 import { VenueCardSkeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { Alert } from "@/components/ui/alert";
+import { ErrorState } from "@/components/ui/error-state";
 import { Container } from "@/components/ui/container";
 import { SearchX, ChevronLeft, ChevronRight } from "lucide-react";
 import { VenueSearch } from "@/components/venues/VenueSearch";
@@ -22,7 +22,10 @@ export const VenueListPage = () => {
     searchQuery,
     minGuests,
   } = useVenueStore();
-  const { isLoading: fetching } = useVenues(currentPage, ITEMS_PER_PAGE);
+  const { isLoading: fetching, refetch } = useVenues(
+    currentPage,
+    ITEMS_PER_PAGE,
+  );
 
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
   const loading = isLoading || fetching;
@@ -36,7 +39,9 @@ export const VenueListPage = () => {
 
   const resultLabel = loading
     ? "Loading venues…"
-    : minGuests > 0
+    : error
+      ? "Venues could not be loaded"
+      : minGuests > 0
       ? `${visible.length} of ${venues.length} on this page fit ${minGuests}+ guests`
       : searchQuery
         ? `${totalCount} ${totalCount === 1 ? "result" : "results"} for “${searchQuery}”`
@@ -69,13 +74,26 @@ export const VenueListPage = () => {
         </p>
       </div>
 
-      {error && (
-        <Alert variant="destructive" title="Couldn't load venues" className="mb-6">
-          {error}
-        </Alert>
+      {/* A failed load leaves `venues` empty, which the branch below would
+          report as "No venues found" — a search result rather than a failure.
+          The error takes that slot instead, unless results are already on
+          screen, in which case it sits above them and they stay. */}
+      {error && venues.length > 0 && (
+        <ErrorState
+          title="Couldn't refresh venues"
+          message={`${error} Showing the last results loaded.`}
+          onRetry={() => void refetch()}
+          className="mb-6"
+        />
       )}
 
-      {loading ? (
+      {error && venues.length === 0 ? (
+        <ErrorState
+          title="Couldn't load venues"
+          message={error}
+          onRetry={() => void refetch()}
+        />
+      ) : loading ? (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
             <VenueCardSkeleton key={i} />
