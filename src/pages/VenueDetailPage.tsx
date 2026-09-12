@@ -9,7 +9,8 @@ import {
   AVATAR_PLACEHOLDER,
   buildImageUrl,
   formatPrice,
-  VENUE_PLACEHOLDER,
+  toPlainText,
+  venuePlaceholder,
 } from "@/utils";
 import { useNavigate } from "@tanstack/react-router";
 import {
@@ -86,10 +87,11 @@ export const VenueDetailPage = ({ id }: VenueDetailPageProps) => {
     );
   }
 
+  const fallbackImage = venuePlaceholder(venue.id, venue.name);
   const images =
     venue.media.length > 0
       ? venue.media
-      : [{ url: VENUE_PLACEHOLDER, alt: venue.name }];
+      : [{ url: fallbackImage, alt: `${venue.name} — no photo provided` }];
   const location = [
     venue.location.address,
     venue.location.city,
@@ -130,11 +132,11 @@ export const VenueDetailPage = ({ id }: VenueDetailPageProps) => {
           {/* Image gallery */}
           <div className="relative h-72 sm:h-96 rounded-(--radius) overflow-hidden bg-(--color-muted)">
             <img
-              src={buildImageUrl(images[imgIndex]?.url, VENUE_PLACEHOLDER)}
+              src={buildImageUrl(images[imgIndex]?.url, fallbackImage)}
               alt={images[imgIndex]?.alt || venue.name}
               className="h-full w-full object-cover"
               onError={(e) => {
-                (e.target as HTMLImageElement).src = VENUE_PLACEHOLDER;
+                (e.target as HTMLImageElement).src = fallbackImage;
               }}
             />
             {images.length > 1 && (
@@ -233,7 +235,7 @@ export const VenueDetailPage = ({ id }: VenueDetailPageProps) => {
             </div>
 
             <p className="text-(--color-muted-foreground) leading-relaxed whitespace-pre-line">
-              {venue.description}
+              {toPlainText(venue.description)}
             </p>
           </div>
 

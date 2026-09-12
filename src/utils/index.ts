@@ -46,10 +46,91 @@ export function toUTCDateString(date: Date): string {
   ).toISOString();
 }
 
-export const VENUE_PLACEHOLDER =
-  "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&auto=format&fit=crop";
+/**
+ * Venue descriptions are plain text by contract, but the field accepts
+ * anything and hosts paste markup into it. React escapes that, so a stored
+ * "<p><strong>Great spot" renders those angle brackets on the page.
+ *
+ * Tags are stripped for display rather than trusted: this is user-submitted
+ * content, so dangerouslySetInnerHTML is not an option here.
+ */
+export function toPlainText(html: string | null | undefined): string {
+  if (!html) return "";
+  return (
+    html
+      // Block-level ends become the paragraph breaks they stood for; the
+      // detail page renders with whitespace-pre-line and keeps them.
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<\/(p|div|li|h[1-6]|tr)\s*>/gi, "\n")
+      .replace(/<[^>]*>/g, "")
+      .replace(/&nbsp;/gi, " ")
+      .replace(/&lt;/gi, "<")
+      .replace(/&gt;/gi, ">")
+      .replace(/&quot;/gi, '"')
+      .replace(/&#0*39;/gi, "'")
+      // Ampersand last, so "&amp;lt;" decodes to "&lt;" and not to "<".
+      .replace(/&amp;/gi, "&")
+      .replace(/[ \t]+/g, " ")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim()
+  );
+}
+
+/* Gradient pairs for venues with no photo. Mid-tone and brand-adjacent, so
+   white sits legibly on them and they read as a deliberate empty state in
+   either theme rather than as a failed image. */
+const PLACEHOLDER_GRADIENTS = [
+  ["#0d5c63", "#14868f"], // teal — the brand primary
+  ["#b23f0a", "#d4692a"], // ember
+  ["#3f3a33", "#6b6157"], // stone
+  ["#2f5233", "#4a7c50"], // moss
+  ["#4a3b5c", "#6f5a86"], // plum
+  ["#1f3a5f", "#3a6491"], // deep blue
+] as const;
+
+function hashCode(seed: string): number {
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) {
+    h = (h << 5) - h + seed.charCodeAt(i);
+    h |= 0;
+  }
+  return Math.abs(h);
+}
+
+function escapeXml(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+/**
+ * A stand-in image for a venue with no media, as an inline SVG data URI.
+ *
+ * Most seeded venues have no photo, and a single shared stock URL meant the
+ * homepage opened on a grid of the same picture. Keyed off the venue id, each
+ * card gets its own gradient and initial instead — no network request, so it
+ * cannot itself fail to load.
+ */
+export function venuePlaceholder(seed: string, label?: string): string {
+  const [from, to] = PLACEHOLDER_GRADIENTS[
+    hashCode(seed) % PLACEHOLDER_GRADIENTS.length
+  ];
+  const initial = escapeXml((label?.trim()[0] ?? "?").toUpperCase());
+  const svg =
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" width="600" height="400">' +
+    '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">' +
+    `<stop offset="0" stop-color="${from}"/><stop offset="1" stop-color="${to}"/>` +
+    '</linearGradient></defs><rect width="600" height="400" fill="url(#g)"/>' +
+    '<text x="300" y="200" text-anchor="middle" dominant-baseline="central" ' +
+    'font-family="ui-sans-serif, system-ui, sans-serif" font-size="168" ' +
+    `font-weight="700" fill="#ffffff" fill-opacity="0.32">${initial}</text></svg>`;
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+}
+
 export const AVATAR_PLACEHOLDER =
-  "https://ui-avatars.com/api/?background=3b82f6&color=fff&name=User";
+  "https://ui-avatars.com/api/?background=0d5c63&color=fff&name=User";
 
 export function getPageNumbers(
   currentPage: number,

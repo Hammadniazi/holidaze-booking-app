@@ -35,9 +35,11 @@ export const useVenueStore = create<VenueState>((set) => ({
   currentPage: 1,
   isLoading: false,
   error: null,
-  // Default: show newest venues first
+  // Default: top rated. Sorting by created:desc opened the homepage on
+  // whatever was submitted last, which on a shared API is the newest test
+  // row — a rating is the only signal in the data that a listing is real.
   searchQuery: "",
-  sortBy: "created",
+  sortBy: "rating",
   sortOrder: "desc",
   minGuests: 0,
 

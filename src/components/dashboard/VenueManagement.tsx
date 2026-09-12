@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog } from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/useAuth";
 import type { ApiResponse, Booking, Venue } from "@/types";
-import { buildImageUrl, formatPrice, VENUE_PLACEHOLDER } from "@/utils";
+import { buildImageUrl, formatPrice, venuePlaceholder } from "@/utils";
 import { Building2, Calendar, Edit, ExternalLink, Plus, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 import { ErrorState } from "@/components/ui/error-state";
@@ -203,12 +203,13 @@ export const VenueManagement = () => {
                       <img
                         src={buildImageUrl(
                           venue.media[0]?.url,
-                          VENUE_PLACEHOLDER,
+                          venuePlaceholder(venue.id, venue.name),
                         )}
                         alt={venue.name}
                         className="h-full w-full object-cover transition-opacity hover:opacity-90"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = VENUE_PLACEHOLDER;
+                          (e.target as HTMLImageElement).src =
+                            venuePlaceholder(venue.id, venue.name);
                         }}
                       />
                     </Link>
