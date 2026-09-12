@@ -4,7 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import {
   formatPrice,
   buildImageUrl,
-  VENUE_PLACEHOLDER,
+  venuePlaceholder,
+  toPlainText,
   truncate,
   cn,
 } from "@/utils";
@@ -37,7 +38,8 @@ function amenityLabels(meta: Venue["meta"]): string[] {
  * have — the first result is simply whatever sorted first.
  */
 export function VenueCard({ venue, index = 0 }: VenueCardProps) {
-  const imageUrl = buildImageUrl(venue.media[0]?.url, VENUE_PLACEHOLDER);
+  const fallbackImage = venuePlaceholder(venue.id, venue.name);
+  const imageUrl = buildImageUrl(venue.media[0]?.url, fallbackImage);
   const location = [venue.location.city, venue.location.country]
     .filter(Boolean)
     .join(", ");
@@ -69,7 +71,7 @@ export function VenueCard({ venue, index = 0 }: VenueCardProps) {
           className="absolute inset-0 h-full w-full object-cover transition-transform duration-(--motion-slow) ease-out group-hover:scale-[1.04]"
           loading={index < 4 ? "eager" : "lazy"}
           onError={(e) => {
-            (e.target as HTMLImageElement).src = VENUE_PLACEHOLDER;
+            (e.target as HTMLImageElement).src = fallbackImage;
           }}
         />
 
@@ -138,7 +140,7 @@ export function VenueCard({ venue, index = 0 }: VenueCardProps) {
         </p>
 
         <p className="mt-2 line-clamp-2 min-h-8 text-xs leading-relaxed text-(--color-muted-foreground)">
-          {truncate(venue.description, 100)}
+          {truncate(toPlainText(venue.description), 100)}
         </p>
 
         <p className="mt-2 line-clamp-1 min-h-4 text-xs text-(--color-muted-foreground)">

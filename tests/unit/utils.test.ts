@@ -6,6 +6,8 @@ import {
   buildImageUrl,
   calculateNights,
   getPageNumbers,
+  toPlainText,
+  venuePlaceholder,
 } from "@/utils/index";
 
 describe("cn", () => {
@@ -147,5 +149,76 @@ describe("getPageNumbers", () => {
 
   it("returns a single page [1] when totalPages is 1", () => {
     expect(getPageNumbers(1, 1)).toEqual([1]);
+  });
+});
+
+describe("toPlainText", () => {
+  it("strips the markup that seeded descriptions actually carry", () => {
+    expect(toPlainText("<p><strong>This is the place</strong></p>")).toBe(
+      "This is the place",
+    );
+  });
+
+  it("keeps paragraph breaks as newlines", () => {
+    expect(toPlainText("<p>One</p><p>Two</p>")).toBe("One\nTwo");
+  });
+
+  it("turns <br> into a newline", () => {
+    expect(toPlainText("A<br/>B")).toBe("A\nB");
+  });
+
+  it("decodes entities, resolving the ampersand last", () => {
+    expect(toPlainText("Bed &amp; breakfast")).toBe("Bed & breakfast");
+    // Decoding &amp; first would collapse this all the way to "<".
+    expect(toPlainText("&amp;lt;")).toBe("&lt;");
+    expect(toPlainText("&quot;quoted&quot; &#39;s")).toBe("\"quoted\" 's");
+  });
+
+  it("leaves text that has no markup untouched", () => {
+    expect(toPlainText("A beautiful seaside venue.")).toBe(
+      "A beautiful seaside venue.",
+    );
+  });
+
+  it("returns an empty string for null, undefined and blank input", () => {
+    expect(toPlainText(null)).toBe("");
+    expect(toPlainText(undefined)).toBe("");
+    expect(toPlainText("   ")).toBe("");
+  });
+
+  it("caps runs of blank lines at one", () => {
+    expect(toPlainText("<p>A</p>\n\n\n\n<p>B</p>")).toBe("A\n\nB");
+  });
+});
+
+describe("venuePlaceholder", () => {
+  it("returns a self-contained svg data uri carrying the initial", () => {
+    const out = venuePlaceholder("venue-1", "Fjord Cabin");
+    expect(out.startsWith("data:image/svg+xml,")).toBe(true);
+    expect(decodeURIComponent(out)).toContain(">F<");
+  });
+
+  it("is stable for one id, and varies across ids", () => {
+    expect(venuePlaceholder("a", "X")).toBe(venuePlaceholder("a", "X"));
+    const gradients = new Set(
+      ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l"].map(
+        (seed) =>
+          /stop-color="(#[0-9a-f]{6})"/.exec(
+            decodeURIComponent(venuePlaceholder(seed, "X")),
+          )?.[1],
+      ),
+    );
+    expect(gradients.size).toBeGreaterThan(1);
+  });
+
+  it("escapes a venue name that would otherwise break the svg", () => {
+    const svg = decodeURIComponent(venuePlaceholder("x", '<"&'));
+    expect(svg).toContain("&lt;");
+    expect(svg).not.toContain('>"<');
+  });
+
+  it("falls back to ? when there is no usable name", () => {
+    expect(decodeURIComponent(venuePlaceholder("x", ""))).toContain(">?<");
+    expect(decodeURIComponent(venuePlaceholder("x"))).toContain(">?<");
   });
 });
