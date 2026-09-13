@@ -63,6 +63,12 @@ export const Navbar = () => {
             >
               Venues
             </Link>
+            <Link
+              to="/saved"
+              className="text-sm font-medium text-(--color-muted-foreground) hover:text-(--color-foreground) transition-colors [&.active]:text-(--color-foreground)"
+            >
+              Saved
+            </Link>
             {isAuthenticated && (
               <Link
                 to="/profile"
@@ -218,6 +224,13 @@ export const Navbar = () => {
             onClick={() => setMobileOpen(false)}
           >
             Venues
+          </Link>
+          <Link
+            to="/saved"
+            className="rounded-(--radius) px-3 py-2 text-sm font-medium hover:bg-(--color-accent) transition-colors"
+            onClick={() => setMobileOpen(false)}
+          >
+            Saved
           </Link>
           {isAuthenticated && (
             <Link
