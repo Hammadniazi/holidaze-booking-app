@@ -1,6 +1,7 @@
 import { beforeEach, describe, it, expect } from "vitest";
 import { useAuthStore } from "@/store/authStore";
 import { useVenueStore } from "@/store/venueStore";
+import { useFavoritesStore } from "@/store/favoritesStore";
 import type { AuthUser, Venue } from "@/types";
 
 // ---------------------------------------------------------------------------
@@ -170,5 +171,41 @@ describe("venueStore", () => {
     useVenueStore.getState().setSearchQuery("cabin");
     useVenueStore.getState().setSearchQuery("");
     expect(useVenueStore.getState().searchQuery).toBe("");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// favoritesStore
+// ---------------------------------------------------------------------------
+describe("favoritesStore", () => {
+  beforeEach(() => {
+    useFavoritesStore.setState({ ids: [] });
+  });
+
+  it("toggle adds an id that is not saved", () => {
+    useFavoritesStore.getState().toggle("venue-1");
+    expect(useFavoritesStore.getState().ids).toEqual(["venue-1"]);
+  });
+
+  it("toggle removes an id that is already saved", () => {
+    useFavoritesStore.setState({ ids: ["venue-1", "venue-2"] });
+    useFavoritesStore.getState().toggle("venue-1");
+    expect(useFavoritesStore.getState().ids).toEqual(["venue-2"]);
+  });
+
+  it("remove drops an id and stays put when called again", () => {
+    // The saved list prunes venues the API reports as 404. toggle cannot do
+    // that job: a second call puts the id back, which is what StrictMode's
+    // double effect and every retry would trigger.
+    useFavoritesStore.setState({ ids: ["venue-1", "venue-2"] });
+    useFavoritesStore.getState().remove("venue-1");
+    useFavoritesStore.getState().remove("venue-1");
+    expect(useFavoritesStore.getState().ids).toEqual(["venue-2"]);
+  });
+
+  it("remove leaves the list alone when the id was never saved", () => {
+    useFavoritesStore.setState({ ids: ["venue-1"] });
+    useFavoritesStore.getState().remove("venue-9");
+    expect(useFavoritesStore.getState().ids).toEqual(["venue-1"]);
   });
 });

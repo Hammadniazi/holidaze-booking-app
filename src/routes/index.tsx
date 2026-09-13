@@ -13,6 +13,7 @@ import ProfilePage from "@/pages/ProfilePage";
 import DashboardPage from "@/pages/DashboardPage";
 import ContactPage from "@/pages/ContactPage";
 import { NotFoundPage } from "@/pages/NotFoundPage";
+import { SavedVenuesPage } from "@/pages/SavedVenuesPage";
 
 // Root route with layout
 const rootRoute = createRootRoute({
@@ -61,6 +62,14 @@ export const profileRoute = createRoute({
   component: ProfilePage,
 });
 
+// Favourites live in localStorage, so this needs no auth guard — the list is
+// per-device and means something whether or not anyone is signed in.
+const savedRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/saved",
+  component: SavedVenuesPage,
+});
+
 const contactRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/contact",
@@ -79,6 +88,7 @@ const routeTree = rootRoute.addChildren([
   loginRoute,
   registerRoute,
   profileRoute,
+  savedRoute,
   contactRoute,
   dashboardRoute,
 ]);
