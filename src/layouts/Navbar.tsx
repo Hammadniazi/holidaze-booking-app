@@ -208,81 +208,86 @@ export const Navbar = () => {
 
       {/* Mobile menu */}
 
+      {/* Opens by animating grid-template-rows rather than max-height. The old
+          max-h-96 was a guess at the menu's height: add one more link and it
+          clips. 0fr → 1fr resolves against the real content. */}
       <div
         inert={!mobileOpen}
         aria-hidden={!mobileOpen}
         className={cn(
-          "md:hidden overflow-hidden border-t border-(--color-border) bg-(--color-background)",
-          "transition-[max-height] duration-(--motion-base) ease-(--ease-out)",
-          mobileOpen ? "max-h-96" : "max-h-0",
+          "md:hidden grid border-t border-(--color-border) bg-(--color-background)",
+          "transition-[grid-template-rows] duration-(--motion-base) ease-(--ease-out)",
+          mobileOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
         )}
       >
-        <nav aria-label="Mobile" className="flex flex-col p-4 gap-2">
-          <Link
-            to="/"
-            className="rounded-(--radius) px-3 py-2 text-sm font-medium hover:bg-(--color-accent) transition-colors"
-            onClick={() => setMobileOpen(false)}
-          >
-            Venues
-          </Link>
-          <Link
-            to="/saved"
-            className="rounded-(--radius) px-3 py-2 text-sm font-medium hover:bg-(--color-accent) transition-colors"
-            onClick={() => setMobileOpen(false)}
-          >
-            Saved
-          </Link>
-          {isAuthenticated && (
+        <div className="overflow-hidden">
+          <nav aria-label="Mobile" className="flex flex-col p-4 gap-2">
             <Link
-              to="/profile"
+              to="/"
               className="rounded-(--radius) px-3 py-2 text-sm font-medium hover:bg-(--color-accent) transition-colors"
               onClick={() => setMobileOpen(false)}
             >
-              Profile
+              Venues
             </Link>
-          )}
-          {isAuthenticated && user?.venueManager && (
             <Link
-              to="/dashboard"
+              to="/saved"
               className="rounded-(--radius) px-3 py-2 text-sm font-medium hover:bg-(--color-accent) transition-colors"
               onClick={() => setMobileOpen(false)}
             >
-              My Venues
+              Saved
             </Link>
-          )}
-          <Link
-            to="/contact"
-            className="rounded-(--radius) px-3 py-2 text-sm font-medium hover:bg-(--color-accent) transition-colors"
-            onClick={() => setMobileOpen(false)}
-          >
-            Contact
-          </Link>
+            {isAuthenticated && (
+              <Link
+                to="/profile"
+                className="rounded-(--radius) px-3 py-2 text-sm font-medium hover:bg-(--color-accent) transition-colors"
+                onClick={() => setMobileOpen(false)}
+              >
+                Profile
+              </Link>
+            )}
+            {isAuthenticated && user?.venueManager && (
+              <Link
+                to="/dashboard"
+                className="rounded-(--radius) px-3 py-2 text-sm font-medium hover:bg-(--color-accent) transition-colors"
+                onClick={() => setMobileOpen(false)}
+              >
+                My Venues
+              </Link>
+            )}
+            <Link
+              to="/contact"
+              className="rounded-(--radius) px-3 py-2 text-sm font-medium hover:bg-(--color-accent) transition-colors"
+              onClick={() => setMobileOpen(false)}
+            >
+              Contact
+            </Link>
 
-          {!isAuthenticated ? (
-            <div className="flex gap-2 pt-2">
-              <Button variant="outline" size="sm" className="flex-1" asChild>
-                <Link to="/login" onClick={() => setMobileOpen(false)}>
-                  Login
-                </Link>
-              </Button>
-              <Button size="sm" className="flex-1" asChild>
-                <Link to="/register" onClick={() => setMobileOpen(false)}>
-                  Register
-                </Link>
-              </Button>
-            </div>
-          ) : (
-            <button
-              className="flex items-center gap-2 rounded-(--radius) px-3 py-2 text-sm font-medium text-(--color-destructive) hover:bg-(--color-accent) transition-colors text-left"
-              onClick={() => {
-                handleLogout();
-                setMobileOpen(false);
-              }}
-            >
-              <LogOut className="h-4 w-4" /> Logout
-            </button>
-          )}
-        </nav>
+            {!isAuthenticated ? (
+              <div className="flex gap-2 pt-2">
+                <Button variant="outline" size="sm" className="flex-1" asChild>
+                  <Link to="/login" onClick={() => setMobileOpen(false)}>
+                    Login
+                  </Link>
+                </Button>
+                <Button size="sm" className="flex-1" asChild>
+                  <Link to="/register" onClick={() => setMobileOpen(false)}>
+                    Register
+                  </Link>
+                </Button>
+              </div>
+            ) : (
+              <button
+                className="flex items-center gap-2 rounded-(--radius) px-3 py-2 text-sm font-medium text-(--color-destructive) hover:bg-(--color-accent) transition-colors text-left"
+                onClick={() => {
+                  handleLogout();
+                  setMobileOpen(false);
+                }}
+              >
+                <LogOut className="h-4 w-4" /> Logout
+              </button>
+            )}
+          </nav>
+        </div>
       </div>
     </header>
   );

@@ -188,7 +188,7 @@ export const BookingForm = ({ venue, onSuccess }: BookingFormProps) => {
           </p>
 
           {formError && (
-            <Alert variant="destructive" title="Booking failed">
+            <Alert variant="destructive" title="Booking failed" focusOnMount>
               {formError}
             </Alert>
           )}

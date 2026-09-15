@@ -37,6 +37,7 @@ import { parseISO } from "date-fns";
 import { type DateRange } from "react-day-picker";
 import { toast } from "sonner";
 import { Container } from "@/components/ui/container";
+import { ProfileSkeleton } from "@/components/ui/skeleton";
 
 export const ProfilePage = () => {
   const { user, isAuthenticated } = useAuth();
@@ -357,15 +358,9 @@ export const ProfilePage = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <div role="status" aria-label="Loading">
-          <div
-            className="animate-spin h-8 w-8 rounded-full border-2 border-(--color-primary) border-t-transparent"
-            aria-hidden="true"
-          />
-          <span className="sr-only">Loading...</span>
-        </div>
-      </div>
+      <Container className="py-8">
+        <ProfileSkeleton />
+      </Container>
     );
   }
 
@@ -563,7 +558,7 @@ export const ProfilePage = () => {
         description={selectedBooking?.venue?.name ?? undefined}
       >
         {bookingError && (
-          <Alert variant="destructive" className="mb-4">
+          <Alert variant="destructive" className="mb-4" focusOnMount>
             {bookingError}
           </Alert>
         )}
@@ -628,7 +623,7 @@ export const ProfilePage = () => {
         title="Edit Profile"
       >
         {serverError && (
-          <Alert variant="destructive" className="mb-4">
+          <Alert variant="destructive" className="mb-4" focusOnMount>
             {serverError}
           </Alert>
         )}
