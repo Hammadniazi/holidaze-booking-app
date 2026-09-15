@@ -168,7 +168,7 @@ export const VenueDetailPage = ({ id }: VenueDetailPageProps) => {
                     >
                       <span
                         aria-hidden="true"
-                        className={`h-2 rounded-full transition-all ${i === imgIndex ? "w-4 bg-white" : "w-2 bg-white/50"}`}
+                        className={`h-2 rounded-full transition-[width,background-color] duration-(--motion-fast) ease-(--ease-out) ${i === imgIndex ? "w-4 bg-white" : "w-2 bg-white/50"}`}
                       />
                     </button>
                   ))}

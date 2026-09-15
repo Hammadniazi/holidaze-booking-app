@@ -1,4 +1,4 @@
-import { type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { cn } from "@/utils";
 import { AlertCircle, CheckCircle2, Info, XCircle } from "lucide-react";
 
@@ -7,6 +7,12 @@ interface AlertProps {
   title?: string;
   children: ReactNode;
   className?: string;
+  /**
+   * Moves keyboard focus here when the alert appears. For an error raised by
+   * a submit: role="alert" announces it, but focus stays on the button the
+   * user just pressed, which may now be scrolled out of view.
+   */
+  focusOnMount?: boolean;
 }
 
 const configs = {
@@ -37,14 +43,24 @@ export function Alert({
   title,
   children,
   className,
+  focusOnMount = false,
 }: AlertProps) {
   const config = configs[variant];
   const Icon = config.icon;
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (focusOnMount) ref.current?.focus();
+  }, [focusOnMount]);
 
   return (
     <div
+      ref={ref}
       role="alert"
+      tabIndex={focusOnMount ? -1 : undefined}
       className={cn(
+        focusOnMount &&
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-ring)",
         "flex gap-3 rounded-(--radius) border p-4",
         config.wrapper,
         className,

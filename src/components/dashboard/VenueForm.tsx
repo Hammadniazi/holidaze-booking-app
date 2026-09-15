@@ -95,7 +95,11 @@ export const VenueForm = ({ venue, onSuccess, onCancel }: VenueFormProps) => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
-      {serverError && <Alert variant="destructive">{serverError}</Alert>}
+      {serverError && (
+        <Alert variant="destructive" focusOnMount>
+          {serverError}
+        </Alert>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Input

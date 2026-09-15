@@ -66,7 +66,7 @@ export const LoginPage = () => {
           </CardHeader>
           <CardContent>
             {serverError && (
-              <Alert variant="destructive" className="mb-4">
+              <Alert variant="destructive" className="mb-4" focusOnMount>
                 {serverError}
               </Alert>
             )}

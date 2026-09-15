@@ -10,6 +10,7 @@ import { buildImageUrl, formatPrice, venuePlaceholder } from "@/utils";
 import { Building2, Calendar, Edit, ExternalLink, Plus, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 import { ErrorState } from "@/components/ui/error-state";
+import { VenueManagementSkeleton } from "@/components/ui/skeleton";
 import { VenueForm } from "./VenueForm";
 import { Link } from "@tanstack/react-router";
 
@@ -93,14 +94,19 @@ export const VenueManagement = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div role="status" aria-label="Loading venues">
-          <div
-            className="animate-spin h-8 w-8 rounded-full border-2 border-(--color-primary) border-t-transparent"
-            aria-hidden="true"
-          />
-          <span className="sr-only">Loading venues...</span>
+      <div>
+        {/* Section header, so the heading and Add venue button do not appear
+            only once the fetch lands. */}
+        <div className="flex items-center justify-between gap-4 mb-6">
+          <h2 className="text-lg font-semibold flex items-center gap-2">
+            <Building2
+              className="h-5 w-5 text-(--color-primary)"
+              aria-hidden="true"
+            />
+            My Venues
+          </h2>
         </div>
+        <VenueManagementSkeleton />
       </div>
     );
   }

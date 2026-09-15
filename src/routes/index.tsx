@@ -1,19 +1,14 @@
 import { RootLayout } from "@/layouts/RootLayout";
 import { VenueListPage } from "@/pages/VenueListPage";
-import { LoginPage } from "@/pages/LoginPage";
 import {
   createRouter,
   createRootRoute,
   Outlet,
   createRoute,
+  lazyRouteComponent,
 } from "@tanstack/react-router";
-import RegisterPage from "@/pages/RegisterPage";
-import { VenueDetailPage } from "@/pages/VenueDetailPage";
-import ProfilePage from "@/pages/ProfilePage";
-import DashboardPage from "@/pages/DashboardPage";
-import ContactPage from "@/pages/ContactPage";
 import { NotFoundPage } from "@/pages/NotFoundPage";
-import { SavedVenuesPage } from "@/pages/SavedVenuesPage";
+import { RoutePending } from "@/components/ui/route-pending";
 
 // Root route with layout
 const rootRoute = createRootRoute({
@@ -25,6 +20,9 @@ const rootRoute = createRootRoute({
   notFoundComponent: NotFoundPage,
 });
 
+/* The venue list is the entry point for nearly every visit, so it stays in the
+   first chunk. Everything below is split: browsing a venue should not download
+   the dashboard, the profile, or react-day-picker. */
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
@@ -35,22 +33,22 @@ const indexRoute = createRoute({
 const venueRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "venue/$id",
-  component: function VenueDetailRoute() {
-    const { id } = venueRoute.useParams();
-    return <VenueDetailPage id={id} />;
-  },
+  component: lazyRouteComponent(
+    () => import("@/pages/VenueDetailRoute"),
+    "VenueDetailRoute",
+  ),
 });
 
 const loginRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/login",
-  component: LoginPage,
+  component: lazyRouteComponent(() => import("@/pages/LoginPage"), "LoginPage"),
 });
 
 const registerRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/register",
-  component: RegisterPage,
+  component: lazyRouteComponent(() => import("@/pages/RegisterPage")),
 });
 
 export const profileRoute = createRoute({
@@ -59,7 +57,7 @@ export const profileRoute = createRoute({
   validateSearch: (search: Record<string, unknown>) => ({
     tab: search.tab === "trips" ? ("trips" as const) : undefined,
   }),
-  component: ProfilePage,
+  component: lazyRouteComponent(() => import("@/pages/ProfilePage")),
 });
 
 // Favourites live in localStorage, so this needs no auth guard — the list is
@@ -67,19 +65,22 @@ export const profileRoute = createRoute({
 const savedRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/saved",
-  component: SavedVenuesPage,
+  component: lazyRouteComponent(
+    () => import("@/pages/SavedVenuesPage"),
+    "SavedVenuesPage",
+  ),
 });
 
 const contactRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/contact",
-  component: ContactPage,
+  component: lazyRouteComponent(() => import("@/pages/ContactPage")),
 });
 
 const dashboardRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/dashboard",
-  component: DashboardPage,
+  component: lazyRouteComponent(() => import("@/pages/DashboardPage")),
 });
 
 const routeTree = rootRoute.addChildren([
@@ -96,4 +97,9 @@ const routeTree = rootRoute.addChildren([
 export const router = createRouter({
   routeTree,
   defaultNotFoundComponent: NotFoundPage,
+  // Shown while a split chunk is in flight. Without it the layout holds its
+  // last frame and the navigation reads as a dropped click.
+  defaultPendingComponent: RoutePending,
+  // Long enough that a cached chunk never flashes a spinner on its way in.
+  defaultPendingMs: 300,
 });
