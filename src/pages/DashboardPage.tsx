@@ -3,14 +3,16 @@ import { useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/useAuth";
 import { VenueManagement } from "@/components/dashboard/VenueManagement";
 import { Container } from "@/components/ui/container";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 const DashboardPage = () => {
+  useDocumentTitle("My venues");
   const { isAuthenticated, isVenueManager } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!isAuthenticated) {
-      void navigate({ to: "/login" });
+      void navigate({ to: "/login", search: { redirect: "/dashboard" } });
     } else if (!isVenueManager) {
       void navigate({ to: "/profile" });
     }

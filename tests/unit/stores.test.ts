@@ -96,12 +96,8 @@ describe("venueStore", () => {
       venues: [],
       currentVenue: null,
       totalCount: 0,
-      currentPage: 1,
       isLoading: false,
       error: null,
-      searchQuery: "",
-      sortBy: "created",
-      sortOrder: "desc",
     });
   });
 
@@ -157,21 +153,6 @@ describe("venueStore", () => {
     expect(useVenueStore.getState().error).toBeNull();
   });
 
-  it("setCurrentPage updates the current page number", () => {
-    useVenueStore.getState().setCurrentPage(5);
-    expect(useVenueStore.getState().currentPage).toBe(5);
-  });
-
-  it("setSearchQuery stores the search string", () => {
-    useVenueStore.getState().setSearchQuery("cabin");
-    expect(useVenueStore.getState().searchQuery).toBe("cabin");
-  });
-
-  it("setSearchQuery can clear the search string", () => {
-    useVenueStore.getState().setSearchQuery("cabin");
-    useVenueStore.getState().setSearchQuery("");
-    expect(useVenueStore.getState().searchQuery).toBe("");
-  });
 });
 
 // ---------------------------------------------------------------------------

@@ -6,13 +6,21 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog } from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/useAuth";
 import type { ApiResponse, Booking, Venue } from "@/types";
-import { buildImageUrl, formatPrice, venuePlaceholder } from "@/utils";
+import {
+  buildImageUrl,
+  formatDate,
+  formatPrice,
+  venuePlaceholder,
+} from "@/utils";
 import { Building2, Calendar, Edit, ExternalLink, Plus, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 import { ErrorState } from "@/components/ui/error-state";
 import { VenueManagementSkeleton } from "@/components/ui/skeleton";
 import { VenueForm } from "./VenueForm";
 import { Link } from "@tanstack/react-router";
+
+const bookingCount = (venue: Venue) =>
+  venue._count?.bookings ?? venue.bookings?.length ?? 0;
 
 export const VenueManagement = () => {
   const { user } = useAuth();
@@ -21,6 +29,7 @@ export const VenueManagement = () => {
   const [createOpen, setCreateOpen] = useState(false);
   const [editVenue, setEditVenue] = useState<Venue | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [bookingsExpanded, setBookingsExpanded] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [isRetrying, setIsRetrying] = useState(false);
@@ -61,11 +70,12 @@ export const VenueManagement = () => {
   const loadFailed = !!loadError && venues.length === 0;
 
   const totalBookings = venues.reduce(
-    (acc, v) => acc + (v._count?.bookings ?? v.bookings?.length ?? 0),
+    (acc, v) => acc + bookingCount(v),
     0,
   );
 
   const handleDelete = async (id: string) => {
+    setIsDeleting(true);
     try {
       await venuesApi.delete(id);
       setVenues((prev) => prev.filter((v) => v.id !== id));
@@ -74,6 +84,8 @@ export const VenueManagement = () => {
       const msg =
         error instanceof ApiError ? error.message : "Failed to delete venue";
       toast.error(msg);
+    } finally {
+      setIsDeleting(false);
     }
     setDeleteConfirm(null);
   };
@@ -265,10 +277,8 @@ export const VenueManagement = () => {
                         className="flex items-center gap-1 text-xs"
                       >
                         <Calendar className="h-3 w-3" />
-                        {venue._count?.bookings ??
-                          venue.bookings?.length ??
-                          0}{" "}
-                        booking(s)
+                        {bookingCount(venue)}{" "}
+                        {bookingCount(venue) === 1 ? "booking" : "bookings"}
                       </Badge>
                       <Button
                         variant="ghost"
@@ -311,16 +321,12 @@ export const VenueManagement = () => {
                                   </span>
                                 </div>
                                 <span className="text-(--color-muted-foreground) pl-5 sm:pl-0">
-                                  {new Date(
-                                    booking.dateFrom,
-                                  ).toLocaleDateString()}{" "}
-                                  →{" "}
-                                  {new Date(
-                                    booking.dateTo,
-                                  ).toLocaleDateString()}
+                                  {formatDate(booking.dateFrom)} →{" "}
+                                  {formatDate(booking.dateTo)}
                                 </span>
                                 <span className="pl-5 sm:pl-0">
-                                  {booking.guests} guest(s)
+                                  {booking.guests}{" "}
+                                  {booking.guests === 1 ? "guest" : "guests"}
                                 </span>
                               </div>
                             ))}
@@ -351,7 +357,7 @@ export const VenueManagement = () => {
         open={createOpen}
         onClose={() => setCreateOpen(false)}
         title="Create new venue"
-        className="max-w-2xl max-h-[90vh] overflow-y-auto"
+        className="max-w-2xl"
       >
         <VenueForm
           onSuccess={handleVenueSuccess}
@@ -364,7 +370,7 @@ export const VenueManagement = () => {
         open={!!editVenue}
         onClose={() => setEditVenue(null)}
         title="Edit venue"
-        className="max-w-2xl max-h-[90vh] overflow-y-auto"
+        className="max-w-2xl"
       >
         {editVenue && (
           <VenueForm
@@ -378,7 +384,7 @@ export const VenueManagement = () => {
       {/* Delete confirm dialog */}
       <Dialog
         open={!!deleteConfirm}
-        onClose={() => setDeleteConfirm(null)}
+        onClose={() => !isDeleting && setDeleteConfirm(null)}
         title="Delete venue"
       >
         <p className="text-sm text-(--color-muted-foreground) mb-5">
@@ -389,6 +395,7 @@ export const VenueManagement = () => {
           <Button
             variant="outline"
             className="flex-1"
+            disabled={isDeleting}
             onClick={() => setDeleteConfirm(null)}
           >
             Keep venue
@@ -396,9 +403,11 @@ export const VenueManagement = () => {
           <Button
             variant="destructive"
             className="flex-1"
+            isLoading={isDeleting}
             onClick={() => deleteConfirm && void handleDelete(deleteConfirm)}
           >
-            <Trash2 className="h-4 w-4 mr-1" /> Delete venue
+            {!isDeleting && <Trash2 className="h-4 w-4 mr-1" />}
+            {isDeleting ? "Deleting…" : "Delete venue"}
           </Button>
         </div>
       </Dialog>

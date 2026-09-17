@@ -42,6 +42,9 @@ export const VenueForm = ({ venue, onSuccess, onCancel }: VenueFormProps) => {
             city: venue.location.city ?? "",
             zip: venue.location.zip ?? "",
             country: venue.location.country ?? "",
+            // Not editable here, but it must round-trip: the payload below
+            // sends every location field, so a missing default saved null.
+            continent: venue.location.continent ?? "",
             lat: venue.location.lat,
             lng: venue.location.lng,
           },
@@ -232,8 +235,9 @@ export const VenueForm = ({ venue, onSuccess, onCancel }: VenueFormProps) => {
               size="icon"
               className="text-(--color-destructive) shrink-0"
               onClick={() => removeMedia(i)}
+              aria-label={`Remove image ${i + 1}`}
             >
-              <Trash2 className="h-4 w-4" />
+              <Trash2 className="h-4 w-4" aria-hidden="true" />
             </Button>
           </div>
         ))}

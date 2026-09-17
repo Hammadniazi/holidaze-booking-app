@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { MapPin, Mail, Clock, CheckCircle2, MessageSquare } from "lucide-react";
 import { Container } from "@/components/ui/container";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 const SUBJECT_OPTIONS = [
   { value: "general", label: "General enquiry" },
@@ -38,6 +39,7 @@ const INFO_CARDS = [
 ];
 
 export const ContactPage = () => {
+  useDocumentTitle("Contact");
   const [submitted, setSubmitted] = useState(false);
 
   const {

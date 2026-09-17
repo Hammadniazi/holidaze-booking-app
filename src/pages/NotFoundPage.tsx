@@ -1,8 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { MapPin } from "lucide-react";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 export function NotFoundPage() {
+  useDocumentTitle("Page not found");
   return (
     <div className="flex min-h-[calc(100vh-8rem)] flex-col items-center justify-center px-4 text-center">
       {/* Decorative icon */}

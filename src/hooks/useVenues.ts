@@ -1,17 +1,34 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { venuesApi } from "@/api/client";
 import { useVenueStore } from "@/store/venueStore";
 import type { ApiResponse, Venue } from "@/types";
 import { ApiError } from "@/api/client";
 
-export function useVenues(page = 1, limit = 12) {
-  // Read search/sort state from the global store so any component that writes
-  // to the store (e.g. VenueSearch) triggers a re-fetch here automatically.
-  const { setVenues, setLoading, setError, searchQuery, sortBy, sortOrder } =
-    useVenueStore();
+interface VenueQuery {
+  page: number;
+  limit: number;
+  searchQuery: string;
+  sortBy: string;
+  sortOrder: string;
+}
+
+export function useVenues({
+  page,
+  limit,
+  searchQuery,
+  sortBy,
+  sortOrder,
+}: VenueQuery) {
+  const { setVenues, setLoading, setError } = useVenueStore();
   const [isLoading, setIsLoading] = useState(false);
+  // Sort, search and page can change faster than the API answers. Each
+  // request takes a number, and only the newest one may write its result —
+  // otherwise a slow earlier response lands last and overwrites the grid.
+  const latestRequest = useRef(0);
 
   const fetchVenues = useCallback(async () => {
+    const requestId = ++latestRequest.current;
+    const isStale = () => requestId !== latestRequest.current;
     setIsLoading(true);
     setLoading(true);
     setError(null);
@@ -30,16 +47,20 @@ export function useVenues(page = 1, limit = 12) {
             sortOrder,
           })) as ApiResponse<Venue[]>);
 
+      if (isStale()) return;
       const totalCount = (res.meta as { totalCount?: number })?.totalCount ?? 0;
 
       setVenues(res.data, totalCount);
     } catch (err) {
+      if (isStale()) return;
       const msg =
         err instanceof ApiError ? err.message : "We couldn't reach the server.";
       setError(msg);
     } finally {
-      setIsLoading(false);
-      setLoading(false);
+      if (!isStale()) {
+        setIsLoading(false);
+        setLoading(false);
+      }
     }
   }, [
     page,

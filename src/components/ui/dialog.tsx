@@ -38,8 +38,14 @@ export function Dialog({
       first?.focus();
     });
 
+    // The page behind a modal should not scroll under it — on a phone the
+    // swipe meant for a long form otherwise moves the page instead.
+    const { overflow } = document.body.style;
+    document.body.style.overflow = "hidden";
+
     return () => {
       cancelAnimationFrame(frame);
+      document.body.style.overflow = overflow;
       previouslyFocused?.focus();
     };
   }, [open]);
@@ -94,6 +100,9 @@ export function Dialog({
         className={cn(
           "relative z-10 w-full max-w-lg rounded-(--radius) border border-(--color-border)",
           "bg-(--color-background) p-6 shadow-xl mx-4",
+          // Capped to the viewport and scrollable, so a tall body (the edit
+          // booking calendar on a short phone) never runs off-screen.
+          "max-h-[90dvh] overflow-y-auto overscroll-contain",
           className,
         )}
       >

@@ -100,7 +100,7 @@ export const Navbar = () => {
               variant="ghost"
               size="icon"
               onClick={toggle}
-              aria-label="Toggle theme"
+              aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
             >
               {isDark ? (
                 <Sun className="h-4 w-4" />
@@ -116,8 +116,10 @@ export const Navbar = () => {
                   variant="ghost"
                   className="flex items-center gap-2"
                   onClick={() => setDropdownOpen((p) => !p)}
+                  // A disclosure, not an ARIA menu: role="menu" promises
+                  // arrow-key navigation that plain links do not provide.
                   aria-expanded={dropdownOpen}
-                  aria-haspopup="menu"
+                  aria-controls="user-menu"
                   id="user-menu-button"
                 >
                   {user?.avatar?.url ? (
@@ -141,13 +143,11 @@ export const Navbar = () => {
                       onClick={() => setDropdownOpen(false)}
                     />
                     <div
-                      role="menu"
-                      aria-labelledby="user-menu-button"
+                      id="user-menu"
                       className="absolute right-0 top-full mt-1 z-20 w-48 rounded-(--radius) border border-(--color-border) bg-(--color-background) shadow-lg py-1"
                     >
                       <Link
                         to="/profile"
-                        role="menuitem"
                         className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-(--color-accent) transition-colors"
                         onClick={() => setDropdownOpen(false)}
                       >
@@ -156,8 +156,7 @@ export const Navbar = () => {
                       {user?.venueManager && (
                         <Link
                           to="/dashboard"
-                          role="menuitem"
-                          className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-(--color-accent) transition-colors"
+                            className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-(--color-accent) transition-colors"
                           onClick={() => setDropdownOpen(false)}
                         >
                           <Building2 className="h-4 w-4" aria-hidden="true" /> My Venues
@@ -166,7 +165,6 @@ export const Navbar = () => {
 
                       <hr className="my-1 border-(--color-border)" />
                       <button
-                        role="menuitem"
                         className="flex w-full items-center gap-2 px-3 py-2 text-sm text-(--color-destructive) hover:bg-(--color-accent) transition-colors"
                         onClick={handleLogout}
                       >

@@ -27,6 +27,8 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Container } from "@/components/ui/container";
+import { getLastListSearch } from "@/components/venues/venueListSearch";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 interface VenueDetailPageProps {
   id: string;
@@ -38,6 +40,9 @@ export const VenueDetailPage = ({ id }: VenueDetailPageProps) => {
   const [isRetrying, setIsRetrying] = useState(false);
   const navigate = useNavigate();
   const [imgIndex, setImgIndex] = useState(0);
+  useDocumentTitle(
+    venue?.name ?? (notFound ? "Venue not found" : undefined),
+  );
 
   if (isLoading) {
     return (
@@ -78,7 +83,7 @@ export const VenueDetailPage = ({ id }: VenueDetailPageProps) => {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => void navigate({ to: "/" })}
+            onClick={() => void navigate({ to: "/", search: getLastListSearch() })}
           >
             <ChevronLeft className="h-4 w-4" /> Back to venues
           </Button>
@@ -121,7 +126,7 @@ export const VenueDetailPage = ({ id }: VenueDetailPageProps) => {
       <Button
         variant="ghost"
         size="sm"
-        onClick={() => void navigate({ to: "/" })}
+        onClick={() => void navigate({ to: "/", search: getLastListSearch() })}
         className="mb-4 -ml-2"
       >
         <ChevronLeft className="h-4 w-4 mr-1" /> All venues

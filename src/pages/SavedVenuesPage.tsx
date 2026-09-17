@@ -9,6 +9,7 @@ import { VenueCard } from "@/components/venues/VenueCard";
 import { useFavoritesStore } from "@/store/favoritesStore";
 import type { ApiResponse, Venue } from "@/types";
 import { Heart } from "lucide-react";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 /**
  * The read side of the favourites store.
@@ -18,6 +19,7 @@ import { Heart } from "lucide-react";
  * ids", so each is fetched on its own — a personal list, not a catalogue.
  */
 export function SavedVenuesPage() {
+  useDocumentTitle("Saved venues");
   const ids = useFavoritesStore((state) => state.ids);
   const remove = useFavoritesStore((state) => state.remove);
 

@@ -1,4 +1,6 @@
 import type { ApiResponse, Venue } from "@/types";
+import { useAuthStore } from "@/store/authStore";
+import { toast } from "sonner";
 
 const BASE_URL = "https://v2.api.noroff.dev";
 const API_KEY = import.meta.env.VITE_API_KEY ?? "";
@@ -52,11 +54,9 @@ async function request<T>(
     headers["X-Noroff-API-Key"] = API_KEY;
   }
 
-  if (requiresAuth) {
-    const token = getToken();
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
+  const token = requiresAuth ? getToken() : null;
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
   }
 
   const res = await fetch(`${BASE_URL}${endpoint}`, {
@@ -70,6 +70,15 @@ async function request<T>(
   }
 
   const json = await res.json().catch(() => null);
+
+  // A 401 on a request that carried a token means the token is no longer
+  // valid. Left alone, the navbar keeps saying "signed in" while every action
+  // fails. Clearing auth signs the user out everywhere at once, and the
+  // signed-in pages already send a signed-out visitor to /login.
+  if (res.status === 401 && token) {
+    useAuthStore.getState().clearAuth();
+    toast.error("Your session has expired. Please log in again.");
+  }
 
   if (!res.ok) {
     const message =

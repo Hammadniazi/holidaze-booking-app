@@ -10,17 +10,28 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { MapPin } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
 import { ApiError } from "@/api/client";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 export const LoginPage = () => {
-  const { login } = useAuth();
+  useDocumentTitle("Log in");
+  const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  // Where the visitor was sent from, e.g. the venue they tried to book.
+  // Validated on the route to same-site paths only.
+  const { redirect }: { redirect?: string } = useSearch({ from: "/login" });
   const [serverError, setServerError] = useState<string | null>(null);
+
+  // Already signed in (a bookmark, or Back after logging in): nothing to do
+  // here. Also carries a fresh login on to its destination.
+  useEffect(() => {
+    if (isAuthenticated) void navigate({ href: redirect ?? "/", replace: true });
+  }, [isAuthenticated, navigate, redirect]);
 
   const {
     register,
@@ -33,8 +44,8 @@ export const LoginPage = () => {
   const onSubmit = async (data: LoginInput) => {
     setServerError(null);
     try {
+      // The effect above navigates once the store reports the new session.
       await login(data.email, data.password);
-      void navigate({ to: "/" });
     } catch (error) {
       const message =
         error instanceof ApiError
@@ -103,6 +114,7 @@ export const LoginPage = () => {
               Don't have an account?{" "}
               <Link
                 to="/register"
+                search={{ redirect }}
                 className="text-(--color-primary) hover:underline font-medium"
               >
                 Register
