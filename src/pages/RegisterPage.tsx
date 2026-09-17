@@ -2,7 +2,7 @@ import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useEffect } from "react";
 import { registerSchema, type RegisterInput } from "@/schemas";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { ApiError } from "@/api/client";
 import {
   Card,
@@ -16,10 +16,13 @@ import { Input } from "@/components/ui/input";
 import { Building2, MapPin, User } from "lucide-react";
 import { Alert } from "@/components/ui/alert";
 import { useAuth } from "@/hooks/useAuth";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 export const RegisterPage = () => {
+  useDocumentTitle("Create account");
   const { register: registerUser, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const { redirect }: { redirect?: string } = useSearch({ from: "/register" });
   const [serverError, setServerError] = useState<string | null>(null);
   const [accountType, setAccountType] = useState<"customer" | "manager">(
     "customer",
@@ -51,7 +54,7 @@ export const RegisterPage = () => {
         avatar: data.avatar?.url ? data.avatar : undefined,
       };
       await registerUser(payload);
-      navigate({ to: "/login" });
+      navigate({ to: "/login", search: { redirect } });
     } catch (error) {
       const message =
         error instanceof ApiError
@@ -195,6 +198,7 @@ export const RegisterPage = () => {
               Already have an account?{" "}
               <Link
                 to="/login"
+                search={{ redirect }}
                 className="text-(--color-primary) hover:underline font-medium"
               >
                 Sign in

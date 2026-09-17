@@ -207,21 +207,21 @@ describe("Navbar — authenticated venue manager", () => {
 // ---------------------------------------------------------------------------
 
 describe("Navbar — theme toggle", () => {
-  it("renders Moon icon when theme is light", () => {
+  it("offers dark mode when theme is light", () => {
     guestAuth();
     lightTheme();
     render(<Navbar />);
     expect(
-      screen.getByRole("button", { name: /toggle theme/i }),
+      screen.getByRole("button", { name: /switch to dark mode/i }),
     ).toBeInTheDocument();
   });
 
-  it("renders Sun icon when theme is dark", () => {
+  it("offers light mode when theme is dark", () => {
     guestAuth();
     darkTheme();
     render(<Navbar />);
     expect(
-      screen.getByRole("button", { name: /toggle theme/i }),
+      screen.getByRole("button", { name: /switch to light mode/i }),
     ).toBeInTheDocument();
   });
 
@@ -230,7 +230,9 @@ describe("Navbar — theme toggle", () => {
     lightTheme();
     const user = userEvent.setup();
     render(<Navbar />);
-    await user.click(screen.getByRole("button", { name: /toggle theme/i }));
+    await user.click(
+      screen.getByRole("button", { name: /switch to dark mode/i }),
+    );
     expect(mockToggle).toHaveBeenCalledOnce();
   });
 });

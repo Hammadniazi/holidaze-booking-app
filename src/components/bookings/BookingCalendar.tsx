@@ -1,8 +1,8 @@
 import { DayPicker, type DateRange } from "react-day-picker";
 import "react-day-picker/style.css";
 import type { Booking } from "@/types";
-import { isBefore, isWithinInterval, parseISO, startOfDay } from "date-fns";
-import { cn } from "@/utils";
+import { startOfDay } from "date-fns";
+import { cn, isDayUnavailable } from "@/utils";
 
 interface BookingCalendarProps {
   bookings: Booking[];
@@ -19,18 +19,7 @@ export function BookingCalendar({
 }: BookingCalendarProps) {
   const today = startOfDay(new Date());
 
-  // Build disabled date intervals from existing bookings
-  const bookedIntervals = bookings.map((b) => ({
-    from: parseISO(b.dateFrom),
-    to: parseISO(b.dateTo),
-  }));
-
-  const isBooked = (date: Date) => {
-    if (isBefore(date, today)) return true;
-    return bookedIntervals.some((interval) =>
-      isWithinInterval(date, { start: interval.from, end: interval.to }),
-    );
-  };
+  const isBooked = (date: Date) => isDayUnavailable(date, bookings, today);
 
   return (
     <div
@@ -46,7 +35,10 @@ export function BookingCalendar({
         selected={selected}
         onSelect={onRangeSelect}
         disabled={isBooked}
-        fromDate={today}
+        // Without this a range can open before someone else's stay and close
+        // after it; the API only refuses that once the form is submitted.
+        excludeDisabled
+        startMonth={today}
         numberOfMonths={1}
         classNames={{
           root: "w-full",
@@ -99,7 +91,13 @@ export function BookingCalendar({
           <span>Selected</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="h-3 w-3 rounded-full bg-(--color-muted) opacity-40" />
+          {/* Drawn the way a disabled day is: faded, struck-through text. */}
+          <span
+            className="text-xs leading-none line-through opacity-30"
+            aria-hidden="true"
+          >
+            12
+          </span>
           <span>Unavailable</span>
         </div>
       </div>

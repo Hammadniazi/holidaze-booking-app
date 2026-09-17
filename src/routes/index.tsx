@@ -9,6 +9,12 @@ import {
 } from "@tanstack/react-router";
 import { NotFoundPage } from "@/pages/NotFoundPage";
 import { RoutePending } from "@/components/ui/route-pending";
+import { parseVenueListSearch } from "@/components/venues/venueListSearch";
+import { toSafeRedirect } from "@/utils";
+
+const authSearch = (search: Record<string, unknown>) => ({
+  redirect: toSafeRedirect(search.redirect),
+});
 
 // Root route with layout
 const rootRoute = createRootRoute({
@@ -26,6 +32,7 @@ const rootRoute = createRootRoute({
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
+  validateSearch: parseVenueListSearch,
   component: VenueListPage,
 });
 
@@ -42,12 +49,14 @@ const venueRoute = createRoute({
 const loginRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/login",
+  validateSearch: authSearch,
   component: lazyRouteComponent(() => import("@/pages/LoginPage"), "LoginPage"),
 });
 
 const registerRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/register",
+  validateSearch: authSearch,
   component: lazyRouteComponent(() => import("@/pages/RegisterPage")),
 });
 

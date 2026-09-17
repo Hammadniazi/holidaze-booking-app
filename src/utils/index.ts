@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { format, differenceInDays } from "date-fns";
+import { format, differenceInDays, isBefore, isWithinInterval } from "date-fns";
+import type { Booking } from "@/types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -30,7 +31,10 @@ export function buildImageUrl(
 }
 
 export function formatDate(date: string | Date): string {
-  return format(new Date(date), "MMM d, yyyy");
+  return format(
+    typeof date === "string" ? fromUTCDateString(date) : date,
+    "MMM d, yyyy",
+  );
 }
 
 export function calculateNights(from: Date, to: Date): number {
@@ -44,6 +48,32 @@ export function toUTCDateString(date: Date): string {
   return new Date(
     Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()),
   ).toISOString();
+}
+
+// The inverse: a stored booking date is a UTC calendar day. Parsed as-is it
+// lands at 01:00/02:00 local time in Norway (or on the previous evening west
+// of UTC), which slips it off the local day it names. Rebuilding it from the
+// UTC Y/M/D gives local midnight of that same day.
+export function fromUTCDateString(iso: string): Date {
+  const d = new Date(iso);
+  return new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+}
+
+/** A calendar day is unavailable if it is in the past or inside an existing
+ *  booking, check-in and check-out days included. `date` and `today` are
+ *  local midnights, as the date picker hands them over. */
+export function isDayUnavailable(
+  date: Date,
+  bookings: Pick<Booking, "dateFrom" | "dateTo">[],
+  today: Date,
+): boolean {
+  if (isBefore(date, today)) return true;
+  return bookings.some((b) =>
+    isWithinInterval(date, {
+      start: fromUTCDateString(b.dateFrom),
+      end: fromUTCDateString(b.dateTo),
+    }),
+  );
 }
 
 /**
@@ -127,6 +157,20 @@ export function venuePlaceholder(seed: string, label?: string): string {
     'font-family="ui-sans-serif, system-ui, sans-serif" font-size="168" ' +
     `font-weight="700" fill="#ffffff" fill-opacity="0.32">${initial}</text></svg>`;
   return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+}
+
+/**
+ * A post-login destination taken from the URL. Only same-site paths pass:
+ * "//evil.com" and "https://…" are dropped, so the login form can never be
+ * turned into an open redirect.
+ */
+export function toSafeRedirect(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  const offSite =
+    !value.startsWith("/") ||
+    value.startsWith("//") ||
+    value.startsWith("/\\");
+  return offSite ? undefined : value;
 }
 
 export const AVATAR_PLACEHOLDER =

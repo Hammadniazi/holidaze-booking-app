@@ -12,7 +12,7 @@ import { Alert } from "../ui/alert";
 import { calculateNights, formatDate, formatPrice, toUTCDateString } from "@/utils";
 import { BookingCalendar } from "./BookingCalendar";
 import { type DateRange } from "react-day-picker";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 
 interface BookingFormProps {
   venue: Venue;
@@ -22,6 +22,9 @@ export const BookingForm = ({ venue, onSuccess }: BookingFormProps) => {
   const { isAuthenticated } = useAuth();
   const { createBooking, isSubmitting } = useBookings();
   const navigate = useNavigate();
+  // Sent along to login/register so the visitor comes back to this venue
+  // instead of the homepage.
+  const here = useLocation({ select: (l) => l.href });
   const [range, setRange] = useState<DateRange | undefined>(undefined);
   const [success, setSuccess] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -79,10 +82,14 @@ export const BookingForm = ({ venue, onSuccess }: BookingFormProps) => {
           </p>
           <div className="flex gap-2">
             <Button className="flex-1" asChild>
-              <Link to="/login">Log in</Link>
+              <Link to="/login" search={{ redirect: here }}>
+                Log in
+              </Link>
             </Button>
             <Button variant="outline" className="flex-1" asChild>
-              <Link to="/register">Register</Link>
+              <Link to="/register" search={{ redirect: here }}>
+                Register
+              </Link>
             </Button>
           </div>
         </CardContent>
@@ -166,7 +173,7 @@ export const BookingForm = ({ venue, onSuccess }: BookingFormProps) => {
               </div>
               <div className="flex justify-between">
                 <span className="text-(--color-muted-foreground)">
-                  {nights} nights × {formatPrice(venue.price)}
+                  {nights} {nights === 1 ? "night" : "nights"} × {formatPrice(venue.price)}
                 </span>
                 <span className="font-bold">{formatPrice(totalPrice)}</span>
               </div>

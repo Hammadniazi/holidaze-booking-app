@@ -21,8 +21,10 @@ import type { ApiResponse, Booking, Profile, Venue } from "@/types";
 import {
   AVATAR_PLACEHOLDER,
   buildImageUrl,
+  calculateNights,
   formatDate,
   formatPrice,
+  fromUTCDateString,
   toUTCDateString,
   venuePlaceholder,
 } from "@/utils";
@@ -33,13 +35,15 @@ import { VenueManagement } from "@/components/dashboard/VenueManagement";
 import { BookingCalendar } from "@/components/bookings/BookingCalendar";
 import { useCallback, useEffect, useState } from "react";
 import { useForm, type Resolver } from "react-hook-form";
-import { parseISO } from "date-fns";
+import { isBefore, startOfDay } from "date-fns";
 import { type DateRange } from "react-day-picker";
 import { toast } from "sonner";
 import { Container } from "@/components/ui/container";
 import { ProfileSkeleton } from "@/components/ui/skeleton";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 export const ProfilePage = () => {
+  useDocumentTitle("Your profile");
   const { user, isAuthenticated } = useAuth();
   const { setAuth } = useAuthStore();
   const { bookings, setBookings } = useBookingStore();
@@ -60,6 +64,7 @@ export const ProfilePage = () => {
   );
   const [isLoadingAvailability, setIsLoadingAvailability] = useState(false);
   const [cancelConfirmId, setCancelConfirmId] = useState<string | null>(null);
+  const [isCancelling, setIsCancelling] = useState(false);
   const [activeTab, setActiveTab] = useState<"venues" | "trips">(() => {
     const params = new URLSearchParams(window.location.search);
     return params.get("tab") === "trips" ? "trips" : "venues";
@@ -67,9 +72,30 @@ export const ProfilePage = () => {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      void navigate({ to: "/login" });
+      void navigate({ to: "/login", search: { redirect: "/profile" } });
     }
   }, [isAuthenticated, navigate]);
+
+  // Tabs follow the ARIA pattern: one tab stop for the whole list, and the
+  // arrow, Home and End keys move between tabs (and select them).
+  const handleTabKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    const order = ["venues", "trips"] as const;
+    const current = order.indexOf(activeTab);
+    const next =
+      e.key === "ArrowRight"
+        ? order[(current + 1) % order.length]
+        : e.key === "ArrowLeft"
+          ? order[(current - 1 + order.length) % order.length]
+          : e.key === "Home"
+            ? order[0]
+            : e.key === "End"
+              ? order[order.length - 1]
+              : null;
+    if (!next) return;
+    e.preventDefault();
+    setActiveTab(next);
+    document.getElementById(`tab-btn-${next}`)?.focus();
+  };
 
   const fetchProfile = useCallback(async () => {
     if (!user) return;
@@ -160,8 +186,8 @@ export const ProfilePage = () => {
       guests: booking.guests,
     });
     setEditRange({
-      from: parseISO(booking.dateFrom),
-      to: parseISO(booking.dateTo),
+      from: fromUTCDateString(booking.dateFrom),
+      to: fromUTCDateString(booking.dateTo),
     });
     setAvailabilityBookings([]);
     setEditBookingOpen(true);
@@ -246,63 +272,72 @@ export const ProfilePage = () => {
   );
   const bannerUrl = buildImageUrl(profileData?.banner?.url, "");
 
-  const bookingsListJSX = loadError && bookings.length === 0 ? (
-    <ErrorState
-      title="Couldn't load your trips"
-      message={`${loadError} Your bookings are safe — this is a problem loading them.`}
-      onRetry={() => void retryProfile()}
-      isRetrying={isRetrying}
-    />
-  ) : bookings.length === 0 ? (
-    <div className="text-center py-12 rounded-(--radius) border border-dashed border-(--color-border)">
-      <Calendar className="mx-auto h-10 w-10 text-(--color-muted-foreground) mb-3" />
-      <h3 className="font-medium mb-1">No trips yet</h3>
-      <p className="text-sm text-(--color-muted-foreground) mb-4">
-        Start exploring venues to make your first booking.
-      </p>
-      <Button asChild>
-        <Link to="/">Browse venues</Link>
-      </Button>
-    </div>
-  ) : (
-    <div className="space-y-3">
-      {bookings.map((booking) => (
-        <Card key={booking.id} className="overflow-hidden">
-          <CardContent className="p-0">
-            <div className="flex flex-col sm:flex-row">
-              {booking.venue?.media?.[0]?.url && (
-                <div className="h-40 sm:h-auto w-full sm:w-28 shrink-0 overflow-hidden bg-(--color-muted)">
-                  <img
-                    src={booking.venue.media[0].url}
-                    alt={booking.venue.name}
-                    className="h-full w-full object-cover"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = venuePlaceholder(
-                        booking.venue?.id ?? booking.id,
-                        booking.venue?.name,
-                      );
-                    }}
-                  />
+  // Trips split at today: what is coming up leads, soonest first, and past
+  // stays follow newest first. Past stays are a record — they cannot be
+  // edited or cancelled, so they offer neither.
+  const today = startOfDay(new Date());
+  const isPastBooking = (b: Booking) =>
+    isBefore(fromUTCDateString(b.dateTo), today);
+  const byCheckIn = [...bookings].sort((a, b) =>
+    a.dateFrom.localeCompare(b.dateFrom),
+  );
+  const upcomingBookings = byCheckIn.filter((b) => !isPastBooking(b));
+  const pastBookings = byCheckIn.filter(isPastBooking).reverse();
+
+  const renderBookingCard = (booking: Booking, isPast: boolean) => {
+    const nights = calculateNights(
+      fromUTCDateString(booking.dateFrom),
+      fromUTCDateString(booking.dateTo),
+    );
+    return (
+      <Card
+        key={booking.id}
+        className={`overflow-hidden ${isPast ? "opacity-80" : ""}`}
+      >
+        <CardContent className="p-0">
+          <div className="flex flex-col sm:flex-row">
+            {booking.venue?.media?.[0]?.url && (
+              <div className="h-40 sm:h-auto w-full sm:w-28 shrink-0 overflow-hidden bg-(--color-muted)">
+                <img
+                  src={booking.venue.media[0].url}
+                  alt={booking.venue.name}
+                  className="h-full w-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = venuePlaceholder(
+                      booking.venue?.id ?? booking.id,
+                      booking.venue?.name,
+                    );
+                  }}
+                />
+              </div>
+            )}
+            <div className="flex-1 p-4">
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex-1 min-w-0">
+                  {booking.venue?.id ? (
+                    <Link
+                      to="/venue/$id"
+                      params={{ id: booking.venue.id }}
+                      className="block font-semibold truncate hover:text-(--color-primary) transition-colors"
+                    >
+                      {booking.venue.name}
+                    </Link>
+                  ) : (
+                    <p className="font-semibold truncate">Venue</p>
+                  )}
+                  {booking.venue?.location && (
+                    <div className="flex items-center gap-1 text-xs text-(--color-muted-foreground) mt-0.5">
+                      <MapPin className="h-3 w-3" aria-hidden="true" />
+                      {[
+                        booking.venue.location.city,
+                        booking.venue.location.country,
+                      ]
+                        .filter(Boolean)
+                        .join(", ")}
+                    </div>
+                  )}
                 </div>
-              )}
-              <div className="flex-1 p-4">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold truncate">
-                      {booking.venue?.name ?? "Venue"}
-                    </p>
-                    {booking.venue?.location && (
-                      <div className="flex items-center gap-1 text-xs text-(--color-muted-foreground) mt-0.5">
-                        <MapPin className="h-3 w-3" />
-                        {[
-                          booking.venue.location.city,
-                          booking.venue.location.country,
-                        ]
-                          .filter(Boolean)
-                          .join(", ")}
-                      </div>
-                    )}
-                  </div>
+                {!isPast && (
                   <div className="flex items-center gap-1 shrink-0">
                     <Button
                       variant="ghost"
@@ -325,32 +360,92 @@ export const ProfilePage = () => {
                       <span className="hidden sm:inline">Cancel</span>
                     </Button>
                   </div>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-4 mt-2 text-sm">
+                <div>
+                  <span className="text-(--color-muted-foreground)">Check-in: </span>
+                  <span className="font-medium">{formatDate(booking.dateFrom)}</span>
                 </div>
-                <div className="flex flex-wrap gap-4 mt-2 text-sm">
-                  <div>
-                    <span className="text-(--color-muted-foreground)">Check-in: </span>
-                    <span className="font-medium">{formatDate(booking.dateFrom)}</span>
-                  </div>
-                  <div>
-                    <span className="text-(--color-muted-foreground)">Check-out: </span>
-                    <span className="font-medium">{formatDate(booking.dateTo)}</span>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between mt-2">
-                  <Badge variant="secondary">
-                    {booking.guests} guest{booking.guests > 1 ? "s" : ""}
-                  </Badge>
-                  {booking.venue?.price && (
-                    <span className="text-sm font-medium">
-                      {formatPrice(booking.venue.price)} / night
-                    </span>
-                  )}
+                <div>
+                  <span className="text-(--color-muted-foreground)">Check-out: </span>
+                  <span className="font-medium">{formatDate(booking.dateTo)}</span>
                 </div>
               </div>
+              <div className="flex flex-wrap items-center justify-between gap-2 mt-2">
+                <Badge variant="secondary">
+                  {booking.guests} {booking.guests === 1 ? "guest" : "guests"}
+                </Badge>
+                {booking.venue?.price ? (
+                  <span className="tnum text-sm">
+                    <span className="text-(--color-muted-foreground)">
+                      {nights} {nights === 1 ? "night" : "nights"} ·{" "}
+                    </span>
+                    <span className="font-semibold">
+                      {formatPrice(nights * booking.venue.price)}
+                    </span>
+                  </span>
+                ) : null}
+              </div>
             </div>
-          </CardContent>
-        </Card>
-      ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
+  const bookingsListJSX = loadError && bookings.length === 0 ? (
+    <ErrorState
+      title="Couldn't load your trips"
+      message={`${loadError} Your bookings are safe — this is a problem loading them.`}
+      onRetry={() => void retryProfile()}
+      isRetrying={isRetrying}
+    />
+  ) : (
+    <div className="space-y-8">
+      <section aria-labelledby="upcoming-trips-heading">
+        <h3
+          id="upcoming-trips-heading"
+          className="mb-3 text-sm font-semibold uppercase tracking-wider text-(--color-muted-foreground)"
+        >
+          Upcoming
+        </h3>
+        {upcomingBookings.length === 0 ? (
+          <div className="text-center py-12 rounded-(--radius) border border-dashed border-(--color-border)">
+            <Calendar
+              className="mx-auto h-10 w-10 text-(--color-muted-foreground) mb-3"
+              aria-hidden="true"
+            />
+            <p className="font-medium mb-1">No upcoming trips</p>
+            <p className="text-sm text-(--color-muted-foreground) mb-4">
+              {pastBookings.length > 0
+                ? "Ready for the next one?"
+                : "Start exploring venues to make your first booking."}
+            </p>
+            <Button asChild>
+              <Link to="/">Browse venues</Link>
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {upcomingBookings.map((b) => renderBookingCard(b, false))}
+          </div>
+        )}
+      </section>
+
+      {pastBookings.length > 0 && (
+        <section aria-labelledby="past-trips-heading">
+          <h3
+            id="past-trips-heading"
+            className="mb-3 text-sm font-semibold uppercase tracking-wider text-(--color-muted-foreground)"
+          >
+            Past
+          </h3>
+          <div className="space-y-3">
+            {pastBookings.map((b) => renderBookingCard(b, true))}
+          </div>
+        </section>
+      )}
     </div>
   );
 
@@ -439,6 +534,7 @@ export const ProfilePage = () => {
           <div
             role="tablist"
             aria-label="Profile sections"
+            onKeyDown={handleTabKeyDown}
             className="flex border-b border-(--color-border) mb-6"
           >
             <button
@@ -446,6 +542,7 @@ export const ProfilePage = () => {
               role="tab"
               aria-selected={activeTab === "venues"}
               aria-controls="tab-venues"
+              tabIndex={activeTab === "venues" ? 0 : -1}
               onClick={() => setActiveTab("venues")}
               className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 -mb-px transition-colors ${
                 activeTab === "venues"
@@ -461,6 +558,7 @@ export const ProfilePage = () => {
               role="tab"
               aria-selected={activeTab === "trips"}
               aria-controls="tab-trips"
+              tabIndex={activeTab === "trips" ? 0 : -1}
               onClick={() => setActiveTab("trips")}
               className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 -mb-px transition-colors ${
                 activeTab === "trips"
@@ -522,7 +620,7 @@ export const ProfilePage = () => {
       {/* Cancel booking confirmation dialog */}
       <Dialog
         open={!!cancelConfirmId}
-        onClose={() => setCancelConfirmId(null)}
+        onClose={() => !isCancelling && setCancelConfirmId(null)}
         title="Cancel booking"
       >
         <p className="text-sm text-(--color-muted-foreground) mb-5">
@@ -533,6 +631,7 @@ export const ProfilePage = () => {
           <Button
             variant="outline"
             className="flex-1"
+            disabled={isCancelling}
             onClick={() => setCancelConfirmId(null)}
           >
             Keep booking
@@ -540,12 +639,25 @@ export const ProfilePage = () => {
           <Button
             variant="destructive"
             className="flex-1"
-            onClick={() => {
-              if (cancelConfirmId) void deleteBooking(cancelConfirmId);
-              setCancelConfirmId(null);
+            isLoading={isCancelling}
+            onClick={async () => {
+              if (!cancelConfirmId) return;
+              // The dialog stays open until the API answers, so a second
+              // click cannot send a second request, and a failure is not
+              // hidden behind a dialog that already closed.
+              setIsCancelling(true);
+              try {
+                await deleteBooking(cancelConfirmId);
+                setCancelConfirmId(null);
+              } catch {
+                // useBookings has already shown the error toast.
+              } finally {
+                setIsCancelling(false);
+              }
             }}
           >
-            <Trash2 className="h-4 w-4 mr-1" /> Yes, cancel it
+            {!isCancelling && <Trash2 className="h-4 w-4 mr-1" />}
+            {isCancelling ? "Cancelling…" : "Yes, cancel it"}
           </Button>
         </div>
       </Dialog>
@@ -649,6 +761,7 @@ export const ProfilePage = () => {
             label="Banner URL (optional)"
             type="url"
             placeholder="https://example.com/banner.jpg"
+            error={errors.banner?.url?.message}
             {...register("banner.url")}
           />
           <div className="flex gap-2 pt-2">

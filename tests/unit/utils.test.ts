@@ -5,6 +5,11 @@ import {
   formatPrice,
   buildImageUrl,
   calculateNights,
+  formatDate,
+  fromUTCDateString,
+  isDayUnavailable,
+  toUTCDateString,
+  toSafeRedirect,
   getPageNumbers,
   toPlainText,
   venuePlaceholder,
@@ -110,6 +115,57 @@ describe("calculateNights", () => {
     const from = new Date("2025-03-20");
     const to = new Date("2025-03-21");
     expect(calculateNights(from, to)).toBe(1);
+  });
+});
+
+// These hold in any timezone, but the bug they guard against only showed east
+// of UTC. Run with TZ=Europe/Oslo (and a western zone) to exercise it.
+describe("fromUTCDateString", () => {
+  it("returns local midnight of the UTC calendar day", () => {
+    const d = fromUTCDateString("2026-09-20T00:00:00.000Z");
+    expect([d.getFullYear(), d.getMonth(), d.getDate()]).toEqual([2026, 8, 20]);
+    expect([d.getHours(), d.getMinutes()]).toEqual([0, 0]);
+  });
+
+  it("round-trips with toUTCDateString", () => {
+    const local = new Date(2026, 0, 31);
+    expect(fromUTCDateString(toUTCDateString(local))).toEqual(local);
+  });
+});
+
+describe("formatDate", () => {
+  it("shows a stored booking date as the day it names", () => {
+    expect(formatDate("2026-09-20T00:00:00.000Z")).toBe("Sep 20, 2026");
+  });
+
+  it("formats a local Date as-is", () => {
+    expect(formatDate(new Date(2026, 8, 20))).toBe("Sep 20, 2026");
+  });
+});
+
+describe("isDayUnavailable", () => {
+  const today = new Date(2026, 8, 1);
+  const bookings = [
+    { dateFrom: "2026-09-20T00:00:00.000Z", dateTo: "2026-09-23T00:00:00.000Z" },
+  ];
+
+  it("blocks days before today", () => {
+    expect(isDayUnavailable(new Date(2026, 7, 31), [], today)).toBe(true);
+  });
+
+  it("leaves today and free future days open", () => {
+    expect(isDayUnavailable(today, bookings, today)).toBe(false);
+    expect(isDayUnavailable(new Date(2026, 8, 19), bookings, today)).toBe(false);
+    expect(isDayUnavailable(new Date(2026, 8, 24), bookings, today)).toBe(false);
+  });
+
+  it("blocks the check-in day of an existing booking", () => {
+    expect(isDayUnavailable(new Date(2026, 8, 20), bookings, today)).toBe(true);
+  });
+
+  it("blocks every day through check-out", () => {
+    expect(isDayUnavailable(new Date(2026, 8, 21), bookings, today)).toBe(true);
+    expect(isDayUnavailable(new Date(2026, 8, 23), bookings, today)).toBe(true);
   });
 });
 
@@ -220,5 +276,24 @@ describe("venuePlaceholder", () => {
   it("falls back to ? when there is no usable name", () => {
     expect(decodeURIComponent(venuePlaceholder("x", ""))).toContain(">?<");
     expect(decodeURIComponent(venuePlaceholder("x"))).toContain(">?<");
+  });
+});
+
+describe("toSafeRedirect", () => {
+  it("keeps same-site paths, query included", () => {
+    expect(toSafeRedirect("/venue/abc")).toBe("/venue/abc");
+    expect(toSafeRedirect("/?q=cabin&page=2")).toBe("/?q=cabin&page=2");
+  });
+
+  it("drops anything that could leave the site", () => {
+    expect(toSafeRedirect("https://evil.example")).toBeUndefined();
+    expect(toSafeRedirect("//evil.example")).toBeUndefined();
+    expect(toSafeRedirect("/\\evil.example")).toBeUndefined();
+    expect(toSafeRedirect("javascript:alert(1)")).toBeUndefined();
+  });
+
+  it("drops non-strings", () => {
+    expect(toSafeRedirect(undefined)).toBeUndefined();
+    expect(toSafeRedirect(42)).toBeUndefined();
   });
 });

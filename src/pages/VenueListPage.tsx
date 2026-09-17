@@ -1,3 +1,5 @@
+import { useEffect, useRef } from "react";
+import { useNavigate, useSearch } from "@tanstack/react-router";
 import { useVenueStore } from "@/store/venueStore";
 import { useVenues } from "@/hooks/useVenues";
 import { VenueCard } from "@/components/venues/VenueCard";
@@ -8,24 +10,57 @@ import { Container } from "@/components/ui/container";
 import { SearchX, ChevronLeft, ChevronRight } from "lucide-react";
 import { VenueSearch } from "@/components/venues/VenueSearch";
 import { getPageNumbers } from "@/utils";
+import {
+  DEFAULT_SORT,
+  rememberListSearch,
+  type VenueListSearch,
+} from "@/components/venues/venueListSearch";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 const ITEMS_PER_PAGE = 16;
 
 export const VenueListPage = () => {
-  const {
-    venues,
-    totalCount,
-    currentPage,
-    setCurrentPage,
-    isLoading,
-    error,
+  useDocumentTitle();
+  const search: VenueListSearch = useSearch({ from: "/" });
+  const navigate = useNavigate();
+  const resultsRef = useRef<HTMLParagraphElement>(null);
+
+  useEffect(() => {
+    rememberListSearch(search);
+  }, [search]);
+
+  const currentPage = search.page ?? 1;
+  const searchQuery = search.q ?? "";
+  const minGuests = search.guests ?? 0;
+  const [sortBy, sortOrder] = (search.sort ?? DEFAULT_SORT).split(":");
+
+  const { venues, totalCount, isLoading, error } = useVenueStore();
+  const { isLoading: fetching, refetch } = useVenues({
+    page: currentPage,
+    limit: ITEMS_PER_PAGE,
     searchQuery,
-    minGuests,
-  } = useVenueStore();
-  const { isLoading: fetching, refetch } = useVenues(
-    currentPage,
-    ITEMS_PER_PAGE,
-  );
+    sortBy,
+    sortOrder,
+  });
+
+  // Pagination sits under the grid, so a new page used to open scrolled to
+  // its bottom. Bring the results back into view, and move focus to the
+  // count so a keyboard or screen-reader user starts reading from the top.
+  const goToPage = (page: number) => {
+    void navigate({
+      to: "/",
+      search: { ...search, page: page > 1 ? page : undefined },
+      resetScroll: false,
+    });
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    resultsRef.current?.scrollIntoView({
+      behavior: reduceMotion ? "auto" : "smooth",
+      block: "start",
+    });
+    resultsRef.current?.focus({ preventScroll: true });
+  };
 
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
   const loading = isLoading || fetching;
@@ -62,12 +97,14 @@ export const VenueListPage = () => {
       </div>
 
       <div className="mb-8">
-        <VenueSearch />
+        <VenueSearch search={search} />
       </div>
 
       <div className="mb-4 flex items-center justify-between gap-4">
         <p
-          className="text-sm text-(--color-muted-foreground)"
+          ref={resultsRef}
+          tabIndex={-1}
+          className="scroll-mt-24 text-sm text-(--color-muted-foreground) focus:outline-none"
           aria-live="polite"
         >
           {resultLabel}
@@ -130,7 +167,7 @@ export const VenueListPage = () => {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => setCurrentPage(currentPage - 1)}
+            onClick={() => goToPage(currentPage - 1)}
             disabled={currentPage <= 1 || loading}
             aria-label="Previous page"
           >
@@ -152,7 +189,7 @@ export const VenueListPage = () => {
                 variant={page === currentPage ? "default" : "outline"}
                 size="icon"
                 className="tnum"
-                onClick={() => setCurrentPage(page)}
+                onClick={() => goToPage(page)}
                 disabled={loading}
                 aria-label={`Page ${page}`}
                 aria-current={page === currentPage ? "page" : undefined}
@@ -165,7 +202,7 @@ export const VenueListPage = () => {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => setCurrentPage(currentPage + 1)}
+            onClick={() => goToPage(currentPage + 1)}
             disabled={currentPage >= totalPages || loading}
             aria-label="Next page"
           >

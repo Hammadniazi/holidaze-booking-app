@@ -1,52 +1,55 @@
 import { useState } from "react";
-import { useVenueStore } from "@/store/venueStore";
+import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Search, X } from "lucide-react";
+import {
+  DEFAULT_SORT,
+  GUEST_OPTIONS,
+  SORT_OPTIONS,
+  type SortValue,
+  type VenueListSearch,
+} from "./venueListSearch";
 
-/** Combined sort options. One control instead of two, and the labels say what
- *  the user gets rather than naming a field and a direction. */
-const SORT_OPTIONS = [
-  { value: "created:desc", label: "Newest first" },
-  { value: "price:asc", label: "Price: low to high" },
-  { value: "price:desc", label: "Price: high to low" },
-  { value: "rating:desc", label: "Top rated" },
-  { value: "name:asc", label: "Name: A–Z" },
-] as const;
+interface VenueSearchProps {
+  search: VenueListSearch;
+}
 
-const GUEST_OPTIONS = [0, 1, 2, 4, 6, 8] as const;
+export function VenueSearch({ search }: VenueSearchProps) {
+  const navigate = useNavigate();
+  const query = search.q ?? "";
 
-export function VenueSearch() {
-  const {
-    searchQuery,
-    setSearchQuery,
-    setCurrentPage,
-    sortBy,
-    sortOrder,
-    setSortBy,
-    setSortOrder,
-    minGuests,
-    setMinGuests,
-  } = useVenueStore();
+  const [inputValue, setInputValue] = useState(query);
+  // Back and Forward change the query under a mounted form. Adjusting state
+  // during render (rather than in an effect) keeps the box in step without a
+  // flash of the old text, and without remounting away the user's focus.
+  const [syncedQuery, setSyncedQuery] = useState(query);
+  if (query !== syncedQuery) {
+    setSyncedQuery(query);
+    setInputValue(query);
+  }
 
-  const [inputValue, setInputValue] = useState(searchQuery);
+  // Every change starts again from page 1. Each one is its own history entry,
+  // so Back steps through searches; the page keeps its scroll position.
+  const update = (patch: Omit<VenueListSearch, "page">) =>
+    void navigate({
+      to: "/",
+      search: { ...search, ...patch, page: undefined },
+      resetScroll: false,
+    });
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    setSearchQuery(inputValue.trim());
-    setCurrentPage(1);
+    update({ q: inputValue.trim() || undefined });
   };
 
   const clear = () => {
     setInputValue("");
-    setSearchQuery("");
-    setCurrentPage(1);
+    update({ q: undefined });
   };
 
   const handleSort = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const [field, order] = e.target.value.split(":");
-    setSortBy(field);
-    setSortOrder(order);
-    setCurrentPage(1);
+    const value = e.target.value as SortValue;
+    update({ sort: value === DEFAULT_SORT ? undefined : value });
   };
 
   const fieldCls =
@@ -78,10 +81,7 @@ export function VenueSearch() {
           value={inputValue}
           onChange={(e) => {
             setInputValue(e.target.value);
-            if (e.target.value === "") {
-              setSearchQuery("");
-              setCurrentPage(1);
-            }
+            if (e.target.value === "" && query) update({ q: undefined });
           }}
           placeholder="Search venues"
           className={`${fieldCls} pr-6`}
@@ -114,8 +114,10 @@ export function VenueSearch() {
         </label>
         <select
           id="venue-guests"
-          value={minGuests}
-          onChange={(e) => setMinGuests(Number(e.target.value))}
+          value={search.guests ?? 0}
+          onChange={(e) =>
+            update({ guests: Number(e.target.value) || undefined })
+          }
           className={`${fieldCls} -ml-0.5 cursor-pointer`}
         >
           {GUEST_OPTIONS.map((n) => (
@@ -139,7 +141,7 @@ export function VenueSearch() {
         </label>
         <select
           id="venue-sort"
-          value={`${sortBy}:${sortOrder}`}
+          value={search.sort ?? DEFAULT_SORT}
           onChange={handleSort}
           className={`${fieldCls} -ml-0.5 cursor-pointer`}
         >
