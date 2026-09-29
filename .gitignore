@@ -33,3 +33,6 @@ tests/e2e/.auth/
 # Playwright output — generated on every run, not source code
 test-results/
 playwright-report/
+
+*storybook.log
+storybook-static
